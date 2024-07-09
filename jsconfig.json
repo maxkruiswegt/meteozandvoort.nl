@@ -2,7 +2,8 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "module": "ES6",
   },
   "exclude": ["node_modules", "dist"]
 }
