@@ -55,4 +55,11 @@ onMounted(async () => {
   font-size: 0.8rem;
   color: #666;
 }
+
+/* Media Query for Mobile Versions */
+@media screen and (max-width: 768px) {
+  .home {
+    padding: 1.5rem;
+  }
+}
 </style>
