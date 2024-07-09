@@ -1,0 +1,154 @@
+@import './base.css';
+
+/* Montserrat Bold */
+.desktop-header-active-menu {
+  font-family: var(--font-primary);
+  font-weight: var(--font-bold);
+  font-size: var(--font-size-desktop-header-active-menu);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.button,
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-weight: var(--font-bold);
+  color: var(--color-background-2);
+  background-color: var(--color-primary);
+  border: none;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.button {
+  text-transform: uppercase;
+  border-radius: 0.5rem;
+  padding: 10px 20px;
+}
+
+.tab {
+  padding: 10px 50px;
+}
+
+.button img,
+.tab img {
+  width: 20px;
+  height: 20px;
+}
+
+.button.inactive,
+.tab.inactive {
+  color: var(--color-background-1);
+  background-color: var(--color-tertiary-dark);
+}
+
+.button:hover,
+.tab.inactive:hover {
+  filter: brightness(0.9);
+}
+
+/* Montserrat Semi-Bold */
+.back-button-label {
+  font-family: var(--font-primary);
+  font-weight: var(--font-semibold);
+  font-size: var(--font-size-back-button-label-desktop);
+  color: var(--color-text-primary);
+}
+
+.input-field-title {
+  font-family: var(--font-primary);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+/* Montserrat Medium */
+.desktop-header-inactive-menu {
+  font-family: var(--font-primary);
+  font-weight: var(--font-medium);
+  font-size: var(--font-size-desktop-header-inactive-menu);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  opacity: 0.5;
+}
+
+/* Montserrat Medium Italic */
+.error-message {
+  font-family: var(--font-primary);
+  font-weight: var(--font-medium-italic);
+  color: var(--color-primary);
+}
+
+/* Open Sans Regular */
+input,
+textarea,
+select {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-regular);
+  color: var(--color-text-secondary);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 10px;
+  outline: none;
+  width: 100%;
+}
+
+button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+/* Media Query for Desktop Versions */
+@media screen and (min-width: 769px) {
+
+  /* Montserrat Bold */
+  .button,
+  .tab {
+    font-size: var(--font-size-buttons-tabs-desktop);
+  }
+
+  /* Montserrat Semi-Bold */
+  .input-field-title {
+    font-size: var(--font-size-input-field-title-desktop);
+  }
+
+  /* Montserrat Medium Italic */
+  .error-message {
+    font-size: var(--font-size-error-message-desktop);
+  }
+
+  /* Open Sans Regular */
+  input,
+  textarea {
+    font-size: var(--font-size-input-field-desktop);
+  }
+}
+
+/* Media Query for Mobile Versions */
+@media screen and (max-width: 768px) {
+
+  /* Montserrat Bold */
+  .button,
+  .tab {
+    font-size: var(--font-size-buttons-tabs-mobile);
+  }
+
+  /* Montserrat Semi-Bold */
+  .input-field-title {
+    font-size: var(--font-size-input-field-title-mobile);
+  }
+
+  /* Montserrat Medium Italic */
+  .error-message {
+    font-size: var(--font-size-error-message-mobile);
+  }
+
+  /* Open Sans Regular */
+  input,
+  textarea {
+    font-size: var(--font-size-input-field-mobile);
+  }
+}

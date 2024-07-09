@@ -1,0 +1,144 @@
+/* Font Families */
+:root {
+  --font-primary: 'Montserrat', sans-serif;
+  --font-secondary: 'Open Sans', sans-serif;
+
+  --font-bold: 700;
+  --font-semibold: 600;
+  --font-medium: 500;
+  --font-medium-italic: 500 italic;
+  --font-regular: 400;
+}
+
+/* Font Sizes */
+:root {
+  /* Montserrat Bold */
+  --font-size-h1-desktop: 32px;
+  --font-size-h1-mobile: 18px;
+  --font-size-h2-desktop: 22px;
+  --font-size-h2-mobile: 14px;
+  --font-size-desktop-header-active-menu: 18px;
+  --font-size-buttons-tabs-desktop: 18px;
+  --font-size-buttons-tabs-mobile: 12px;
+
+  /* Montserrat Semi-Bold */
+  --font-size-back-button-label-desktop: 16px;
+  --font-size-input-field-title-desktop: 14px;
+  --font-size-input-field-title-mobile: 12px;
+
+  /* Montserrat Medium */
+  --font-size-desktop-header-inactive-menu: 18px;
+
+  /* Montserrat Medium Italic */
+  --font-size-error-message-desktop: 14px;
+  --font-size-error-message-mobile: 12px;
+
+  /* Open Sans Regular */
+  --font-size-body-text-desktop: 18px;
+  --font-size-body-text-mobile: 12px;
+  --font-size-input-field-desktop: 14px;
+  --font-size-input-field-mobile: 12px;
+}
+
+/* Colors */
+:root {
+  /* Element Colors */
+  --color-primary: #EB5440;
+  --color-secondary: #4A4B4C;
+  --color-tertiary: #E8E8E8;
+  --color-tertiary-dark: #C3C3C3;
+  --color-background-1: #F6F6F6;
+  --color-background-2: #FFFFFF;
+
+  /* Text Colors */
+  --color-text-primary: #000000;
+  --color-text-secondary: #4A4B4C;
+  --color-text-hyperlink: #067BC2;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-regular);
+  color: var(--color-text-primary);
+  background: var(--color-background-1);
+  transition: color 0.5s, background-color 0.5s;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  word-wrap: break-word;
+}
+
+h1,
+h2 {
+  font-family: var(--font-primary);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+}
+
+a {
+  text-decoration: none;
+  color: var(--color-text-hyperlink);
+}
+
+/* Media Query for Desktop Versions */
+@media screen and (min-width: 769px) {
+  body {
+    font-size: var(--font-size-body-text-desktop);
+  }
+
+  h1 {
+    font-size: var(--font-size-h1-desktop);
+  }
+
+  h2 {
+    font-size: var(--font-size-h2-desktop);
+  }
+
+  /* Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 20px;
+    height: 20px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-text-primary);
+    border-radius: 20px;
+    border: 6px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-text-secondary);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+}
+
+/* Media Query for Mobile Versions */
+@media screen and (max-width: 768px) {
+  body {
+    font-size: var(--font-size-body-text-mobile);
+  }
+
+  h1 {
+    font-size: var(--font-size-h1-mobile);
+  }
+
+  h2 {
+    font-size: var(--font-size-h2-mobile);
+  }
+}
