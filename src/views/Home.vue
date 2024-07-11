@@ -60,24 +60,14 @@ const refreshData = async () => {
       <WeatherComponent title="Dauwpunt" :value="convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1)" unit="°C"
         icon="dew_point" />
     </div>
+    <div class="error" v-else>
+      <span class="material-symbols-outlined">error</span>
+      <p>Er ging iets mis bij het ophalen van de data.</p>
+    </div>
   </div>
 </template>
 
 <style scoped>
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.rotate-once {
-  animation: rotate 1s ease-in-out;
-}
-
 .home {
   width: 100%;
 }
@@ -97,6 +87,14 @@ const refreshData = async () => {
   color: #666;
 }
 
+.error {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  color: #cc0000;
+}
+
 .refresh {
   display: flex;
   cursor: pointer;
@@ -106,6 +104,20 @@ const refreshData = async () => {
 
 .refresh:hover {
   filter: brightness(75%);
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotate-once {
+  animation: rotate 1s ease-in-out;
 }
 
 /* Media Query for Mobile Versions */
