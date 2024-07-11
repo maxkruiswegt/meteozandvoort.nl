@@ -22,6 +22,9 @@ const convertMphToKmh = (mph) => {
   return mph * 1.609344;
 };
 
+const convertInchesOfMercuryToMillibar = (inches) => {
+  return inches * 33.8639;
+};
 const refresh = ref(false);
 const refreshData = async () => {
   refresh.value = true;
@@ -63,6 +66,12 @@ const refreshData = async () => {
         icon="umbrella" />
       <WeatherComponent title="Regenval vandaag" :value="weatherStore.rainfallToday.toFixed(1)" unit="mm"
         icon="rainy" />
+      <WeatherComponent title="Luchtdruk"
+        :value="convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(1)" unit="mb"
+        icon="compress" />
+      <WeatherComponent title="Luchtdruk trend"
+        :value="convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1)" unit="mb"
+        :icon="weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down'" />
     </div>
     <div class="error" v-else>
       <span class="material-symbols-outlined">error</span>

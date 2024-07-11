@@ -171,6 +171,20 @@ export const useWeatherStore = defineStore('weather', () => {
     ).data[0].rainfall_day_mm;
   });
 
+  const barometricPressure = computed(() => {
+    if (!currentWeatherData.value) return null;
+    return currentWeatherData.value.sensors.find(
+      (sensor) => sensor.sensor_type === 242
+    ).data[0].bar_sea_level;
+  });
+
+  const barometricTrend = computed(() => {
+    if (!currentWeatherData.value) return null;
+    return currentWeatherData.value.sensors.find(
+      (sensor) => sensor.sensor_type === 242
+    ).data[0].bar_trend;
+  });
+
   return {
     currentWeatherData,
     fetchCurrentWeather,
@@ -183,5 +197,7 @@ export const useWeatherStore = defineStore('weather', () => {
     windDirection,
     rainRateLast,
     rainfallToday,
+    barometricPressure,
+    barometricTrend,
   };
 });
