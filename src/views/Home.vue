@@ -59,6 +59,10 @@ const refreshData = async () => {
       <WeatherComponent title="Luchtvochtigheid" :value="weatherStore.humidity" unit="%" icon="water_drop" />
       <WeatherComponent title="Dauwpunt" :value="convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1)" unit="°C"
         icon="dew_point" />
+      <WeatherComponent title="Regenintensiteit nu" :value="weatherStore.rainRateLast.toFixed(1)" unit="mm/u"
+        icon="umbrella" />
+      <WeatherComponent title="Regenval vandaag" :value="weatherStore.rainfallToday.toFixed(1)" unit="mm"
+        icon="rainy" />
     </div>
     <div class="error" v-else>
       <span class="material-symbols-outlined">error</span>
