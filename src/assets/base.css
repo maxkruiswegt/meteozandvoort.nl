@@ -16,9 +16,11 @@
 :root {
   /* Montserrat Bold */
   --font-size-h1-desktop: 32px;
-  --font-size-h1-mobile: 18px;
+  --font-size-h1-mobile: 20px;
   --font-size-h2-desktop: 22px;
-  --font-size-h2-mobile: 14px;
+  --font-size-h2-mobile: 18px;
+  --font-size-h3-desktop: 18px;
+  --font-size-h3-mobile: 14px;
   --font-size-desktop-header-active-menu: 18px;
   --font-size-buttons-tabs-desktop: 18px;
   --font-size-buttons-tabs-mobile: 12px;
@@ -37,7 +39,9 @@
 
   /* Open Sans Regular */
   --font-size-body-text-desktop: 18px;
-  --font-size-body-text-mobile: 12px;
+  --font-size-body-text-mobile: 14px;
+  --font-size-body-text-small-desktop: 14px;
+  --font-size-body-text-small-mobile: 12px;
   --font-size-input-field-desktop: 14px;
   --font-size-input-field-mobile: 12px;
 }
@@ -79,7 +83,8 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3 {
   font-family: var(--font-primary);
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
@@ -102,6 +107,14 @@ a {
 
   h2 {
     font-size: var(--font-size-h2-desktop);
+  }
+
+  h3 {
+    font-size: var(--font-size-h3-desktop);
+  }
+
+  small {
+    font-size: var(--font-size-body-text-small-desktop);
   }
 
   /* Scrollbar Styles */
@@ -142,5 +155,13 @@ a {
 
   h2 {
     font-size: var(--font-size-h2-mobile);
+  }
+
+  h3 {
+    font-size: var(--font-size-h3-mobile);
+  }
+
+  small {
+    font-size: var(--font-size-body-text-small-mobile);
   }
 }

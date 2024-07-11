@@ -1,65 +1,121 @@
 <script setup>
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useWeatherStore } from '@/stores/WeatherStore';
+import WeatherComponent from '@/components/weather/WeatherComponent.vue';
 
-const WeatherStore = useWeatherStore();
+const weatherStore = useWeatherStore();
 
 onMounted(async () => {
-  await WeatherStore.fetchCurrentWeather();
+  await weatherStore.fetchCurrentWeather();
 });
+
+const convertWindDirection = (degrees) => {
+  const directions = ['Noord', 'Noordoost', 'Oost', 'Zuidoost', 'Zuid', 'Zuidwest', 'West', 'Noordwest'];
+  return directions[Math.round(degrees / 45) % 8];
+};
+
+const convertFahrenheitToCelsius = (fahrenheit) => {
+  return ((fahrenheit - 32) * 5) / 9;
+};
+
+const convertMphToKmh = (mph) => {
+  return mph * 1.609344;
+};
+
+const refresh = ref(false);
+const refreshData = async () => {
+  refresh.value = true;
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  refresh.value = false;
+  await weatherStore.fetchCurrentWeather();
+};
 </script>
 
 <template>
   <div class="home">
     <h1>Meteo Zandvoort</h1>
     <p>Welkom op meteozandvoort.nl</p>
-    <h4 class="temperature">
-      <span class="material-symbols-outlined">device_thermostat</span>
-      Temperatuur: {{ WeatherStore.currentTemperature }} °C
-    </h4>
-    <h4 class="humidity">
-      <span class="material-symbols-outlined">water_drop</span>
-      Luchtvochtigheid: {{ WeatherStore.currentHumidity }}%
-    </h4>
-    <h4 class="wind">
-      <span class="material-symbols-outlined">air</span>
-      Wind: {{ WeatherStore.currentWindSpeed }} km/h
-    </h4>
-    <small class="update">Laatste update: {{ new Date(WeatherStore.lastUpdated).toLocaleString([], {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }) }}</small>
+    <div class="update">
+      <div class="refresh" @click="refreshData" :class="{ 'rotate-once': refresh }">
+        <span class="material-symbols-outlined">refresh</span>
+      </div>
+      <small>Laatste update: {{ new Date(weatherStore.lastUpdated).toLocaleString([], {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) }}</small>
+    </div>
+    <div v-if="weatherStore.currentWeatherData" class="weather-components">
+      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeed).toFixed(1)" unit="km/h"
+        icon="air" />
+      <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirection)" unit=""
+        icon="explore" />
+      <WeatherComponent title="Temperatuur" :value="convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1)"
+        unit="°C" icon="device_thermostat" />
+      <WeatherComponent title="Gevoelstemperatuur"
+        :value="convertFahrenheitToCelsius(weatherStore.heatIndex).toFixed(1)" unit="°C" icon="heat" />
+      <WeatherComponent title="Luchtvochtigheid" :value="weatherStore.humidity" unit="%" icon="water_drop" />
+      <WeatherComponent title="Dauwpunt" :value="convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1)" unit="°C"
+        icon="dew_point" />
+    </div>
   </div>
 </template>
 
 <style scoped>
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotate-once {
+  animation: rotate 1s ease-in-out;
+}
+
 .home {
   width: 100%;
 }
 
-.temperature,
-.humidity,
-.wind {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.weather-components {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
   margin-top: 1rem;
 }
 
 .update {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   margin-top: 1rem;
-  font-size: 0.8rem;
   color: #666;
+}
+
+.refresh {
+  display: flex;
+  cursor: pointer;
+  color: var(--color-primary);
+  transition: filter 0.1s;
+}
+
+.refresh:hover {
+  filter: brightness(75%);
 }
 
 /* Media Query for Mobile Versions */
 @media screen and (max-width: 768px) {
   .home {
     padding: 1.5rem;
+  }
+
+  .weather-components {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>
