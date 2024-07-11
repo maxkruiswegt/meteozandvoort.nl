@@ -33,7 +33,7 @@ const refreshData = async () => {
 
 <template>
   <div class="home">
-    <h1>Meteo Zandvoort</h1>
+    <h2>Meteo Zandvoort</h2>
     <p>Welkom op meteozandvoort.nl</p>
     <div class="update">
       <div class="refresh" @click="refreshData" :class="{ 'rotate-once': refresh }">
