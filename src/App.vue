@@ -3,44 +3,41 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header>
+  <div class="app">
+    <header>
 
-  </header>
-  <div class="container">
-    <div class="content">
-      <RouterView />
+    </header>
+    <div class="container">
+      <div class="content">
+        <RouterView />
+      </div>
     </div>
   </div>
-  <footer>
-
-  </footer>
 </template>
 
 <style scoped>
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  gap: 3rem;
+}
+
 .container {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100vw;
   overflow-y: scroll;
 }
 
 .content {
-  display: flex;
-  flex-direction: row;
   width: 100%;
 }
 
 /* Media Query for Desktop Versions */
 @media screen and (min-width: 769px) {
-  .container {
-    padding-top: 3rem;
-
-    /* Subtract the height of the navbar */
-    margin-top: 82.77px;
-    height: calc(100vh - 82.77px);
-  }
-
   .content {
     width: 70%;
   }
@@ -48,10 +45,8 @@ import { RouterView } from 'vue-router'
 
 /* Media Query for Mobile Versions */
 @media screen and (max-width: 768px) {
-  .container {
-    /* Subtract the height of the navbar */
-    margin-bottom: 94px;
-    height: calc(100vh - 94px);
+  .app {
+    gap: 0;
   }
 }
 </style>
