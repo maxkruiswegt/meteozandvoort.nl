@@ -64,19 +64,31 @@ const refreshData = async () => {
       <span class="material-symbols-outlined">error</span>
       <p>Er ging iets mis bij het ophalen van de data.</p>
     </div>
+    <footer>
+      <p>Gemaakt met ❤️ door <a href="https://maxkruiswegt.com" target="_blank">Max Kruiswegt</a></p>
+    </footer>
   </div>
 </template>
 
 <style scoped>
+footer {
+  margin-top: 1rem;
+}
+
 .home {
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .weather-components {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-  margin-top: 1rem;
+  margin: 1rem 0;
+  width: 100%;
 }
 
 .update {
@@ -91,7 +103,7 @@ const refreshData = async () => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  margin-top: 1rem;
+  margin: 1rem 0;
   color: #cc0000;
 }
 
