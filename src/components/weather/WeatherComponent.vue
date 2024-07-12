@@ -28,7 +28,7 @@ const props = defineProps({
     <h3 class="title">{{ title }}</h3>
     <div class="value">
       <span class="material-symbols-outlined">{{ icon }}</span>
-      <p>{{ value }} {{ unit }}</p>
+      <p>{{ value }} <small>{{ unit }}</small></p>
     </div>
     <small class="timespan" v-if="timespan">({{ timespan }})</small>
   </div>
@@ -61,6 +61,10 @@ const props = defineProps({
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.timespan {
+  color: var(--color-text-secondary);
 }
 
 /* Media Query for Mobile Versions */
