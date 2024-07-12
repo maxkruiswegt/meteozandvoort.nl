@@ -143,18 +143,39 @@ export const useWeatherStore = defineStore('weather', () => {
     ).data[0].hum;
   });
 
-  const windSpeed = computed(() => {
+  const windSpeedLast = computed(() => {
     if (!currentWeatherData.value) return null;
     return currentWeatherData.value.sensors.find(
       (sensor) => sensor.sensor_type === 37
     ).data[0].wind_speed_last;
   });
 
-  const windDirection = computed(() => {
+  const windSpeedAvgLast10Min = computed(() => {
+    if (!currentWeatherData.value) return null;
+    return currentWeatherData.value.sensors.find(
+      (sensor) => sensor.sensor_type === 37
+    ).data[0].wind_speed_avg_last_10_min;
+  });
+
+  const windSpeedHiLast10Min = computed(() => {
+    if (!currentWeatherData.value) return null;
+    return currentWeatherData.value.sensors.find(
+      (sensor) => sensor.sensor_type === 37
+    ).data[0].wind_speed_hi_last_10_min;
+  });
+
+  const windDirectionLast = computed(() => {
     if (!currentWeatherData.value) return null;
     return currentWeatherData.value.sensors.find(
       (sensor) => sensor.sensor_type === 37
     ).data[0].wind_dir_last;
+  });
+
+  const windDirectionAvgLast10Min = computed(() => {
+    if (!currentWeatherData.value) return null;
+    return currentWeatherData.value.sensors.find(
+      (sensor) => sensor.sensor_type === 37
+    ).data[0].wind_dir_scalar_avg_last_10_min;
   });
 
   const rainRateLast = computed(() => {
@@ -193,8 +214,11 @@ export const useWeatherStore = defineStore('weather', () => {
     dewPoint,
     heatIndex,
     humidity,
-    windSpeed,
-    windDirection,
+    windSpeedLast,
+    windSpeedAvgLast10Min,
+    windSpeedHiLast10Min,
+    windDirectionLast,
+    windDirectionAvgLast10Min,
     rainRateLast,
     rainfallToday,
     barometricPressure,

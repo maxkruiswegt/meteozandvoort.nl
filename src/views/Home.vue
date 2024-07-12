@@ -51,27 +51,33 @@ const refreshData = async () => {
       }) }}</small>
     </div>
     <div v-if="weatherStore.currentWeatherData" class="weather-components">
-      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeed).toFixed(1)" unit="km/h"
-        icon="air" />
-      <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirection)" unit=""
-        icon="explore" />
-      <WeatherComponent title="Temperatuur" :value="convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1)"
-        unit="°C" icon="device_thermostat" />
-      <WeatherComponent title="Gevoelstemperatuur"
+      <WeatherComponent title="Temperatuur (nu)"
+        :value="convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1)" unit="°C" icon="device_thermostat" />
+      <WeatherComponent title="Gevoelstemperatuur (nu)"
         :value="convertFahrenheitToCelsius(weatherStore.heatIndex).toFixed(1)" unit="°C" icon="heat" />
-      <WeatherComponent title="Luchtvochtigheid" :value="weatherStore.humidity" unit="%" icon="water_drop" />
-      <WeatherComponent title="Dauwpunt" :value="convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1)" unit="°C"
-        icon="dew_point" />
-      <WeatherComponent title="Regenintensiteit nu" :value="weatherStore.rainRateLast.toFixed(1)" unit="mm/u"
+      <WeatherComponent title="Regenintensiteit (nu)" :value="weatherStore.rainRateLast.toFixed(1)" unit="mm/u"
         icon="umbrella" />
-      <WeatherComponent title="Regenval vandaag" :value="weatherStore.rainfallToday.toFixed(1)" unit="mm"
+      <WeatherComponent title="Regenval (vandaag)" :value="weatherStore.rainfallToday.toFixed(1)" unit="mm"
         icon="rainy" />
-      <WeatherComponent title="Luchtdruk"
+      <WeatherComponent title="Luchtvochtigheid (nu)" :value="weatherStore.humidity" unit="%" icon="water_drop" />
+      <WeatherComponent title="Dauwpunt (nu)" :value="convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1)"
+        unit="°C" icon="dew_point" />
+      <WeatherComponent title="Luchtdruk (nu)"
         :value="convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(1)" unit="mb"
         icon="compress" />
-      <WeatherComponent title="Luchtdruk trend"
+      <WeatherComponent title="Luchtdruk (trend)"
         :value="convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1)" unit="mb"
         :icon="weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down'" />
+      <WeatherComponent title="Wind (nu)" :value="convertMphToKmh(weatherStore.windSpeedLast).toFixed(1)" unit="km/h"
+        icon="air" />
+      <WeatherComponent title="Wind (gem. 10m)" :value="convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1)"
+        unit="km/h" icon="air" />
+      <WeatherComponent title="Wind (hoogste 10m)"
+        :value="convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1)" unit="km/h" icon="air" />
+      <WeatherComponent title="Windrichting (nu)" :value="convertWindDirection(weatherStore.windDirectionLast)" unit=""
+        icon="explore" />
+      <WeatherComponent title="Windrichting (gem. 10m)"
+        :value="convertWindDirection(weatherStore.windDirectionAvgLast10Min)" unit="" icon="explore" />
     </div>
     <div class="error" v-else>
       <span class="material-symbols-outlined">error</span>
