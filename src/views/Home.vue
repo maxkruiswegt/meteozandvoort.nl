@@ -1,13 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import WeatherComponent from '@/components/weather/WeatherComponent.vue';
 
 const weatherStore = useWeatherStore();
-
-onMounted(async () => {
-  await weatherStore.fetchCurrentWeather();
-});
 
 const convertWindDirection = (degrees) => {
   const directions = ['Noord', 'Noordoost', 'Oost', 'Zuidoost', 'Zuid', 'Zuidwest', 'West', 'Noordwest'];

@@ -5,10 +5,21 @@ import { createPinia } from 'pinia';
 
 import App from './App.vue';
 import router from './router';
+import { useWeatherStore } from './stores/WeatherStore';
 
 const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
 
-app.mount('#app');
+const weatherStore = useWeatherStore();
+
+weatherStore
+  .fetchCurrentWeather()
+  .then(() => {
+    app.mount('#app');
+  })
+  .catch((error) => {
+    console.error(error);
+    app.mount('#app');
+  });
