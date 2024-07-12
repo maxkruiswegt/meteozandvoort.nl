@@ -53,8 +53,8 @@ const refreshData = async () => {
     <div v-if="weatherStore.currentWeatherData" class="weather-components">
       <WeatherComponent title="Temperatuur" :value="convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1)"
         unit="°C" icon="device_thermostat" timespan="nu" />
-      <WeatherComponent title="Gevoelstemperatuur"
-        :value="convertFahrenheitToCelsius(weatherStore.heatIndex).toFixed(1)" unit="°C" icon="heat" timespan="nu" />
+      <WeatherComponent title="Gevoelstemperatuur" :value="convertFahrenheitToCelsius(weatherStore.thwIndex).toFixed(1)"
+        unit="°C" icon="heat" timespan="nu" />
       <WeatherComponent title="Regenintensiteit" :value="weatherStore.rainRateLast.toFixed(1)" unit="mm/u"
         icon="umbrella" timespan="nu" />
       <WeatherComponent title="Regenval" :value="weatherStore.rainfallToday.toFixed(1)" unit="mm" icon="rainy"

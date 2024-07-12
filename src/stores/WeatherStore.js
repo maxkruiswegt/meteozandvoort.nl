@@ -129,11 +129,11 @@ export const useWeatherStore = defineStore('weather', () => {
     ).data[0].dew_point;
   });
 
-  const heatIndex = computed(() => {
+  const thwIndex = computed(() => {
     if (!currentWeatherData.value) return null;
     return currentWeatherData.value.sensors.find(
       (sensor) => sensor.sensor_type === 37
-    ).data[0].heat_index;
+    ).data[0].thw_index;
   });
 
   const humidity = computed(() => {
@@ -212,7 +212,7 @@ export const useWeatherStore = defineStore('weather', () => {
     lastUpdated,
     temperature,
     dewPoint,
-    heatIndex,
+    thwIndex,
     humidity,
     windSpeedLast,
     windSpeedAvgLast10Min,
