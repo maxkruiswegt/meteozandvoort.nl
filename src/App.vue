@@ -4,9 +4,6 @@ import { RouterView } from 'vue-router'
 
 <template>
   <div class="app">
-    <header>
-
-    </header>
     <div class="container">
       <div class="content">
         <RouterView />
@@ -40,6 +37,8 @@ import { RouterView } from 'vue-router'
 @media screen and (min-width: 769px) {
   .content {
     width: 70%;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
   }
 }
 
