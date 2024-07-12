@@ -15,6 +15,10 @@ const props = defineProps({
   icon: {
     type: String,
     required: false
+  },
+  timespan: {
+    type: String,
+    required: false
   }
 });
 </script>
@@ -26,6 +30,7 @@ const props = defineProps({
       <span class="material-symbols-outlined">{{ icon }}</span>
       <p>{{ value }} {{ unit }}</p>
     </div>
+    <small class="timespan" v-if="timespan">({{ timespan }})</small>
   </div>
 </template>
 

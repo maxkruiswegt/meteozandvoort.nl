@@ -51,33 +51,34 @@ const refreshData = async () => {
       }) }}</small>
     </div>
     <div v-if="weatherStore.currentWeatherData" class="weather-components">
-      <WeatherComponent title="Temperatuur (nu)"
-        :value="convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1)" unit="°C" icon="device_thermostat" />
-      <WeatherComponent title="Gevoelstemperatuur (nu)"
-        :value="convertFahrenheitToCelsius(weatherStore.heatIndex).toFixed(1)" unit="°C" icon="heat" />
-      <WeatherComponent title="Regenintensiteit (nu)" :value="weatherStore.rainRateLast.toFixed(1)" unit="mm/u"
-        icon="umbrella" />
-      <WeatherComponent title="Regenval (vandaag)" :value="weatherStore.rainfallToday.toFixed(1)" unit="mm"
-        icon="rainy" />
-      <WeatherComponent title="Luchtvochtigheid (nu)" :value="weatherStore.humidity" unit="%" icon="water_drop" />
-      <WeatherComponent title="Dauwpunt (nu)" :value="convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1)"
-        unit="°C" icon="dew_point" />
-      <WeatherComponent title="Luchtdruk (nu)"
-        :value="convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(1)" unit="mb"
-        icon="compress" />
-      <WeatherComponent title="Luchtdruk (trend)"
+      <WeatherComponent title="Temperatuur" :value="convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1)"
+        unit="°C" icon="device_thermostat" timespan="nu" />
+      <WeatherComponent title="Gevoelstemperatuur"
+        :value="convertFahrenheitToCelsius(weatherStore.heatIndex).toFixed(1)" unit="°C" icon="heat" timespan="nu" />
+      <WeatherComponent title="Regenintensiteit" :value="weatherStore.rainRateLast.toFixed(1)" unit="mm/u"
+        icon="umbrella" timespan="nu" />
+      <WeatherComponent title="Regenval" :value="weatherStore.rainfallToday.toFixed(1)" unit="mm" icon="rainy"
+        timespan="vandaag" />
+      <WeatherComponent title="Luchtvochtigheid" :value="weatherStore.humidity" unit="%" icon="water_drop"
+        timespan="nu" />
+      <WeatherComponent title="Dauwpunt" :value="convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1)" unit="°C"
+        icon="dew_point" timespan="nu" />
+      <WeatherComponent title="Luchtdruk"
+        :value="convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(1)" unit="mb" icon="compress"
+        timespan="nu" />
+      <WeatherComponent title="Luchtdruk Trend"
         :value="convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1)" unit="mb"
-        :icon="weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down'" />
-      <WeatherComponent title="Wind (nu)" :value="convertMphToKmh(weatherStore.windSpeedLast).toFixed(1)" unit="km/h"
-        icon="air" />
-      <WeatherComponent title="Wind (gem. 10m)" :value="convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1)"
-        unit="km/h" icon="air" />
-      <WeatherComponent title="Wind (hoogste 10m)"
-        :value="convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1)" unit="km/h" icon="air" />
-      <WeatherComponent title="Windrichting (nu)" :value="convertWindDirection(weatherStore.windDirectionLast)" unit=""
-        icon="explore" />
-      <WeatherComponent title="Windrichting (gem. 10m)"
-        :value="convertWindDirection(weatherStore.windDirectionAvgLast10Min)" unit="" icon="explore" />
+        :icon="weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down'" timespan="3 uur" />
+      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedLast).toFixed(1)" unit="km/h"
+        icon="air" timespan="nu" />
+      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1)" unit="km/h"
+        icon="air" timespan="gem. 10m" />
+      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1)" unit="km/h"
+        icon="air" timespan="hoogste 10m" />
+      <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirectionLast)" unit=""
+        icon="explore" timespan="nu" />
+      <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirectionAvgLast10Min)"
+        unit="" icon="explore" timespan="gem. 10m" />
     </div>
     <div class="error" v-else>
       <span class="material-symbols-outlined">error</span>
