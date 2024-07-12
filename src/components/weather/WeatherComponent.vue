@@ -53,6 +53,7 @@ const props = defineProps({
 
 .title {
   text-align: center;
+  color: var(--color-primary);
   font-family: var(--font-primary);
   font-weight: var(--font-bold);
 }
