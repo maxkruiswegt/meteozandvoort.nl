@@ -25,11 +25,9 @@ const props = defineProps({
 
 <template>
   <div class="weather-component">
+    <span class="material-symbols-outlined">{{ icon }}</span>
     <h3 class="title">{{ title }}</h3>
-    <div class="value">
-      <span class="material-symbols-outlined">{{ icon }}</span>
-      <p>{{ value }} <small>{{ unit }}</small></p>
-    </div>
+    <p class="value">{{ value }} <small>{{ unit }}</small></p>
     <small class="timespan" v-if="timespan">({{ timespan }})</small>
   </div>
 </template>
@@ -49,6 +47,7 @@ const props = defineProps({
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   position: relative;
   gap: 0.25rem;
+  padding: 0.5rem;
 }
 
 .title {
@@ -59,12 +58,11 @@ const props = defineProps({
 }
 
 .value {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  text-align: center;
 }
 
 .timespan {
+  text-align: center;
   color: var(--color-text-secondary);
 }
 
