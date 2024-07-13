@@ -18,9 +18,41 @@ const convertMphToKmh = (mph) => {
   return mph * 1.609344;
 };
 
+const convertMphToWindScale = (mph) => {
+  switch (true) {
+    case mph < 1:
+      return '0 (stil)';
+    case mph < 4:
+      return '1 (zwak)';
+    case mph < 8:
+      return '2 (zwak)';
+    case mph < 13:
+      return '3 (matig)';
+    case mph < 19:
+      return '4 (matig)';
+    case mph < 25:
+      return '5 (vrij krachtig)';
+    case mph < 32:
+      return '6 (krachtig)';
+    case mph < 39:
+      return '7 (hard)';
+    case mph < 47:
+      return '8 (stormachtig)';
+    case mph < 55:
+      return '9 (storm)';
+    case mph < 64:
+      return '10 (zware storm)';
+    case mph < 73:
+      return '11 (zeer zware storm)';
+    default:
+      return '12 (orkaan)';
+  }
+};
+
 const convertInchesOfMercuryToMillibar = (inches) => {
   return inches * 33.8639;
 };
+
 const refresh = ref(false);
 const refreshData = async () => {
   refresh.value = true;
@@ -65,13 +97,15 @@ const refreshData = async () => {
       <WeatherComponent title="Luchtdruk Trend"
         :value="convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1)" unit="mb"
         :icon="weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down'" timespan="3 uur" />
-      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedLast).toFixed(1)" unit="km/h"
+      <WeatherComponent title="Windkracht" :value="convertMphToWindScale(weatherStore.windSpeedAvgLast10Min)" icon="air"
+        timespan="gem. 10m" />
+      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedLast).toFixed(1)" unit="km/u"
         icon="air" timespan="nu" />
-      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1)" unit="km/h"
+      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1)" unit="km/u"
         icon="air" timespan="gem. 10m" />
-      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1)" unit="km/h"
+      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1)" unit="km/u"
         icon="air" timespan="hoogste 10m" />
-      <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirectionLast)" unit=""
+      <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirectionLast)"
         icon="explore" timespan="nu" />
       <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirectionAvgLast10Min)"
         unit="" icon="explore" timespan="gem. 10m" />
