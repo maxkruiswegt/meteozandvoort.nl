@@ -146,7 +146,7 @@ footer {
   align-items: center;
   gap: 0.25rem;
   margin-top: 1rem;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .error {
