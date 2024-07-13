@@ -21,31 +21,31 @@ const convertMphToKmh = (mph) => {
 const convertMphToWindScale = (mph) => {
   switch (true) {
     case mph < 1:
-      return '0 (stil)';
+      return '0 - stil';
     case mph < 4:
-      return '1 (zwak)';
+      return '1 - zwak';
     case mph < 8:
-      return '2 (zwak)';
+      return '2 - zwak';
     case mph < 13:
-      return '3 (matig)';
+      return '3 - matig';
     case mph < 19:
-      return '4 (matig)';
+      return '4 - matig';
     case mph < 25:
-      return '5 (vrij krachtig)';
+      return '5 - vrij krachtig';
     case mph < 32:
-      return '6 (krachtig)';
+      return '6 - krachtig';
     case mph < 39:
-      return '7 (hard)';
+      return '7 - hard';
     case mph < 47:
-      return '8 (stormachtig)';
+      return '8 - stormachtig';
     case mph < 55:
-      return '9 (storm)';
+      return '9 - storm';
     case mph < 64:
-      return '10 (zware storm)';
+      return '10 - zware storm';
     case mph < 73:
-      return '11 (zeer zware storm)';
+      return '11 - zeer zware storm';
     default:
-      return '12 (orkaan)';
+      return '12 - orkaan';
   }
 };
 
