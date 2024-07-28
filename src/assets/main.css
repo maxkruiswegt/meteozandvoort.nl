@@ -105,6 +105,19 @@ button {
   user-select: none;
 }
 
+.hidden-element {
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateX(-100%);
+}
+
+.show-element {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateX(0);
+  transition: all 1s;
+}
+
 /* Media Query for Desktop Versions */
 @media screen and (min-width: 769px) {
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import WeatherComponent from '@/components/weather/WeatherComponent.vue';
 
@@ -60,6 +60,45 @@ const refreshData = async () => {
   refresh.value = false;
   await weatherStore.fetchCurrentWeather();
 };
+
+onMounted(() => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      handleIntersection(entry, observer);
+    });
+  });
+
+  const hiddenElements = document.querySelectorAll('.hidden-element');
+  hiddenElements.forEach((element) => {
+    observer.observe(element);
+  });
+
+  function handleIntersection(entry, observer) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('show-element');
+      entry.target.classList.remove('hidden-element');
+      observer.unobserve(entry.target);
+    }
+  }
+});
+
+const columns = window.innerWidth > 768 ? 4 : 2;
+const weatherComponents = [
+  { title: 'Temperatuur', value: () => convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1), unit: '°C', icon: 'device_thermostat', timespan: 'nu' },
+  { title: 'Gevoelstemp.', value: () => convertFahrenheitToCelsius(weatherStore.thwIndex).toFixed(1), unit: '°C', icon: 'heat', timespan: 'nu' },
+  { title: 'Regenintensiteit', value: () => weatherStore.rainRateLast.toFixed(1), unit: 'mm/u', icon: 'umbrella', timespan: 'nu' },
+  { title: 'Regenval', value: () => weatherStore.rainfallToday.toFixed(1), unit: 'mm', icon: 'rainy', timespan: 'vandaag' },
+  { title: 'Luchtvochtigheid', value: () => weatherStore.humidity, unit: '%', icon: 'water_drop', timespan: 'nu' },
+  { title: 'Dauwpunt', value: () => convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1), unit: '°C', icon: 'dew_point', timespan: 'nu' },
+  { title: 'Luchtdruk', value: () => convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(1), unit: 'mb', icon: 'compress', timespan: 'nu' },
+  { title: 'Luchtdruk Trend', value: () => convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1), unit: 'mb', icon: () => weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down', timespan: '3 uur' },
+  { title: 'Windkracht', value: () => convertMphToWindScale(weatherStore.windSpeedAvgLast10Min), icon: 'air', timespan: 'gem. 10m' },
+  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedLast).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'nu' },
+  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'gem. 10m' },
+  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'hoogste 10m' },
+  { title: 'Windrichting', value: () => convertWindDirection(weatherStore.windDirectionLast), icon: 'explore', timespan: 'nu' },
+  { title: 'Windrichting', value: () => convertWindDirection(weatherStore.windDirectionAvgLast10Min), unit: '', icon: 'explore', timespan: 'gem. 10m' },
+];
 </script>
 
 <template>
@@ -79,36 +118,10 @@ const refreshData = async () => {
       }) }}</small>
     </div>
     <div v-if="weatherStore.currentWeatherData" class="weather-components">
-      <WeatherComponent title="Temperatuur" :value="convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1)"
-        unit="°C" icon="device_thermostat" timespan="nu" />
-      <WeatherComponent title="Gevoelstemp." :value="convertFahrenheitToCelsius(weatherStore.thwIndex).toFixed(1)"
-        unit="°C" icon="heat" timespan="nu" />
-      <WeatherComponent title="Regenintensiteit" :value="weatherStore.rainRateLast.toFixed(1)" unit="mm/u"
-        icon="umbrella" timespan="nu" />
-      <WeatherComponent title="Regenval" :value="weatherStore.rainfallToday.toFixed(1)" unit="mm" icon="rainy"
-        timespan="vandaag" />
-      <WeatherComponent title="Luchtvochtigheid" :value="weatherStore.humidity" unit="%" icon="water_drop"
-        timespan="nu" />
-      <WeatherComponent title="Dauwpunt" :value="convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1)" unit="°C"
-        icon="dew_point" timespan="nu" />
-      <WeatherComponent title="Luchtdruk"
-        :value="convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(1)" unit="mb" icon="compress"
-        timespan="nu" />
-      <WeatherComponent title="Luchtdruk Trend"
-        :value="convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1)" unit="mb"
-        :icon="weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down'" timespan="3 uur" />
-      <WeatherComponent title="Windkracht" :value="convertMphToWindScale(weatherStore.windSpeedAvgLast10Min)" icon="air"
-        timespan="gem. 10m" />
-      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedLast).toFixed(1)" unit="km/u"
-        icon="air" timespan="nu" />
-      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1)" unit="km/u"
-        icon="air" timespan="gem. 10m" />
-      <WeatherComponent title="Wind" :value="convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1)" unit="km/u"
-        icon="air" timespan="hoogste 10m" />
-      <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirectionLast)"
-        icon="explore" timespan="nu" />
-      <WeatherComponent title="Windrichting" :value="convertWindDirection(weatherStore.windDirectionAvgLast10Min)"
-        unit="" icon="explore" timespan="gem. 10m" />
+      <WeatherComponent v-for="(component, index) in weatherComponents" :key="component.title" :title="component.title"
+        :value="component.value()" :unit="component.unit"
+        :icon="typeof component.icon === 'function' ? component.icon() : component.icon" :timespan="component.timespan"
+        :style="{ transitionDelay: `${(index % columns) * 0.2}s` }" class="hidden-element" />
     </div>
     <div class="error" v-else>
       <span class="material-symbols-outlined">error</span>
