@@ -103,10 +103,25 @@ export const useWeatherStore = defineStore('weather', () => {
   // spars_rpm	integer	RPM	Current SPARS RPM
 
   const currentWeatherData = ref(null);
+  const historicWeatherData = ref(null);
 
   async function fetchCurrentWeather() {
     const response = await api.get('/current');
     currentWeatherData.value = response.data;
+  }
+
+  // Timestamp can be a maximum of 24 hour range.
+  // It will send each current weather data recorded in the last 24 hours.
+  // So that is 1 record per minute means 1440 records.
+  // Example: https://api.meteozandvoort.nl/historic?start-timestamp=1724305509&end-timestamp=1724309109
+  async function fetchHistoricWeather(startTimestamp, endTimestamp) {
+    const response = await api.get('/historic', {
+      params: {
+        'start-timestamp': startTimestamp,
+        'end-timestamp': endTimestamp,
+      },
+    });
+    historicWeatherData.value = response.data;
   }
 
   // getters based on the current weather data
@@ -208,7 +223,9 @@ export const useWeatherStore = defineStore('weather', () => {
 
   return {
     currentWeatherData,
+    historicWeatherData,
     fetchCurrentWeather,
+    fetchHistoricWeather,
     lastUpdated,
     temperature,
     dewPoint,
