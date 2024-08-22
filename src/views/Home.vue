@@ -59,6 +59,7 @@ const refreshData = async () => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   refresh.value = false;
   await weatherStore.fetchCurrentWeather();
+  await weatherStore.fetchHistoricWeatherForLast24Hours();
 };
 
 onMounted(() => {

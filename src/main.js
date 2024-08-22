@@ -15,12 +15,8 @@ app.use(router);
 const weatherStore = useWeatherStore();
 
 const currentWeatherPromise = weatherStore.fetchCurrentWeather();
-const now = Math.floor(Date.now() / 1000); // current unix time
-const twentyFourHoursAgo = now - 24 * 60 * 60; // unix time 24 hours ago
-const historicWeatherPromise = weatherStore.fetchHistoricWeather(
-  twentyFourHoursAgo,
-  now
-);
+const historicWeatherPromise =
+  weatherStore.fetchHistoricWeatherForLast24Hours();
 
 Promise.all([currentWeatherPromise, historicWeatherPromise])
   .then(() => {

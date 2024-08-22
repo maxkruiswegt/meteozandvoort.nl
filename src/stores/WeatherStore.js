@@ -124,6 +124,12 @@ export const useWeatherStore = defineStore('weather', () => {
     historicWeatherData.value = response.data;
   }
 
+  async function fetchHistoricWeatherForLast24Hours() {
+    const now = Math.floor(Date.now() / 1000); // current unix time
+    const twentyFourHoursAgo = now - 24 * 60 * 60; // unix time 24 hours ago
+    await fetchHistoricWeather(twentyFourHoursAgo, now);
+  }
+
   // getters based on the current weather data
   const lastUpdated = computed(() => {
     if (!currentWeatherData.value) return null;
@@ -249,6 +255,7 @@ export const useWeatherStore = defineStore('weather', () => {
     historicWeatherData,
     fetchCurrentWeather,
     fetchHistoricWeather,
+    fetchHistoricWeatherForLast24Hours,
     lastUpdated,
     temperature,
     dewPoint,
