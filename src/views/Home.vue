@@ -95,7 +95,9 @@ const weatherComponents = [
   { title: 'Windkracht', value: () => convertMphToWindScale(weatherStore.windSpeedAvgLast10Min), icon: 'air', timespan: 'gem. 10m' },
   { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedLast).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'nu' },
   { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'gem. 10m' },
+  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedAvgLast24Hours).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'gem. 24u' },
   { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'hoogste 10m' },
+  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedHiLast24Hours).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'hoogste 24u' },
   { title: 'Windrichting', value: () => convertWindDirection(weatherStore.windDirectionLast), icon: 'explore', timespan: 'nu' },
   { title: 'Windrichting', value: () => convertWindDirection(weatherStore.windDirectionAvgLast10Min), unit: '', icon: 'explore', timespan: 'gem. 10m' },
 ];
