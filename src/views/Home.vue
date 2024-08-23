@@ -182,6 +182,10 @@ const weatherComponents = [
 <style scoped>
 footer {
   margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: var(--color-tertiary);
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .home {
