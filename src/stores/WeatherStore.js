@@ -104,10 +104,16 @@ export const useWeatherStore = defineStore('weather', () => {
 
   const currentWeatherData = ref(null);
   const historicWeatherData = ref(null);
+  const isLoading = ref(false);
 
   async function fetchCurrentWeather() {
-    const response = await api.get('/current');
-    currentWeatherData.value = response.data;
+    isLoading.value = true;
+    try {
+      const response = await api.get('/current');
+      currentWeatherData.value = response.data;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // Timestamp can be a maximum of 24 hour range.
@@ -115,13 +121,18 @@ export const useWeatherStore = defineStore('weather', () => {
   // So that is 1 record per minute means 1440 records.
   // Example: https://api.meteozandvoort.nl/historic?start-timestamp=1724305509&end-timestamp=1724309109
   async function fetchHistoricWeather(startTimestamp, endTimestamp) {
-    const response = await api.get('/historic', {
-      params: {
-        'start-timestamp': startTimestamp,
-        'end-timestamp': endTimestamp,
-      },
-    });
-    historicWeatherData.value = response.data;
+    isLoading.value = true;
+    try {
+      const response = await api.get('/historic', {
+        params: {
+          'start-timestamp': startTimestamp,
+          'end-timestamp': endTimestamp,
+        },
+      });
+      historicWeatherData.value = response.data;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   async function fetchHistoricWeatherForLast24Hours() {
@@ -286,6 +297,7 @@ export const useWeatherStore = defineStore('weather', () => {
   return {
     currentWeatherData,
     historicWeatherData,
+    isLoading,
     fetchCurrentWeather,
     fetchHistoricWeather,
     fetchHistoricWeatherForLast24Hours,
