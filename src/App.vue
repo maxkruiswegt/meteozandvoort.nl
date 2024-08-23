@@ -19,6 +19,19 @@ import { RouterView } from 'vue-router'
   height: 100vh;
   width: 100vw;
   gap: 3rem;
+  background: url('/img/background.webp') no-repeat center/cover;
+}
+
+/* Adds a semi-transparent overlay to the background image */
+.app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 1;
 }
 
 .container {
@@ -27,6 +40,7 @@ import { RouterView } from 'vue-router'
   flex-direction: column;
   align-items: center;
   overflow-y: scroll;
+  z-index: 2;
 }
 
 .content {
