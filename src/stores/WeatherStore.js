@@ -178,6 +178,13 @@ export const useWeatherStore = defineStore('weather', () => {
     ).data[0].wind_speed_avg_last_10_min;
   });
 
+  const windSpeedHiLast10Min = computed(() => {
+    if (!currentWeatherData.value) return null;
+    return currentWeatherData.value.sensors.find(
+      (sensor) => sensor.sensor_type === 37
+    ).data[0].wind_speed_hi_last_10_min;
+  });
+
   const windSpeedAvgLast24Hours = computed(() => {
     if (!historicWeatherData.value) return null;
 
@@ -188,13 +195,6 @@ export const useWeatherStore = defineStore('weather', () => {
 
     const sum = windSpeeds.reduce((total, speed) => total + speed, 0);
     return sum / windSpeeds.length;
-  });
-
-  const windSpeedHiLast10Min = computed(() => {
-    if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 37
-    ).data[0].wind_speed_hi_last_10_min;
   });
 
   const windSpeedHiLast24Hours = computed(() => {
@@ -220,6 +220,39 @@ export const useWeatherStore = defineStore('weather', () => {
     return currentWeatherData.value.sensors.find(
       (sensor) => sensor.sensor_type === 37
     ).data[0].wind_dir_scalar_avg_last_10_min;
+  });
+
+  const windDirectionHiLast10Min = computed(() => {
+    if (!currentWeatherData.value) return null;
+    return currentWeatherData.value.sensors.find(
+      (sensor) => sensor.sensor_type === 37
+    ).data[0].wind_dir_at_hi_speed_last_10_min;
+  });
+
+  const windDirectionAvgLast24Hours = computed(() => {
+    if (!historicWeatherData.value) return null;
+
+    const windDirections = historicWeatherData.value.sensors
+      .filter((sensor) => sensor.sensor_type === 37)
+      .flatMap((sensor) => sensor.data.map((data) => data.wind_dir_of_avg))
+      .filter((direction) => direction !== null && direction !== undefined);
+
+    const sum = windDirections.reduce(
+      (total, direction) => total + direction,
+      0
+    );
+    return sum / windDirections.length;
+  });
+
+  const windDirectionHiLast24Hours = computed(() => {
+    if (!historicWeatherData.value) return null;
+
+    const windDirections = historicWeatherData.value.sensors
+      .filter((sensor) => sensor.sensor_type === 37)
+      .flatMap((sensor) => sensor.data.map((data) => data.wind_dir_of_prevail))
+      .filter((direction) => direction !== null && direction !== undefined);
+
+    return Math.max(...windDirections);
   });
 
   const rainRateLast = computed(() => {
@@ -263,11 +296,14 @@ export const useWeatherStore = defineStore('weather', () => {
     humidity,
     windSpeedLast,
     windSpeedAvgLast10Min,
-    windSpeedAvgLast24Hours,
     windSpeedHiLast10Min,
+    windSpeedAvgLast24Hours,
     windSpeedHiLast24Hours,
     windDirectionLast,
     windDirectionAvgLast10Min,
+    windDirectionHiLast10Min,
+    windDirectionAvgLast24Hours,
+    windDirectionHiLast24Hours,
     rainRateLast,
     rainfallToday,
     barometricPressure,
