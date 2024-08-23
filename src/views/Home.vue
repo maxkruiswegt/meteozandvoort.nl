@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import WeatherComponent from '@/components/weather/WeatherComponent.vue';
+import WindComponent from '@/components/weather/WindComponent.vue';
 
 const weatherStore = useWeatherStore();
 
@@ -21,31 +22,31 @@ const convertMphToKmh = (mph) => {
 const convertMphToWindScale = (mph) => {
   switch (true) {
     case mph < 1:
-      return '0 - stil';
+      return { value: 0, description: 'stil' };
     case mph < 4:
-      return '1 - zwak';
+      return { value: 1, description: 'licht' };
     case mph < 8:
-      return '2 - zwak';
+      return { value: 2, description: 'licht' };
     case mph < 13:
-      return '3 - matig';
+      return { value: 3, description: 'matig' };
     case mph < 19:
-      return '4 - matig';
+      return { value: 4, description: 'matig' };
     case mph < 25:
-      return '5 - vrij krachtig';
+      return { value: 5, description: 'vrij krachtig' };
     case mph < 32:
-      return '6 - krachtig';
+      return { value: 6, description: 'krachtig' };
     case mph < 39:
-      return '7 - hard';
+      return { value: 7, description: 'hard' };
     case mph < 47:
-      return '8 - stormachtig';
+      return { value: 8, description: 'stormachtig' };
     case mph < 55:
-      return '9 - storm';
+      return { value: 9, description: 'storm' };
     case mph < 64:
-      return '10 - zware storm';
+      return { value: 10, description: 'zware storm' };
     case mph < 73:
-      return '11 - zeer zware storm';
+      return { value: 11, description: 'zeer zware storm' };
     default:
-      return '12 - orkaan';
+      return { value: 12, description: 'orkaan' };
   }
 };
 
@@ -93,18 +94,6 @@ const weatherComponents = [
   { title: 'Dauwpunt', value: () => convertFahrenheitToCelsius(weatherStore.dewPoint).toFixed(1), unit: '°C', icon: 'dew_point', timespan: 'nu' },
   { title: 'Luchtdruk', value: () => convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(1), unit: 'mb', icon: 'compress', timespan: 'nu' },
   { title: 'Luchtdruk Trend', value: () => convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1), unit: 'mb', icon: () => weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down', timespan: '3 uur' },
-  { title: 'Windkracht', value: () => convertMphToWindScale(weatherStore.windSpeedLast), icon: 'air', timespan: 'nu' },
-  { title: 'Windkracht', value: () => convertMphToWindScale(weatherStore.windSpeedAvgLast10Min), icon: 'air', timespan: 'gem. 10m' },
-  { title: 'Windkracht', value: () => convertMphToWindScale(weatherStore.windSpeedAvgLast24Hours), icon: 'air', timespan: 'gem. 24u' },
-  { title: 'Windkracht', value: () => convertMphToWindScale(weatherStore.windSpeedHiLast10Min), icon: 'air', timespan: 'hoogste 10m' },
-  { title: 'Windkracht', value: () => convertMphToWindScale(weatherStore.windSpeedHiLast24Hours), icon: 'air', timespan: 'hoogste 24u' },
-  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedLast).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'nu' },
-  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'gem. 10m' },
-  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedAvgLast24Hours).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'gem. 24u' },
-  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'hoogste 10m' },
-  { title: 'Wind', value: () => convertMphToKmh(weatherStore.windSpeedHiLast24Hours).toFixed(1), unit: 'km/u', icon: 'air', timespan: 'hoogste 24u' },
-  { title: 'Windrichting', value: () => convertWindDirection(weatherStore.windDirectionLast), icon: 'explore', timespan: 'nu' },
-  { title: 'Windrichting', value: () => convertWindDirection(weatherStore.windDirectionAvgLast10Min), unit: '', icon: 'explore', timespan: 'gem. 10m' },
 ];
 </script>
 
@@ -124,7 +113,44 @@ const weatherComponents = [
         minute: '2-digit'
       }) }}</small>
     </div>
-    <div v-if="weatherStore.currentWeatherData" class="weather-components">
+    <WindComponent v-if="weatherStore.currentWeatherData && weatherStore.historicWeatherData" class="hidden-element"
+      :windNow="{
+        force: convertMphToWindScale(weatherStore.windSpeedLast),
+        speed: convertMphToKmh(weatherStore.windSpeedLast).toFixed(1),
+        direction: {
+          name: convertWindDirection(weatherStore.windDirectionLast),
+          degrees: weatherStore.windDirectionLast
+        }
+      }" :windAverage10m="{
+        force: convertMphToWindScale(weatherStore.windSpeedAvgLast10Min),
+        speed: convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1),
+        direction: {
+          name: convertWindDirection(weatherStore.windDirectionAvgLast10Min),
+          degrees: weatherStore.windDirectionAvgLast10Min
+        }
+      }" :windMax10m="{
+      force: convertMphToWindScale(weatherStore.windSpeedHiLast10Min),
+      speed: convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1),
+      direction: {
+        name: convertWindDirection(weatherStore.windDirectionHiLast10Min),
+        degrees: weatherStore.windDirectionHiLast10Min
+      }
+    }" :windAverage24h="{
+      force: convertMphToWindScale(weatherStore.windSpeedAvgLast24Hours),
+      speed: convertMphToKmh(weatherStore.windSpeedAvgLast24Hours).toFixed(1),
+      direction: {
+        name: convertWindDirection(weatherStore.windDirectionAvgLast24Hours),
+        degrees: weatherStore.windDirectionAvgLast24Hours
+      }
+    }" :windMax24h="{
+      force: convertMphToWindScale(weatherStore.windSpeedHiLast24Hours),
+      speed: convertMphToKmh(weatherStore.windSpeedHiLast24Hours).toFixed(1),
+      direction: {
+        name: convertWindDirection(weatherStore.windDirectionHiLast24Hours),
+        degrees: weatherStore.windDirectionHiLast24Hours
+      }
+    }" />
+    <div v-if="weatherStore.currentWeatherData && weatherStore.historicWeatherData" class="weather-components">
       <WeatherComponent v-for="(component, index) in weatherComponents" :key="component.title" :title="component.title"
         :value="component.value()" :unit="component.unit"
         :icon="typeof component.icon === 'function' ? component.icon() : component.icon" :timespan="component.timespan"
@@ -165,7 +191,7 @@ footer {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  margin-top: 1rem;
+  margin: 1rem 0;
   color: var(--color-text-secondary);
 }
 
