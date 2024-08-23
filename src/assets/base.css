@@ -21,6 +21,8 @@
   --font-size-h2-mobile: 18px;
   --font-size-h3-desktop: 18px;
   --font-size-h3-mobile: 14px;
+  --font-size-h4-desktop: 16px;
+  --font-size-h4-mobile: 12px;
   --font-size-desktop-header-active-menu: 18px;
   --font-size-buttons-tabs-desktop: 18px;
   --font-size-buttons-tabs-mobile: 12px;
@@ -84,7 +86,8 @@ body {
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: var(--font-primary);
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
@@ -111,6 +114,10 @@ a {
 
   h3 {
     font-size: var(--font-size-h3-desktop);
+  }
+
+  h4 {
+    font-size: var(--font-size-h4-desktop);
   }
 
   small {
@@ -159,6 +166,10 @@ a {
 
   h3 {
     font-size: var(--font-size-h3-mobile);
+  }
+
+  h4 {
+    font-size: var(--font-size-h4-mobile);
   }
 
   small {
