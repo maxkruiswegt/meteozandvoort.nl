@@ -17,6 +17,7 @@ import { RouterView } from 'vue-router'
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100lvh;
   width: 100vw;
   gap: 3rem;
   background: url('/img/background.webp') no-repeat center/cover;
