@@ -57,10 +57,10 @@ const convertInchesOfMercuryToMillibar = (inches) => {
 const refresh = ref(false);
 const refreshData = async () => {
   refresh.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  refresh.value = false;
   await weatherStore.fetchCurrentWeather();
   await weatherStore.fetchHistoricWeatherForLast24Hours();
+  refresh.value = false;
+  observeElements();
 };
 
 const observeElements = () => {
