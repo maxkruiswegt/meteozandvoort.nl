@@ -21,6 +21,7 @@ import { RouterView } from 'vue-router'
   width: 100vw;
   gap: 3rem;
   background: url('/img/background.webp') no-repeat center/cover;
+  position: relative;
 }
 
 /* Adds a semi-transparent overlay to the background image */
