@@ -63,7 +63,7 @@ const refreshData = async () => {
   await weatherStore.fetchHistoricWeatherForLast24Hours();
 };
 
-onMounted(() => {
+const observeElements = () => {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       handleIntersection(entry, observer);
@@ -82,6 +82,13 @@ onMounted(() => {
       observer.unobserve(entry.target);
     }
   }
+};
+
+onMounted(async () => {
+  // Fetch weather data
+  await weatherStore.fetchCurrentWeather();
+  await weatherStore.fetchHistoricWeatherForLast24Hours();
+  observeElements();
 });
 
 const columns = window.innerWidth > 768 ? 4 : 2;
@@ -113,8 +120,12 @@ const weatherComponents = [
         minute: '2-digit'
       }) }}</small>
     </div>
-    <WindComponent v-if="weatherStore.currentWeatherData && weatherStore.historicWeatherData" class="hidden-element"
-      :windNow="{
+    <div v-if="weatherStore.isLoading" class="loading">
+      <span class="material-symbols-outlined">hourglass_empty</span>
+      <p>Gegevens laden...</p>
+    </div>
+    <div class="weather" v-else-if="weatherStore.currentWeatherData && weatherStore.historicWeatherData">
+      <WindComponent class="hidden-element" :windNow="{
         force: convertMphToWindScale(weatherStore.windSpeedLast),
         speed: convertMphToKmh(weatherStore.windSpeedLast).toFixed(1),
         direction: {
@@ -129,32 +140,34 @@ const weatherComponents = [
           degrees: weatherStore.windDirectionAvgLast10Min
         }
       }" :windMax10m="{
-      force: convertMphToWindScale(weatherStore.windSpeedHiLast10Min),
-      speed: convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1),
-      direction: {
-        name: convertWindDirection(weatherStore.windDirectionHiLast10Min),
-        degrees: weatherStore.windDirectionHiLast10Min
-      }
-    }" :windAverage24h="{
-      force: convertMphToWindScale(weatherStore.windSpeedAvgLast24Hours),
-      speed: convertMphToKmh(weatherStore.windSpeedAvgLast24Hours).toFixed(1),
-      direction: {
-        name: convertWindDirection(weatherStore.windDirectionAvgLast24Hours),
-        degrees: weatherStore.windDirectionAvgLast24Hours
-      }
-    }" :windMax24h="{
-      force: convertMphToWindScale(weatherStore.windSpeedHiLast24Hours),
-      speed: convertMphToKmh(weatherStore.windSpeedHiLast24Hours).toFixed(1),
-      direction: {
-        name: convertWindDirection(weatherStore.windDirectionHiLast24Hours),
-        degrees: weatherStore.windDirectionHiLast24Hours
-      }
-    }" />
-    <div v-if="weatherStore.currentWeatherData && weatherStore.historicWeatherData" class="weather-components">
-      <WeatherComponent v-for="(component, index) in weatherComponents" :key="component.title" :title="component.title"
-        :value="component.value()" :unit="component.unit"
-        :icon="typeof component.icon === 'function' ? component.icon() : component.icon" :timespan="component.timespan"
-        :style="{ transitionDelay: `${(index % columns) * 0.2}s` }" class="hidden-element" />
+        force: convertMphToWindScale(weatherStore.windSpeedHiLast10Min),
+        speed: convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1),
+        direction: {
+          name: convertWindDirection(weatherStore.windDirectionHiLast10Min),
+          degrees: weatherStore.windDirectionHiLast10Min
+        }
+      }" :windAverage24h="{
+        force: convertMphToWindScale(weatherStore.windSpeedAvgLast24Hours),
+        speed: convertMphToKmh(weatherStore.windSpeedAvgLast24Hours).toFixed(1),
+        direction: {
+          name: convertWindDirection(weatherStore.windDirectionAvgLast24Hours),
+          degrees: weatherStore.windDirectionAvgLast24Hours
+        }
+      }" :windMax24h="{
+        force: convertMphToWindScale(weatherStore.windSpeedHiLast24Hours),
+        speed: convertMphToKmh(weatherStore.windSpeedHiLast24Hours).toFixed(1),
+        direction: {
+          name: convertWindDirection(weatherStore.windDirectionHiLast24Hours),
+          degrees: weatherStore.windDirectionHiLast24Hours
+        }
+      }" />
+      <div class="weather-components">
+        <WeatherComponent v-for="(component, index) in weatherComponents" :key="component.title"
+          :title="component.title" :value="component.value()" :unit="component.unit"
+          :icon="typeof component.icon === 'function' ? component.icon() : component.icon"
+          :timespan="component.timespan" :style="{ transitionDelay: `${(index % columns) * 0.2}s` }"
+          class="hidden-element" />
+      </div>
     </div>
     <div class="error" v-else>
       <span class="material-symbols-outlined">error</span>
@@ -172,8 +185,6 @@ footer {
 }
 
 .home {
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -184,7 +195,6 @@ footer {
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin: 1rem 0;
-  width: 100%;
 }
 
 .update {
@@ -193,6 +203,18 @@ footer {
   gap: 0.25rem;
   margin: 1rem 0;
   color: var(--color-text-secondary);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 1rem 0;
+  color: var(--color-primary);
+}
+
+.loading span {
+  animation: rotate 1s linear infinite;
 }
 
 .error {
@@ -232,6 +254,10 @@ footer {
 @media screen and (max-width: 768px) {
   .home {
     padding: 1.5rem;
+  }
+
+  .weather {
+    width: 100%;
   }
 
   .weather-components {
