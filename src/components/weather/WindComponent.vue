@@ -146,27 +146,27 @@ const props = defineProps({
         <div class="wind-values">
           <div class="wind-value">
             <p class="value">{{ windNow.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windNow.direction.degrees + 'deg)' }">north</span></p>
+                :style="{ transform: 'rotate(' + windNow.direction.degrees + 'deg)' }">south</span></p>
             <small class="timespan">nu</small>
           </div>
           <div class="wind-value">
             <p class="value">{{ windAverage10m.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windAverage10m.direction.degrees + 'deg)' }">north</span></p>
+                :style="{ transform: 'rotate(' + windAverage10m.direction.degrees + 'deg)' }">south</span></p>
             <small class="timespan">gem. 10m</small>
           </div>
           <div class="wind-value">
             <p class="value">{{ windMax10m.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windMax10m.direction.degrees + 'deg)' }">north</span></p>
+                :style="{ transform: 'rotate(' + windMax10m.direction.degrees + 'deg)' }">south</span></p>
             <small class="timespan">hoog. 10m</small>
           </div>
           <div class="wind-value">
             <p class="value">{{ windAverage24h.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windAverage24h.direction.degrees + 'deg)' }">north</span></p>
+                :style="{ transform: 'rotate(' + windAverage24h.direction.degrees + 'deg)' }">south</span></p>
             <small class="timespan">gem. 24u</small>
           </div>
           <div class="wind-value">
             <p class="value">{{ windMax24h.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windMax24h.direction.degrees + 'deg)' }">north</span></p>
+                :style="{ transform: 'rotate(' + windMax24h.direction.degrees + 'deg)' }">south</span></p>
             <small class="timespan">hoog. 24u</small>
           </div>
         </div>
