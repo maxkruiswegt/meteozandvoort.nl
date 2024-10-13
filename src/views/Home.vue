@@ -105,6 +105,17 @@ const weatherComponents = [
       <span class="material-symbols-outlined">error</span>
       <p>Er ging iets mis bij het ophalen van de data.</p>
     </div>
+    <div class="about">
+      <div class="about-header">
+        <span class="material-symbols-outlined">info</span>
+        <h3>Over Meteo Zandvoort</h3>
+      </div>
+      <p>Deze weergegevens worden rechtstreeks geleverd door het weerstation van <strong>Herman Kruiswegt</strong> in
+        Zandvoort. Herman
+        heeft jarenlang ervaring in meteorologie en biedt nauwkeurige en actuele weerinformatie voor de regio.</p>
+      <p>Naast zijn passie voor meteorologie, biedt Herman ook boekhoudingsdiensten aan via zijn website: <a
+          href="https://decib.nl" target="_blank">decib.nl</a>.</p>
+    </div>
     <footer>
       <p>Gemaakt met ❤️ door <a href="https://maxkruiswegt.com" target="_blank">Max Kruiswegt</a></p>
     </footer>
@@ -119,41 +130,29 @@ const weatherComponents = [
   align-items: center;
 }
 
-.update,
-.loading {
-  display: flex;
-  justify-content: center;
-}
-
-footer {
-  display: flex;
-  justify-content: center;
-
-  p {
-    padding: 0.5rem;
-    background-color: var(--color-tertiary);
-    border-radius: 0.375rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  }
-}
-
-.weather {
-  width: 100%;
-}
-
-.weather-components {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
 .update {
   display: flex;
   align-items: center;
   gap: 0.25rem;
   margin: 1rem 0;
   color: var(--color-text-secondary);
+}
+
+.update,
+.loading {
+  display: flex;
+  justify-content: center;
+}
+
+.refresh {
+  display: flex;
+  cursor: pointer;
+  color: var(--color-primary);
+  transition: filter 0.1s;
+}
+
+.refresh:hover {
+  filter: brightness(75%);
 }
 
 .loading {
@@ -176,15 +175,44 @@ footer {
   color: #cc0000;
 }
 
-.refresh {
-  display: flex;
-  cursor: pointer;
-  color: var(--color-primary);
-  transition: filter 0.1s;
+.weather {
+  width: 100%;
 }
 
-.refresh:hover {
-  filter: brightness(75%);
+.weather-components {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: var(--color-tertiary);
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  .about-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+footer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+
+  p {
+    padding: 0.5rem;
+    background-color: var(--color-tertiary);
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
 }
 
 @keyframes rotate {
