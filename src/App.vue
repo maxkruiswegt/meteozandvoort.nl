@@ -20,7 +20,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100dvh;
+  height: 100lvh;
   width: 100vw;
   width: 100dvw;
   position: relative;
