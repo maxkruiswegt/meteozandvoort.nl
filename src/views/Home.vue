@@ -202,7 +202,11 @@ footer {
 }
 
 /* Small Devices */
-@media screen and (min-width: 576px) {}
+@media screen and (min-width: 576px) {
+  .weather-components {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 
 /* Medium Devices */
 @media screen and (min-width: 768px) {
