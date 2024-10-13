@@ -4,6 +4,7 @@ import { useWeatherStore } from '@/stores/WeatherStore';
 import WeatherComponent from '@/components/weather/WeatherComponent.vue';
 import WindComponent from '@/components/weather/WindComponent.vue';
 import { convertFahrenheitToCelsius, convertInchesOfMercuryToMillibar, convertMphToKmh, convertMphToWindScale, convertWindDirection } from '@/utils/weatherUtils';
+import { observeElements } from '@/utils/observerUtils';
 
 const weatherStore = useWeatherStore();
 
@@ -14,27 +15,6 @@ const refreshData = async () => {
   await weatherStore.fetchHistoricWeatherForLast24Hours();
   refresh.value = false;
   observeElements();
-};
-
-const observeElements = () => {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      handleIntersection(entry, observer);
-    });
-  });
-
-  const hiddenElements = document.querySelectorAll('.hidden-element');
-  hiddenElements.forEach((element) => {
-    observer.observe(element);
-  });
-
-  function handleIntersection(entry, observer) {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('show-element');
-      entry.target.classList.remove('hidden-element');
-      observer.unobserve(entry.target);
-    }
-  }
 };
 
 onMounted(async () => {
