@@ -35,9 +35,11 @@ const weatherComponents = [
 </script>
 
 <template>
-  <div class="home">
-    <h2>Meteo Zandvoort</h2>
-    <p>Welkom op meteozandvoort.nl</p>
+  <div class="page-container">
+    <div class="home-header">
+      <h2>Meteo Zandvoort</h2>
+      <p>Welkom op meteozandvoort.nl</p>
+    </div>
     <div class="update">
       <div class="refresh" @click="refreshData" :class="{ 'rotate-once': refresh }">
         <span class="material-symbols-outlined">refresh</span>
@@ -110,23 +112,38 @@ const weatherComponents = [
 </template>
 
 <style scoped>
-footer {
-  margin-top: 1rem;
-  padding: 0.5rem;
-  background-color: var(--color-tertiary);
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-}
-
-.home {
+/* Extra Small Devices (Less than 576px) */
+.home-header {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.update,
+.loading {
+  display: flex;
+  justify-content: center;
+}
+
+footer {
+  display: flex;
+  justify-content: center;
+
+  p {
+    padding: 0.5rem;
+    background-color: var(--color-tertiary);
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+}
+
+.weather {
+  width: 100%;
+}
+
 .weather-components {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin: 1rem 0;
 }
@@ -184,18 +201,25 @@ footer {
   animation: rotate 1s ease-in-out;
 }
 
-/* Media Query for Mobile Versions */
-@media screen and (max-width: 768px) {
-  .home {
-    padding: 1.5rem;
-  }
+/* Small Devices */
+@media screen and (min-width: 576px) {}
 
-  .weather {
-    width: 100%;
-  }
-
+/* Medium Devices */
+@media screen and (min-width: 768px) {
   .weather-components {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Large Devices */
+@media screen and (min-width: 992px) {}
+
+/* Extra Large Devices */
+@media screen and (min-width: 1200px) {}
+
+/* Extra Extra Large Devices */
+@media screen and (min-width: 1600px) {}
+
+/* Very Large Devices */
+@media screen and (min-width: 2560px) {}
 </style>

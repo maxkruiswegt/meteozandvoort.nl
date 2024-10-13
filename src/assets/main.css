@@ -1,5 +1,12 @@
 @import './base.css';
 
+.page-container {
+  position: relative;
+  width: 90vw;
+  max-width: 800px;
+  margin: 32px auto;
+}
+
 /* Montserrat Bold */
 .desktop-header-active-menu {
   font-family: var(--font-primary);
