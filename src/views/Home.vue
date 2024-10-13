@@ -3,56 +3,9 @@ import { ref, onMounted } from 'vue';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import WeatherComponent from '@/components/weather/WeatherComponent.vue';
 import WindComponent from '@/components/weather/WindComponent.vue';
+import { convertFahrenheitToCelsius, convertInchesOfMercuryToMillibar, convertMphToKmh, convertMphToWindScale, convertWindDirection } from '@/utils/weatherUtils';
 
 const weatherStore = useWeatherStore();
-
-const convertWindDirection = (degrees) => {
-  const directions = ['Noord', 'Noordoost', 'Oost', 'Zuidoost', 'Zuid', 'Zuidwest', 'West', 'Noordwest'];
-  return directions[Math.round(degrees / 45) % 8];
-};
-
-const convertFahrenheitToCelsius = (fahrenheit) => {
-  return ((fahrenheit - 32) * 5) / 9;
-};
-
-const convertMphToKmh = (mph) => {
-  return mph * 1.609344;
-};
-
-const convertMphToWindScale = (mph) => {
-  switch (true) {
-    case mph < 1:
-      return { value: 0, description: 'stil' };
-    case mph < 4:
-      return { value: 1, description: 'licht' };
-    case mph < 8:
-      return { value: 2, description: 'licht' };
-    case mph < 13:
-      return { value: 3, description: 'matig' };
-    case mph < 19:
-      return { value: 4, description: 'matig' };
-    case mph < 25:
-      return { value: 5, description: 'vrij krachtig' };
-    case mph < 32:
-      return { value: 6, description: 'krachtig' };
-    case mph < 39:
-      return { value: 7, description: 'hard' };
-    case mph < 47:
-      return { value: 8, description: 'stormachtig' };
-    case mph < 55:
-      return { value: 9, description: 'storm' };
-    case mph < 64:
-      return { value: 10, description: 'zware storm' };
-    case mph < 73:
-      return { value: 11, description: 'zeer zware storm' };
-    default:
-      return { value: 12, description: 'orkaan' };
-  }
-};
-
-const convertInchesOfMercuryToMillibar = (inches) => {
-  return inches * 33.8639;
-};
 
 const refresh = ref(false);
 const refreshData = async () => {
