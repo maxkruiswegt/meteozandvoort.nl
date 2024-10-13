@@ -193,10 +193,6 @@ const props = defineProps({
   gap: 0.5rem;
 }
 
-.header .material-symbols-outlined {
-  color: var(--color-primary);
-}
-
 .wind-info {
   display: flex;
   flex-direction: column;

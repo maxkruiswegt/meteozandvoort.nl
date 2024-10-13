@@ -106,18 +106,22 @@ a {
 
   h1 {
     font-size: var(--font-size-h1-desktop);
+    color: var(--color-primary);
   }
 
   h2 {
     font-size: var(--font-size-h2-desktop);
+    color: var(--color-primary);
   }
 
   h3 {
     font-size: var(--font-size-h3-desktop);
+    color: var(--color-primary);
   }
 
   h4 {
     font-size: var(--font-size-h4-desktop);
+    color: var(--color-primary);
   }
 
   small {
