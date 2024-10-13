@@ -4,7 +4,6 @@ import { useWeatherStore } from '@/stores/WeatherStore';
 import WeatherComponent from '@/components/weather/WeatherComponent.vue';
 import WindComponent from '@/components/weather/WindComponent.vue';
 import { convertFahrenheitToCelsius, convertInchesOfMercuryToMillibar, convertMphToKmh, convertMphToWindScale, convertWindDirection } from '@/utils/weatherUtils';
-import { observeElements } from '@/utils/observerUtils';
 
 const weatherStore = useWeatherStore();
 
@@ -14,14 +13,12 @@ const refreshData = async () => {
   await weatherStore.fetchCurrentWeather();
   await weatherStore.fetchHistoricWeatherForLast24Hours();
   refresh.value = false;
-  observeElements();
 };
 
 onMounted(async () => {
   // Fetch weather data
   await weatherStore.fetchCurrentWeather();
   await weatherStore.fetchHistoricWeatherForLast24Hours();
-  observeElements();
 });
 
 const columns = window.innerWidth > 768 ? 4 : 2;
