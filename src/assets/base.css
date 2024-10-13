@@ -76,6 +76,7 @@ body {
   font-weight: var(--font-regular);
   color: var(--color-text-primary);
   background: var(--color-background-1);
+  font-size: var(--font-size-body-text-mobile);
   transition: color 0.5s, background-color 0.5s;
   line-height: 1.6;
   text-rendering: optimizeLegibility;
@@ -90,7 +91,27 @@ h3,
 h4 {
   font-family: var(--font-primary);
   font-weight: var(--font-bold);
-  color: var(--color-text-primary);
+  color: var(--color-primary);
+}
+
+h1 {
+  font-size: var(--font-size-h1-mobile);
+}
+
+h2 {
+  font-size: var(--font-size-h2-mobile);
+}
+
+h3 {
+  font-size: var(--font-size-h3-mobile);
+}
+
+h4 {
+  font-size: var(--font-size-h4-mobile);
+}
+
+small {
+  font-size: var(--font-size-body-text-small-mobile);
 }
 
 a {
@@ -98,30 +119,26 @@ a {
   color: var(--color-text-hyperlink);
 }
 
-/* Media Query for Desktop Versions */
-@media screen and (min-width: 769px) {
+/* Medium Devices */
+@media screen and (min-width: 768px) {
   body {
     font-size: var(--font-size-body-text-desktop);
   }
 
   h1 {
     font-size: var(--font-size-h1-desktop);
-    color: var(--color-primary);
   }
 
   h2 {
     font-size: var(--font-size-h2-desktop);
-    color: var(--color-primary);
   }
 
   h3 {
     font-size: var(--font-size-h3-desktop);
-    color: var(--color-primary);
   }
 
   h4 {
     font-size: var(--font-size-h4-desktop);
-    color: var(--color-primary);
   }
 
   small {
@@ -151,32 +168,5 @@ a {
 
   ::-webkit-scrollbar-corner {
     background-color: transparent;
-  }
-}
-
-/* Media Query for Mobile Versions */
-@media screen and (max-width: 768px) {
-  body {
-    font-size: var(--font-size-body-text-mobile);
-  }
-
-  h1 {
-    font-size: var(--font-size-h1-mobile);
-  }
-
-  h2 {
-    font-size: var(--font-size-h2-mobile);
-  }
-
-  h3 {
-    font-size: var(--font-size-h3-mobile);
-  }
-
-  h4 {
-    font-size: var(--font-size-h4-mobile);
-  }
-
-  small {
-    font-size: var(--font-size-body-text-small-mobile);
   }
 }
