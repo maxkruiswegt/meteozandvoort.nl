@@ -121,7 +121,10 @@ const weatherComponents = [
         }}</small
       >
     </div>
-    <div v-if="weatherStore.isLoading" class="loading">
+    <div
+      v-if="weatherStore.isLoading"
+      class="loading"
+    >
       <span class="material-symbols-outlined">hourglass_empty</span>
       <p>Gegevens laden...</p>
     </div>
@@ -198,9 +201,22 @@ const weatherComponents = [
         />
       </div>
     </div>
-    <div class="error" v-else>
-      <span class="material-symbols-outlined">error</span>
-      <p>Er ging iets mis bij het ophalen van de data.</p>
+    <div
+      class="error-wrapper"
+      v-else
+    >
+      <div class="error">
+        <span class="material-symbols-outlined">error</span>
+        <p>Er ging iets mis bij het ophalen van de data.</p>
+      </div>
+      <p>
+        Bezoek de backup site:
+        <a
+          href="https://mijneigenweer.nl/Zandvoort"
+          target="_blank"
+          >mijneigenweer.nl/Zandvoort</a
+        >
+      </p>
     </div>
     <div class="about">
       <div class="about-header">
@@ -216,13 +232,21 @@ const weatherComponents = [
       <p>
         Naast zijn passie voor meteorologie, biedt Herman ook
         boekhoudingsdiensten aan via zijn website:
-        <a href="https://decib.nl" target="_blank">decib.nl</a>.
+        <a
+          href="https://decib.nl"
+          target="_blank"
+          >decib.nl</a
+        >.
       </p>
     </div>
     <footer>
       <p>
         Gemaakt met ❤️ door
-        <a href="https://maxkruiswegt.com" target="_blank">Max Kruiswegt</a>
+        <a
+          href="https://maxkruiswegt.com"
+          target="_blank"
+          >Max Kruiswegt</a
+        >
       </p>
     </footer>
   </div>
@@ -273,12 +297,17 @@ const weatherComponents = [
   animation: rotate 1s linear infinite;
 }
 
+.error-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 .error {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.25rem;
-  margin: 1rem 0;
   color: #cc0000;
 }
 
