@@ -50,51 +50,39 @@ export const useWeatherStore = defineStore('weather', () => {
 
   const temperature = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].temp;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0].temp;
   });
 
   const dewPoint = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].dew_point;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0].dew_point;
   });
 
   const thwIndex = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].thw_index;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0].thw_index;
   });
 
   const humidity = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].hum;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0].hum;
   });
 
   const windSpeedLast = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].wind_speed_last;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0].wind_speed_last;
   });
 
   const windSpeedAvgLast10Min = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].wind_speed_avg_last_10_min;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0]
+      .wind_speed_avg_last_10_min;
   });
 
   const windSpeedHiLast10Min = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].wind_speed_hi_last_10_min;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0]
+      .wind_speed_hi_last_10_min;
   });
 
   const windSpeedAvgLast24Hours = computed(() => {
@@ -117,28 +105,26 @@ export const useWeatherStore = defineStore('weather', () => {
       .flatMap((sensor) => sensor.data.map((data) => data.wind_speed_hi))
       .filter((speed) => speed !== null && speed !== undefined);
 
+    if (windSpeeds.length === 0) return null;
+
     return Math.max(...windSpeeds);
   });
 
   const windDirectionLast = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].wind_dir_last;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0].wind_dir_last;
   });
 
   const windDirectionAvgLast10Min = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].wind_dir_scalar_avg_last_10_min;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0]
+      .wind_dir_scalar_avg_last_10_min;
   });
 
   const windDirectionHiLast10Min = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].wind_dir_at_hi_speed_last_10_min;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0]
+      .wind_dir_at_hi_speed_last_10_min;
   });
 
   const windDirectionAvgLast24Hours = computed(() => {
@@ -149,10 +135,7 @@ export const useWeatherStore = defineStore('weather', () => {
       .flatMap((sensor) => sensor.data.map((data) => data.wind_dir_of_avg))
       .filter((direction) => direction !== null && direction !== undefined);
 
-    const sum = windDirections.reduce(
-      (total, direction) => total + direction,
-      0
-    );
+    const sum = windDirections.reduce((total, direction) => total + direction, 0);
     return sum / windDirections.length;
   });
 
@@ -169,30 +152,22 @@ export const useWeatherStore = defineStore('weather', () => {
 
   const rainRateLast = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].rain_rate_last_mm;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0].rain_rate_last_mm;
   });
 
   const rainfallToday = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 43
-    ).data[0].rainfall_day_mm;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 43).data[0].rainfall_day_mm;
   });
 
   const barometricPressure = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 242
-    ).data[0].bar_sea_level;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 242).data[0].bar_sea_level;
   });
 
   const barometricTrend = computed(() => {
     if (!currentWeatherData.value) return null;
-    return currentWeatherData.value.sensors.find(
-      (sensor) => sensor.sensor_type === 242
-    ).data[0].bar_trend;
+    return currentWeatherData.value.sensors.find((sensor) => sensor.sensor_type === 242).data[0].bar_trend;
   });
 
   return {

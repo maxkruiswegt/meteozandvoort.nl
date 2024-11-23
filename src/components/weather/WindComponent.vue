@@ -3,79 +3,23 @@ const props = defineProps({
   windNow: {
     type: Object,
     required: true,
-    default: () => ({
-      force: {
-        value: 0,
-        description: ""
-      },
-      speed: 0,
-      direction:
-      {
-        name: "",
-        degrees: 0
-      }
-    })
   },
   windAverage10m: {
     type: Object,
     required: true,
-    default: () => ({
-      force: {
-        value: 0,
-        description: ""
-      },
-      speed: 0,
-      direction: {
-        name: "",
-        degrees: 0
-      }
-    })
   },
   windMax10m: {
     type: Object,
     required: true,
-    default: () => ({
-      force: {
-        value: 0,
-        description: ""
-      },
-      speed: 0,
-      direction: {
-        name: "",
-        degrees: 0
-      }
-    })
   },
   windAverage24h: {
     type: Object,
     required: true,
-    default: () => ({
-      force: {
-        value: 0,
-        description: ""
-      },
-      speed: 0,
-      direction: {
-        name: "",
-        degrees: 0
-      }
-    })
   },
   windMax24h: {
     type: Object,
     required: true,
-    default: () => ({
-      force: {
-        value: 0,
-        description: ""
-      },
-      speed: 0,
-      direction: {
-        name: "",
-        degrees: 0
-      }
-    })
-  }
+  },
 });
 </script>
 
@@ -90,23 +34,23 @@ const props = defineProps({
         <h4 class="title">Windsnelheid</h4>
         <div class="wind-values">
           <div class="wind-value">
-            <p class="value">{{ windNow.speed }} <small>km/u</small></p>
+            <p class="value">{{ windNow.speed?.toFixed(1) ?? '-' }} <small>km/u</small></p>
             <small class="timespan">nu</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windAverage10m.speed }} <small>km/u</small></p>
+            <p class="value">{{ windAverage10m.speed?.toFixed(1) ?? '-' }} <small>km/u</small></p>
             <small class="timespan">gem. 10m</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windMax10m.speed }} <small>km/u</small></p>
+            <p class="value">{{ windMax10m.speed?.toFixed(1) ?? '-' }} <small>km/u</small></p>
             <small class="timespan">hoog. 10m</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windAverage24h.speed }} <small>km/u</small></p>
+            <p class="value">{{ windAverage24h.speed?.toFixed(1) ?? '-' }} <small>km/u</small></p>
             <small class="timespan">gem. 24u</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windMax24h.speed }} <small>km/u</small></p>
+            <p class="value">{{ windMax24h.speed?.toFixed(1) ?? '-' }} <small>km/u</small></p>
             <small class="timespan">hoog. 24u</small>
           </div>
         </div>
@@ -115,28 +59,28 @@ const props = defineProps({
         <h4 class="title">Windkracht</h4>
         <div class="wind-values">
           <div class="wind-value">
-            <p class="value">{{ windNow.force.value }} <small>bft</small></p>
+            <p class="value">{{ windNow.force.value ?? '-' }} <small>bft</small></p>
             <small class="description">{{ windNow.force.description }}</small>
             <small class="timespan">nu</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windAverage10m.force.value }} <small>bft</small></p>
+            <p class="value">{{ windAverage10m.force.value ?? '-' }} <small>bft</small></p>
             <small class="description">{{ windAverage10m.force.description }}</small>
             <small class="timespan">gem. 10m</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windMax10m.force.value }} <small>bft</small></p>
+            <p class="value">{{ windMax10m.force.value ?? '-' }} <small>bft</small></p>
             <small class="description">{{ windMax10m.force.description }}</small>
             <small class="timespan">hoog. 10m</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windAverage24h.force.value }} <small>bft</small></p>
-            <small class="description">{{ windAverage24h.force.description }}</small>
+            <p class="value">{{ windAverage24h.force.value ?? '-' }} <small>bft</small></p>
+            <small class="description">{{ windAverage24h.force.description ?? 'N.v.t.' }}</small>
             <small class="timespan">gem. 24u</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windMax24h.force.value }} <small>bft</small></p>
-            <small class="description">{{ windMax24h.force.description }}</small>
+            <p class="value">{{ windMax24h.force.value ?? '-' }} <small>bft</small></p>
+            <small class="description">{{ windMax24h.force.description ?? 'N.v.t.' }}</small>
             <small class="timespan">hoog. 24u</small>
           </div>
         </div>
@@ -145,28 +89,73 @@ const props = defineProps({
         <h4 class="title">Windrichting</h4>
         <div class="wind-values">
           <div class="wind-value">
-            <p class="value">{{ windNow.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windNow.direction.degrees + 'deg)' }">south</span></p>
+            <p class="value">
+              {{ windNow.direction.name ?? 'N.v.t.' }}
+              <span
+                v-if="windNow.direction.name"
+                class="material-symbols-outlined"
+                :style="{
+                  transform: 'rotate(' + windNow.direction.degrees + 'deg)',
+                }"
+                >south</span
+              >
+            </p>
             <small class="timespan">nu</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windAverage10m.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windAverage10m.direction.degrees + 'deg)' }">south</span></p>
+            <p class="value">
+              {{ windAverage10m.direction.name ?? 'N.v.t.' }}
+              <span
+                v-if="windAverage10m.direction.name"
+                class="material-symbols-outlined"
+                :style="{
+                  transform: 'rotate(' + windAverage10m.direction.degrees + 'deg)',
+                }"
+                >south</span
+              >
+            </p>
             <small class="timespan">gem. 10m</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windMax10m.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windMax10m.direction.degrees + 'deg)' }">south</span></p>
+            <p class="value">
+              {{ windMax10m.direction.name ?? 'N.v.t.' }}
+              <span
+                v-if="windMax10m.direction.name"
+                class="material-symbols-outlined"
+                :style="{
+                  transform: 'rotate(' + windMax10m.direction.degrees + 'deg)',
+                }"
+                >south</span
+              >
+            </p>
             <small class="timespan">hoog. 10m</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windAverage24h.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windAverage24h.direction.degrees + 'deg)' }">south</span></p>
+            <p class="value">
+              {{ windAverage24h.direction.name ?? 'N.v.t.' }}
+              <span
+                v-if="windAverage24h.direction.name"
+                class="material-symbols-outlined"
+                :style="{
+                  transform: 'rotate(' + windAverage24h.direction.degrees + 'deg)',
+                }"
+                >south</span
+              >
+            </p>
             <small class="timespan">gem. 24u</small>
           </div>
           <div class="wind-value">
-            <p class="value">{{ windMax24h.direction.name }} <span class="material-symbols-outlined"
-                :style="{ transform: 'rotate(' + windMax24h.direction.degrees + 'deg)' }">south</span></p>
+            <p class="value">
+              {{ windMax24h.direction.name ?? 'N.v.t.' }}
+              <span
+                v-if="windMax24h.direction.name"
+                class="material-symbols-outlined"
+                :style="{
+                  transform: 'rotate(' + windMax24h.direction.degrees + 'deg)',
+                }"
+                >south</span
+              >
+            </p>
             <small class="timespan">hoog. 24u</small>
           </div>
         </div>

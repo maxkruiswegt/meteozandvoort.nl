@@ -31,8 +31,7 @@ const columns = window.innerWidth > 768 ? 4 : 2;
 const weatherComponents = [
   {
     title: 'Temperatuur',
-    value: () =>
-      convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1),
+    value: () => convertFahrenheitToCelsius(weatherStore.temperature).toFixed(1),
     unit: '°C',
     icon: 'device_thermostat',
     timespan: 'nu',
@@ -74,21 +73,16 @@ const weatherComponents = [
   },
   {
     title: 'Luchtdruk',
-    value: () =>
-      convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(
-        1
-      ),
+    value: () => convertInchesOfMercuryToMillibar(weatherStore.barometricPressure).toFixed(1),
     unit: 'mb',
     icon: 'compress',
     timespan: 'nu',
   },
   {
     title: 'Luchtdruk Trend',
-    value: () =>
-      convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1),
+    value: () => convertInchesOfMercuryToMillibar(weatherStore.barometricTrend).toFixed(1),
     unit: 'mb',
-    icon: () =>
-      weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down',
+    icon: () => (weatherStore.barometricTrend > 0 ? 'trending_up' : 'trending_down'),
     timespan: '3 uur',
   },
 ];
@@ -130,15 +124,13 @@ const weatherComponents = [
     </div>
     <div
       class="weather"
-      v-else-if="
-        weatherStore.currentWeatherData && weatherStore.historicWeatherData
-      "
+      v-else-if="weatherStore.currentWeatherData && weatherStore.historicWeatherData"
     >
       <WindComponent
         class="hidden-element"
         :windNow="{
           force: convertMphToWindScale(weatherStore.windSpeedLast),
-          speed: convertMphToKmh(weatherStore.windSpeedLast).toFixed(1),
+          speed: convertMphToKmh(weatherStore.windSpeedLast),
           direction: {
             name: convertWindDirection(weatherStore.windDirectionLast),
             degrees: weatherStore.windDirectionLast,
@@ -146,7 +138,7 @@ const weatherComponents = [
         }"
         :windAverage10m="{
           force: convertMphToWindScale(weatherStore.windSpeedAvgLast10Min),
-          speed: convertMphToKmh(weatherStore.windSpeedAvgLast10Min).toFixed(1),
+          speed: convertMphToKmh(weatherStore.windSpeedAvgLast10Min),
           direction: {
             name: convertWindDirection(weatherStore.windDirectionAvgLast10Min),
             degrees: weatherStore.windDirectionAvgLast10Min,
@@ -154,7 +146,7 @@ const weatherComponents = [
         }"
         :windMax10m="{
           force: convertMphToWindScale(weatherStore.windSpeedHiLast10Min),
-          speed: convertMphToKmh(weatherStore.windSpeedHiLast10Min).toFixed(1),
+          speed: convertMphToKmh(weatherStore.windSpeedHiLast10Min),
           direction: {
             name: convertWindDirection(weatherStore.windDirectionHiLast10Min),
             degrees: weatherStore.windDirectionHiLast10Min,
@@ -162,21 +154,15 @@ const weatherComponents = [
         }"
         :windAverage24h="{
           force: convertMphToWindScale(weatherStore.windSpeedAvgLast24Hours),
-          speed: convertMphToKmh(weatherStore.windSpeedAvgLast24Hours).toFixed(
-            1
-          ),
+          speed: convertMphToKmh(weatherStore.windSpeedAvgLast24Hours),
           direction: {
-            name: convertWindDirection(
-              weatherStore.windDirectionAvgLast24Hours
-            ),
+            name: convertWindDirection(weatherStore.windDirectionAvgLast24Hours),
             degrees: weatherStore.windDirectionAvgLast24Hours,
           },
         }"
         :windMax24h="{
           force: convertMphToWindScale(weatherStore.windSpeedHiLast24Hours),
-          speed: convertMphToKmh(weatherStore.windSpeedHiLast24Hours).toFixed(
-            1
-          ),
+          speed: convertMphToKmh(weatherStore.windSpeedHiLast24Hours),
           direction: {
             name: convertWindDirection(weatherStore.windDirectionHiLast24Hours),
             degrees: weatherStore.windDirectionHiLast24Hours,
@@ -190,11 +176,7 @@ const weatherComponents = [
           :title="component.title"
           :value="component.value()"
           :unit="component.unit"
-          :icon="
-            typeof component.icon === 'function'
-              ? component.icon()
-              : component.icon
-          "
+          :icon="typeof component.icon === 'function' ? component.icon() : component.icon"
           :timespan="component.timespan"
           :style="{ transitionDelay: `${(index % columns) * 0.2}s` }"
           class="hidden-element"
@@ -225,13 +207,11 @@ const weatherComponents = [
       </div>
       <p>
         Deze weergegevens worden rechtstreeks geleverd door het weerstation van
-        <strong>Herman Kruiswegt</strong> in Zandvoort. Herman heeft jarenlang
-        ervaring in meteorologie en biedt nauwkeurige en actuele weerinformatie
-        voor de regio.
+        <strong>Herman Kruiswegt</strong> in Zandvoort. Herman heeft jarenlang ervaring in meteorologie en biedt
+        nauwkeurige en actuele weerinformatie voor de regio.
       </p>
       <p>
-        Naast zijn passie voor meteorologie, biedt Herman ook
-        boekhoudingsdiensten aan via zijn website:
+        Naast zijn passie voor meteorologie, biedt Herman ook boekhoudingsdiensten aan via zijn website:
         <a
           href="https://decib.nl"
           target="_blank"

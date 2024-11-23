@@ -5,16 +5,7 @@
  * @returns {string} The compass direction corresponding to the given degrees.
  */
 const convertWindDirection = (degrees) => {
-  const directions = [
-    'Noord',
-    'Noordoost',
-    'Oost',
-    'Zuidoost',
-    'Zuid',
-    'Zuidwest',
-    'West',
-    'Noordwest',
-  ];
+  const directions = ['Noord', 'Noordoost', 'Oost', 'Zuidoost', 'Zuid', 'Zuidwest', 'West', 'Noordwest'];
   return directions[Math.round(degrees / 45) % 8];
 };
 
@@ -35,6 +26,9 @@ const convertFahrenheitToCelsius = (fahrenheit) => {
  * @returns {number} The speed in kilometers per hour.
  */
 const convertMphToKmh = (mph) => {
+  if (typeof mph !== 'number' || !isFinite(mph)) {
+    return null;
+  }
   return mph * 1.609344;
 };
 
@@ -47,6 +41,10 @@ const convertMphToKmh = (mph) => {
  * @returns {string} return.description - The description of the wind speed.
  */
 const convertMphToWindScale = (mph) => {
+  if (mph === null) {
+    return { value: null, description: null };
+  }
+
   switch (true) {
     case mph < 1:
       return { value: 0, description: 'stil' };
@@ -72,8 +70,10 @@ const convertMphToWindScale = (mph) => {
       return { value: 10, description: 'zware storm' };
     case mph < 73:
       return { value: 11, description: 'zeer zware storm' };
-    default:
+    case mph >= 73:
       return { value: 12, description: 'orkaan' };
+    default:
+      return { value: null, description: null };
   }
 };
 
