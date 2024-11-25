@@ -102,18 +102,20 @@ const weatherComponents = [
       >
         <span class="material-symbols-outlined">refresh</span>
       </div>
-      <small
-        >Laatste update:
+      <small>
+        Laatste update:
         {{
-          new Date(weatherStore.lastUpdated).toLocaleString([], {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-        }}</small
-      >
+          weatherStore.lastUpdated
+            ? new Date(weatherStore.lastUpdated).toLocaleString([], {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : 'niet beschikbaar'
+        }}
+      </small>
     </div>
     <div
       v-if="weatherStore.isLoading"
