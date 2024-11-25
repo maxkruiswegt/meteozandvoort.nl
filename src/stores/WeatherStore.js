@@ -14,10 +14,19 @@ export const useWeatherStore = defineStore('weather', () => {
     ]);
   }
 
+  function isValidResponse(data) {
+    return data && typeof data === 'object' && 'sensors' in data;
+  }
+
   async function fetchCurrentWeather() {
     isLoading.value = true;
     try {
       const response = await fetchWithTimeout('/current');
+
+      if (!isValidResponse(response.data)) {
+        throw new Error('Invalid response data');
+      }
+
       currentWeatherData.value = response.data;
     } finally {
       isLoading.value = false;
@@ -37,6 +46,11 @@ export const useWeatherStore = defineStore('weather', () => {
           'end-timestamp': endTimestamp,
         },
       });
+
+      if (!isValidResponse(response.data)) {
+        throw new Error('Invalid response data');
+      }
+
       historicWeatherData.value = response.data;
     } finally {
       isLoading.value = false;
