@@ -7,10 +7,17 @@ export const useWeatherStore = defineStore('weather', () => {
   const historicWeatherData = ref(null);
   const isLoading = ref(false);
 
+  async function fetchWithTimeout(url, options, timeout = 10000) {
+    return Promise.race([
+      api.get(url, options),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out')), timeout)),
+    ]);
+  }
+
   async function fetchCurrentWeather() {
     isLoading.value = true;
     try {
-      const response = await api.get('/current');
+      const response = await fetchWithTimeout('/current');
       currentWeatherData.value = response.data;
     } finally {
       isLoading.value = false;
@@ -24,7 +31,7 @@ export const useWeatherStore = defineStore('weather', () => {
   async function fetchHistoricWeather(startTimestamp, endTimestamp) {
     isLoading.value = true;
     try {
-      const response = await api.get('/historic', {
+      const response = await fetchWithTimeout('/historic', {
         params: {
           'start-timestamp': startTimestamp,
           'end-timestamp': endTimestamp,
