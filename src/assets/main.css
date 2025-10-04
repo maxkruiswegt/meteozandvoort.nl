@@ -1,5 +1,132 @@
 @import './base.css';
 
+/* PrimeVue Theme Customization */
+:root {
+  --primary-color: #be4535;
+  --primary-50: #fef2f0;
+  --primary-100: #fee5e0;
+  --primary-200: #fccfc7;
+  --primary-300: #fab0a0;
+  --primary-400: #f68369;
+  --primary-500: #eb603f;
+  --primary-600: #be4535;
+  --primary-700: #a03628;
+  --primary-800: #852e24;
+  --primary-900: #702923;
+
+  --surface-0: #ffffff;
+  --surface-50: #f8f9fa;
+  --surface-100: #f1f3f5;
+  --surface-200: #e9ecef;
+  --surface-300: #dee2e6;
+  --surface-400: #ced4da;
+  --surface-500: #adb5bd;
+  --surface-600: #6c757d;
+  --surface-700: #495057;
+  --surface-800: #343a40;
+  --surface-900: #212529;
+  --surface-ground: #f6f6f6;
+
+  --text-color: #000000;
+  --text-color-secondary: #4a4b4c;
+}
+
+/* Override PrimeVue button colors to use our primary color */
+.p-button {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.p-button:hover,
+.p-button:enabled:hover,
+.p-button:not(:disabled):hover {
+  background-color: var(--primary-700) !important;
+  border-color: var(--primary-700) !important;
+  color: white !important;
+}
+
+.p-button:active,
+.p-button:enabled:active {
+  background-color: var(--primary-800) !important;
+  border-color: var(--primary-800) !important;
+  color: white !important;
+}
+
+.p-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(190, 69, 53, 0.25) !important;
+}
+
+.p-button.p-button-text {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.p-button.p-button-text:hover,
+.p-button.p-button-text:enabled:hover,
+.p-button.p-button-text:not(:disabled):hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.p-button.p-button-text:active,
+.p-button.p-button-text:enabled:active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.p-button.p-button-text:focus {
+  box-shadow: none !important;
+}
+
+.p-button.p-button-rounded {
+  border-radius: 50% !important;
+}
+
+/* Disable ripple effect white color */
+.p-button .p-ink {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.p-button.p-button-text .p-ink {
+  background-color: rgba(190, 69, 53, 0.2) !important;
+}
+
+/* Consistent Card styling */
+.p-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--surface-200);
+}
+
+.p-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.p-card-header {
+  background: var(--surface-50);
+  border-bottom: 1px solid var(--surface-200);
+  padding: 1rem;
+  border-radius: 12px 12px 0 0;
+}
+
+.p-card-header h3 {
+  margin: 0;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.p-card-body {
+  padding: 1rem;
+}
+
+.p-card-content {
+  padding: 0;
+}
+
 .page-container {
   position: relative;
   width: 90vw;
@@ -127,7 +254,6 @@ button {
 
 /* Media Query for Desktop Versions */
 @media screen and (min-width: 769px) {
-
   /* Montserrat Bold */
   .button,
   .tab {
@@ -153,7 +279,6 @@ button {
 
 /* Media Query for Mobile Versions */
 @media screen and (max-width: 768px) {
-
   /* Montserrat Bold */
   .button,
   .tab {

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue';
-import { RouterView } from 'vue-router'
+import { RouterView } from 'vue-router';
 import { observeElements } from '@/utils/observerUtils';
 
 onMounted(() => {
@@ -19,15 +19,13 @@ onMounted(() => {
 .app-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100lvh;
-  width: 100vw;
-  width: 100dvw;
+  min-height: 100vh;
+  max-width: 100vw;
   position: relative;
-  z-index: 0;
+  overflow-x: hidden;
   background: url('/img/background.webp') no-repeat center/cover;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(30, 30, 35, 0.75);
   background-blend-mode: overlay;
-  overflow-y: scroll;
+  background-attachment: fixed;
 }
 </style>

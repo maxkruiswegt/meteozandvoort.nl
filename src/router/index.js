@@ -8,6 +8,16 @@ const router = createRouter({
       name: 'home',
       component: () => import('../views/Home.vue'),
     },
+    {
+      path: '/huidig',
+      name: 'current',
+      component: () => import('../views/CurrentView.vue'),
+    },
+    {
+      path: '/historisch',
+      name: 'historic',
+      component: () => import('../views/HistoricView.vue'),
+    },
   ],
 });
 
