@@ -19,15 +19,15 @@ onMounted(() => {
 .app-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: 100lvh;
-  max-width: 100vw;
-  max-width: 100dvw;
+  height: 100vh;
+  height: 100lvh;
+  width: 100vw;
+  width: 100dvw;
   position: relative;
-  overflow-x: hidden;
+  z-index: 0;
   background: url('/img/background.webp') no-repeat center/cover;
   background-color: rgba(30, 30, 35, 0.75);
   background-blend-mode: overlay;
-  background-attachment: fixed;
+  overflow-y: scroll;
 }
 </style>
