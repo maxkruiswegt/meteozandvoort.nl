@@ -20,7 +20,9 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100lvh;
   max-width: 100vw;
+  max-width: 100dvw;
   position: relative;
   overflow-x: hidden;
   background: url('/img/background.webp') no-repeat center/cover;
