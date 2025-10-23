@@ -681,12 +681,6 @@ const rainfallChartOptions = computed(() => {
   padding: 0;
 }
 
-@media (max-width: 768px) {
-  .chart-section :deep(.apexcharts-toolbar) {
-    display: none !important;
-  }
-}
-
 .about-section {
   margin-top: 2rem;
 }
