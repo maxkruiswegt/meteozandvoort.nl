@@ -16,7 +16,10 @@ onMounted(() => {
       muted: true,
       preload: 'auto',
       fluid: true,
-      liveui: true, // Enable live UI mode
+      liveui: true,
+      controlBar: {
+        volumePanel: false, // Hide volume control (no audio in stream)
+      },
       sources: [
         {
           src: streamUrl,
