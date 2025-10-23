@@ -1,47 +1,53 @@
 import { CHART_COLORS } from '@/utils/constants';
 import { useUIStore } from '@/stores/UIStore';
 import { CONVERSION_FACTORS } from '@/utils/constants';
-import dayjs from 'dayjs';
 
 export function useChartConfig() {
   const uiStore = useUIStore();
 
-  const getBaseChartOptions = (title, decimals = 1) => ({
-    chart: {
-      type: 'line',
-      toolbar: {
-        show: true
+  const getBaseChartOptions = (title, decimals = 1) => {
+    const isMobile = window.innerWidth <= 768;
+
+    return {
+      chart: {
+        type: 'line',
+        toolbar: {
+          show: true,
+        },
+        zoom: {
+          enabled: !isMobile,
+          allowMouseWheelZoom: false,
+        },
+        animations: { enabled: true },
       },
-      zoom: { enabled: true },
-      animations: { enabled: true },
-    },
-    stroke: { curve: 'smooth', width: 2 },
-    xaxis: {
-      type: 'datetime',
-      labels: { format: 'HH:mm', datetimeUTC: false },
-    },
-    yaxis: {
-      labels: {
-        formatter: (value) => {
-          if (value === null || value === undefined) return '';
-          return value.toFixed(decimals);
+      stroke: { curve: 'smooth', width: 2 },
+      xaxis: {
+        type: 'datetime',
+        labels: { format: 'HH:mm', datetimeUTC: false },
+      },
+      yaxis: {
+        labels: {
+          formatter: (value) => {
+            if (value === null || value === undefined) return '';
+            return value.toFixed(decimals);
+          },
         },
       },
-    },
-    tooltip: {
-      x: { format: 'dd/MM HH:mm' },
-      y: {
-        formatter: (value) => {
-          if (value === null || value === undefined) return '';
-          return value.toFixed(decimals);
+      tooltip: {
+        x: { format: 'dd/MM HH:mm' },
+        y: {
+          formatter: (value) => {
+            if (value === null || value === undefined) return '';
+            return value.toFixed(decimals);
+          },
         },
       },
-    },
-    legend: {
-      position: 'top'
-    },
-    theme: { mode: uiStore.isDarkMode ? 'dark' : 'light' },
-  });
+      legend: {
+        position: 'top',
+      },
+      theme: { mode: uiStore.isDarkMode ? 'dark' : 'light' },
+    };
+  };
 
   const prepareTemperatureChartData = (historicRecords) => {
     const series = [
@@ -94,9 +100,7 @@ export function useChartConfig() {
 
     barometerRecords.forEach((record) => {
       const timestamp = record.ts * 1000;
-      let value = uiStore.useMetric
-        ? record.bar_sea_level * CONVERSION_FACTORS.INHG_TO_MB
-        : record.bar_sea_level;
+      let value = uiStore.useMetric ? record.bar_sea_level * CONVERSION_FACTORS.INHG_TO_MB : record.bar_sea_level;
 
       // Round to 1 decimal
       value = value !== null && value !== undefined ? Math.round(value * 10) / 10 : null;
@@ -111,9 +115,8 @@ export function useChartConfig() {
 
     historicRecords.forEach((record) => {
       const timestamp = record.ts * 1000;
-      const value = record.hum_last !== null && record.hum_last !== undefined
-        ? Math.round(record.hum_last * 10) / 10
-        : null;
+      const value =
+        record.hum_last !== null && record.hum_last !== undefined ? Math.round(record.hum_last * 10) / 10 : null;
       series[0].data.push({ x: timestamp, y: value });
     });
 
