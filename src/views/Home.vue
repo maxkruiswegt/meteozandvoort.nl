@@ -201,7 +201,10 @@ const rainfallChartOptions = computed(() => {
       <!-- Extended Metrics -->
       <Card class="extended-metrics">
         <template #header>
-          <h3>Alle Metingen</h3>
+          <div class="card-header">
+            <span class="material-symbols-outlined">dashboard</span>
+            <h3>Alle Metingen</h3>
+          </div>
         </template>
         <template #content>
           <div class="metrics-grid extended">
@@ -348,7 +351,10 @@ const rainfallChartOptions = computed(() => {
       <!-- Charts -->
       <Card class="chart-section">
         <template #header>
-          <h3>Temperatuur (24u)</h3>
+          <div class="card-header">
+            <span class="material-symbols-outlined">device_thermostat</span>
+            <h3>Temperatuur (24u)</h3>
+          </div>
         </template>
         <template #content>
           <apexchart
@@ -363,7 +369,10 @@ const rainfallChartOptions = computed(() => {
 
       <Card class="chart-section">
         <template #header>
-          <h3>Windsnelheid (24u)</h3>
+          <div class="card-header">
+            <span class="material-symbols-outlined">air</span>
+            <h3>Windsnelheid (24u)</h3>
+          </div>
         </template>
         <template #content>
           <apexchart
@@ -378,7 +387,10 @@ const rainfallChartOptions = computed(() => {
 
       <Card class="chart-section">
         <template #header>
-          <h3>Luchtdruk (24u)</h3>
+          <div class="card-header">
+            <span class="material-symbols-outlined">compress</span>
+            <h3>Luchtdruk (24u)</h3>
+          </div>
         </template>
         <template #content>
           <apexchart
@@ -393,7 +405,10 @@ const rainfallChartOptions = computed(() => {
 
       <Card class="chart-section">
         <template #header>
-          <h3>Luchtvochtigheid (24u)</h3>
+          <div class="card-header">
+            <span class="material-symbols-outlined">water_drop</span>
+            <h3>Luchtvochtigheid (24u)</h3>
+          </div>
         </template>
         <template #content>
           <apexchart
@@ -408,7 +423,10 @@ const rainfallChartOptions = computed(() => {
 
       <Card class="chart-section">
         <template #header>
-          <h3>Regenval (24u)</h3>
+          <div class="card-header">
+            <span class="material-symbols-outlined">rainy</span>
+            <h3>Regenval (24u)</h3>
+          </div>
         </template>
         <template #content>
           <apexchart
@@ -701,6 +719,7 @@ const rainfallChartOptions = computed(() => {
   margin-top: 2rem;
 }
 
+.card-header,
 .about-header,
 .beachcam-header {
   display: flex;
