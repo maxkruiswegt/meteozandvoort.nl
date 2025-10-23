@@ -9,6 +9,7 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import ProgressSpinner from 'primevue/progressspinner';
 import MetricCard from '@/components/cards/MetricCard.vue';
+import BeachcamStream from '@/components/BeachcamStream.vue';
 
 const weatherStore = useWeatherStore();
 const uiStore = useUIStore();
@@ -420,6 +421,19 @@ const rainfallChartOptions = computed(() => {
         </template>
       </Card>
 
+      <!-- Beachcam Livestream -->
+      <Card class="beachcam-section">
+        <template #header>
+          <div class="beachcam-header">
+            <span class="material-symbols-outlined">videocam</span>
+            <h3>Live Beachcam Zandvoort</h3>
+          </div>
+        </template>
+        <template #content>
+          <BeachcamStream />
+        </template>
+      </Card>
+
       <!-- About Section -->
       <Card class="about-section">
         <template #header>
@@ -682,11 +696,13 @@ const rainfallChartOptions = computed(() => {
   padding: 0;
 }
 
+.beachcam-section,
 .about-section {
   margin-top: 2rem;
 }
 
-.about-header {
+.about-header,
+.beachcam-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -840,11 +856,13 @@ const rainfallChartOptions = computed(() => {
 
   /* Reduce padding on mobile */
   .extended-metrics :deep(.p-card-header),
+  .beachcam-section :deep(.p-card-header),
   .about-section :deep(.p-card-header) {
     padding: 0.75rem 0.5rem;
   }
 
   .extended-metrics :deep(.p-card-body),
+  .beachcam-section :deep(.p-card-body),
   .about-section :deep(.p-card-body) {
     padding: 0.75rem;
   }
