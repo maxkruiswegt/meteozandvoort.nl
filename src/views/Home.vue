@@ -431,11 +431,12 @@ const rainfallChartOptions = computed(() => {
         <template #content>
           <p>
             Deze weergegevens worden rechtstreeks geleverd door het weerstation van
-            <strong>Herman Kruiswegt</strong> in Zandvoort. Herman heeft jarenlang ervaring in meteorologie en biedt
-            nauwkeurige en actuele weerinformatie voor de regio.
+            <strong>Herman Kruiswegt</strong> in Zandvoort. Met jarenlange passie voor meteorologie verzamelt en deelt
+            Herman nauwkeurige en actuele weerinformatie voor de regio.
           </p>
           <p>
-            Naast zijn passie voor meteorologie, biedt Herman ook boekhoudingsdiensten aan via zijn website:
+            Naast zijn fascinatie voor het weer runt Herman een professioneel administratiekantoor waar hij ondernemers
+            en particulieren ondersteunt met diverse administratieve diensten. Meer informatie vindt u op:
             <a
               href="https://decib.nl"
               target="_blank"
