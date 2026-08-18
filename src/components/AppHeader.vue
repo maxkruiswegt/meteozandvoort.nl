@@ -85,11 +85,36 @@ const refresh = () => {
 
 <style scoped>
 .app-header {
+  position: relative;
+  isolation: isolate;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+  padding: 4.5rem 0 1rem;
+  border-bottom: 2px solid var(--accent-strong);
+}
+
+/* The Zandvoort photo, once, at real strength: a masthead band that hands
+   off to the dark page instead of wallpaper under a scrim. */
+.app-header::before {
+  content: '';
+  position: absolute;
+  inset: -1.5rem calc(50% - 50vw) 0;
+  z-index: -2;
+  background: url('/img/background.webp') center 30% / cover no-repeat;
+  filter: saturate(0.85) contrast(1.05);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.6) 60%, transparent 100%);
+}
+
+.app-header::after {
+  content: '';
+  position: absolute;
+  inset: -1.5rem calc(50% - 50vw) 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, rgba(10, 15, 26, 0.3), rgba(10, 15, 26, 0.75));
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.6) 60%, transparent 100%);
 }
 
 .header-title {
@@ -137,7 +162,6 @@ const refresh = () => {
 
 .status-ok {
   background: var(--status-ok);
-  box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
 }
 
 .status-warn {
@@ -169,6 +193,11 @@ const refresh = () => {
   background: var(--surface-2);
   color: var(--text);
   text-decoration: none;
+}
+
+.nav-pill.router-link-active {
+  color: var(--accent);
+  border-color: var(--accent-strong);
 }
 
 .refresh-button {

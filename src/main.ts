@@ -1,5 +1,4 @@
-import '@fontsource-variable/inter/opsz.css';
-import '@fontsource-variable/geist-mono/wght.css';
+import '@fontsource-variable/archivo';
 import '@/assets/main.css';
 
 import { createApp } from 'vue';
@@ -45,6 +44,31 @@ app.use(PrimeVue, {
       // Site is dark-only; <html class="dark"> is set in index.html.
       darkModeSelector: '.dark',
     },
+  },
+  locale: {
+    firstDayOfWeek: 1,
+    dayNames: ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'],
+    dayNamesShort: ['zon', 'maa', 'din', 'woe', 'don', 'vri', 'zat'],
+    dayNamesMin: ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'],
+    monthNames: [
+      'januari',
+      'februari',
+      'maart',
+      'april',
+      'mei',
+      'juni',
+      'juli',
+      'augustus',
+      'september',
+      'oktober',
+      'november',
+      'december',
+    ],
+    monthNamesShort: ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
+    today: 'Vandaag',
+    clear: 'Wissen',
+    dateFormat: 'dd-mm-yy',
+    weekHeader: 'Wk',
   },
 });
 app.use(VueApexCharts);

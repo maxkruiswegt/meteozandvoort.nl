@@ -33,7 +33,6 @@ defineProps<{
   align-items: center;
   gap: 0.625rem;
   background: var(--bg-raised);
-  border: 1px solid var(--border);
   border-radius: var(--radius-tile);
   padding: 0.625rem 0.875rem;
   min-width: 0;

@@ -6,9 +6,7 @@ import {
   Droplets,
   Gauge,
   CloudRain,
-  Umbrella,
   Sun,
-  House,
   Video,
   Info,
   ArrowUpRight,
@@ -23,7 +21,6 @@ import { useWeatherCharts } from '@/composables/useWeatherCharts';
 import { beaufortFromKmh, windDirectionName, temperatureColorVar } from '@/utils/weather';
 import AppHeader from '@/components/AppHeader.vue';
 import SectionCard from '@/components/SectionCard.vue';
-import MetricTile from '@/components/MetricTile.vue';
 import StatChip from '@/components/StatChip.vue';
 import WindCompass from '@/components/WindCompass.vue';
 import WeatherChart from '@/components/WeatherChart.vue';
@@ -272,78 +269,72 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
         title="Details"
         :icon="Info"
       >
-        <div class="tile-grid">
-          <MetricTile
-            label="Regenintensiteit"
-            :value="formatters.formatRainRate(weatherStore.rainRateNow)"
-            :icon="Umbrella"
-          />
-          <MetricTile
-            label="Regen laatste uur"
-            :value="formatters.formatRainfall(weatherStore.rainLast60Min)"
-            :icon="CloudRain"
-          />
-          <MetricTile
-            label="Regen 24 uur"
-            :value="formatters.formatRainfall(weatherStore.rainLast24Hours)"
-            :icon="CloudRain"
-          />
-          <MetricTile
-            label="Regen deze maand"
-            :value="formatters.formatRainfall(weatherStore.rainMonth)"
-            :icon="CloudRain"
-          />
-          <MetricTile
-            label="Regen dit jaar"
-            :value="formatters.formatRainfall(weatherStore.rainYear, 0)"
-            :icon="CloudRain"
-          />
-          <MetricTile
-            label="Wind gem. 24u"
-            :value="formatters.formatWindSpeed(weatherStore.windSpeedAvg24Hours)"
-            :subtitle="beaufortFromKmh(weatherStore.windSpeedAvg24Hours)?.label"
-            :icon="Wind"
-          />
-          <MetricTile
-            label="Zwaarste windstoot 24u"
-            :value="formatters.formatWindSpeed(weatherStore.windGust24Hours)"
-            :icon="Wind"
-          />
-          <MetricTile
-            label="Wind nu"
-            :value="formatters.formatWindSpeed(weatherStore.windSpeedNow)"
-            :icon="Wind"
-          />
-          <MetricTile
-            label="Gevoelstemperatuur"
-            :value="formatters.formatTemperature(weatherStore.windChill)"
-            subtitle="wind chill"
-            :icon="Thermometer"
-          />
-          <MetricTile
-            label="Hitte-index"
-            :value="formatters.formatTemperature(weatherStore.heatIndex)"
-            :icon="Thermometer"
-          />
-          <MetricTile
+        <dl class="detail-list">
+          <div class="detail-row">
+            <dt>Wind nu</dt>
+            <dd class="num">{{ formatters.formatWindSpeed(weatherStore.windSpeedNow) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Wind gemiddeld 24u</dt>
+            <dd class="num">
+              {{ formatters.formatWindSpeed(weatherStore.windSpeedAvg24Hours) }}
+              <span class="hint">{{ beaufortFromKmh(weatherStore.windSpeedAvg24Hours)?.label }}</span>
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt>Zwaarste windstoot 24u</dt>
+            <dd class="num">{{ formatters.formatWindSpeed(weatherStore.windGust24Hours) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Regenintensiteit</dt>
+            <dd class="num">{{ formatters.formatRainRate(weatherStore.rainRateNow) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Regen laatste uur</dt>
+            <dd class="num">{{ formatters.formatRainfall(weatherStore.rainLast60Min) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Regen 24 uur</dt>
+            <dd class="num">{{ formatters.formatRainfall(weatherStore.rainLast24Hours) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Regen deze maand</dt>
+            <dd class="num">{{ formatters.formatRainfall(weatherStore.rainMonth) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Regen dit jaar</dt>
+            <dd class="num">{{ formatters.formatRainfall(weatherStore.rainYear, 0) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Gevoelstemperatuur <span class="hint">wind chill</span></dt>
+            <dd class="num">{{ formatters.formatTemperature(weatherStore.windChill) }}</dd>
+          </div>
+          <div class="detail-row">
+            <dt>Hitte-index</dt>
+            <dd class="num">{{ formatters.formatTemperature(weatherStore.heatIndex) }}</dd>
+          </div>
+          <div
             v-if="weatherStore.solarRadiation !== null"
-            label="Zonnestraling"
-            :value="`${formatters.formatNumber(weatherStore.solarRadiation, 0)} W/m²`"
-            :icon="Sun"
-          />
-          <MetricTile
+            class="detail-row"
+          >
+            <dt>Zonnestraling</dt>
+            <dd class="num">{{ formatters.formatNumber(weatherStore.solarRadiation, 0) }} W/m²</dd>
+          </div>
+          <div
             v-if="weatherStore.indoorTemperature !== null"
-            label="Binnentemperatuur"
-            :value="formatters.formatTemperature(weatherStore.indoorTemperature)"
-            :icon="House"
-          />
-          <MetricTile
+            class="detail-row"
+          >
+            <dt>Binnentemperatuur</dt>
+            <dd class="num">{{ formatters.formatTemperature(weatherStore.indoorTemperature) }}</dd>
+          </div>
+          <div
             v-if="weatherStore.indoorHumidity !== null"
-            label="Binnenvochtigheid"
-            :value="formatters.formatPercentage(weatherStore.indoorHumidity)"
-            :icon="House"
-          />
-        </div>
+            class="detail-row"
+          >
+            <dt>Binnenvochtigheid</dt>
+            <dd class="num">{{ formatters.formatPercentage(weatherStore.indoorHumidity) }}</dd>
+          </div>
+        </dl>
       </SectionCard>
 
       <!-- ===== Beachcam ===== -->
@@ -379,13 +370,16 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
       </SectionCard>
 
       <footer class="footer">
-        Gemaakt met ❤️ door
-        <a
-          href="https://maxkruiswegt.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Max Kruiswegt</a
-        >
+        <p>Davis-weerstation in Zandvoort · meet elke minuut, archiveert per kwartier.</p>
+        <p>
+          Station van Herman Kruiswegt · site door
+          <a
+            href="https://maxkruiswegt.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Max Kruiswegt</a
+          >
+        </p>
       </footer>
     </template>
   </div>
@@ -576,11 +570,38 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
   grid-column: 1 / -1;
 }
 
-/* ===== Tiles ===== */
-.tile-grid {
+/* ===== Details list ===== */
+.detail-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  column-gap: 2.5rem;
+  margin: 0;
+}
+
+.detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(148, 163, 199, 0.07);
+}
+
+.detail-row dt {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.detail-row dd {
+  margin-left: auto;
+  font-size: 0.95rem;
+  font-weight: 550;
+  text-align: right;
+}
+
+.hint {
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  font-weight: 400;
 }
 
 .about-text {
@@ -596,7 +617,11 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
   text-align: center;
   padding: 1rem 0 2rem;
   color: var(--text-faint);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+}
+
+.footer p {
+  margin: 0.15rem 0;
 }
 
 /* ===== Responsive ===== */
@@ -618,12 +643,10 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
 
   .hero {
     grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
     padding: 1.5rem 1.25rem;
   }
 
-  .hero-temp {
+  .hero-wind {
     align-items: center;
   }
 

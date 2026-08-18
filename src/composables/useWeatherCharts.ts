@@ -1,3 +1,4 @@
+import * as SunCalc from 'suncalc';
 import type { IssArchive, BarometerArchive } from '@/types/weatherlink';
 import { convertFahrenheitToCelsius, convertMphToKmh, convertInHgToHpa } from '@/utils/weather';
 
@@ -11,12 +12,38 @@ const COLORS = {
   dewPoint: '#4aa3fc',
   wind: '#5fcef9',
   gust: '#f9b449',
-  pressure: '#b18cff',
+  pressure: '#d8cbb4',
   humidity: '#48bafe',
   rain: '#4aa3fc',
 };
 
-const FONT = "'Inter Variable', system-ui, sans-serif";
+const FONT = "'Archivo Variable', system-ui, sans-serif";
+
+const ZANDVOORT = { lat: 52.374, lon: 4.533 };
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Night bands (sunset → sunrise) for the plotted range, as xaxis annotations. */
+const nightBands = (records: { ts: number }[]): Record<string, unknown>[] => {
+  const first = records[0];
+  const last = records[records.length - 1];
+  if (!first || !last) return [];
+  const startMs = first.ts * 1000;
+  const endMs = last.ts * 1000;
+  const bands: Record<string, unknown>[] = [];
+
+  for (let t = startMs - DAY_MS; t <= endMs + DAY_MS; t += DAY_MS) {
+    const today = SunCalc.getTimes(new Date(t), ZANDVOORT.lat, ZANDVOORT.lon);
+    const tomorrow = SunCalc.getTimes(new Date(t + DAY_MS), ZANDVOORT.lat, ZANDVOORT.lon);
+    if (!today?.sunset || !tomorrow?.sunrise) continue;
+    const x = Math.max(today.sunset.getTime(), startMs);
+    const x2 = Math.min(tomorrow.sunrise.getTime(), endMs);
+    if (x < x2) {
+      bands.push({ x, x2, fillColor: '#000000', opacity: 0.22, borderColor: 'transparent' });
+    }
+  }
+
+  return bands;
+};
 
 export interface ChartPoint {
   x: number;
@@ -61,7 +88,9 @@ export function useWeatherCharts() {
       parentHeightOffset: 0,
     },
     theme: { mode: 'dark' },
-    stroke: { curve: 'smooth', width: 2.5, lineCap: 'round' },
+    // Straight segments: this is 15-minute archive data, splines would invent
+    // values between samples.
+    stroke: { curve: 'straight', width: 1.75, lineCap: 'butt' },
     dataLabels: { enabled: false },
     grid: {
       borderColor: COLORS.grid,
@@ -126,6 +155,11 @@ export function useWeatherCharts() {
     options: {
       ...baseOptions('°C'),
       ...areaFill,
+      annotations: {
+        xaxis: nightBands(records),
+        // Freezing line; clipped away automatically when the axis range stays above 0 °C.
+        yaxis: [{ y: 0, borderColor: 'rgba(95, 206, 249, 0.45)', strokeDashArray: 4 }],
+      },
     },
   });
 
@@ -146,6 +180,9 @@ export function useWeatherCharts() {
     options: {
       ...baseOptions('km/u', 0),
       ...areaFill,
+      // Gusts as a distinct visual class: thinner and dashed.
+      stroke: { curve: 'straight', width: [1.75, 1.25], lineCap: 'butt', dashArray: [0, 4] },
+      annotations: { xaxis: nightBands(records) },
       yaxis: {
         min: 0,
         labels: {
@@ -168,6 +205,25 @@ export function useWeatherCharts() {
     options: {
       ...baseOptions('hPa'),
       legend: { show: false },
+      annotations: {
+        xaxis: nightBands(records),
+        // Standard sea-level pressure reference.
+        yaxis: [
+          {
+            y: 1013.25,
+            borderColor: 'rgba(157, 170, 191, 0.4)',
+            strokeDashArray: 4,
+            label: {
+              text: '1013 hPa',
+              position: 'left',
+              offsetX: 6,
+              textAnchor: 'start',
+              borderWidth: 0,
+              style: { background: 'transparent', color: '#6b7690', fontSize: '10px' },
+            },
+          },
+        ],
+      },
     },
   });
 
@@ -184,6 +240,7 @@ export function useWeatherCharts() {
       ...baseOptions('%', 0),
       ...areaFill,
       legend: { show: false },
+      annotations: { xaxis: nightBands(records) },
       yaxis: {
         max: 100,
         labels: {

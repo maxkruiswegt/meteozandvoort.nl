@@ -29,7 +29,7 @@
   --data-gust: #f9b449;
   --data-rain: #4aa3fc;
   --data-humidity: #48bafe;
-  --data-pressure: #b18cff;
+  --data-pressure: #d8cbb4;
   --data-dewpoint: #4aa3fc;
 
   /* Temperature ramp (°C, dark-bg optimized, CVD-safe) */
@@ -46,20 +46,20 @@
   --temp-40: #db3e72;
 
   /* Status */
-  --status-ok: #4ade80;
+  --status-ok: #57c98a;
   --status-warn: #f9b449;
   --status-error: #f36e37;
 
-  /* Typography */
-  --font-ui: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-num: 'Geist Mono Variable', ui-monospace, 'Cascadia Mono', monospace;
+  /* Typography: one family, two roles (numerals via tabular figures) */
+  --font-ui: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* Shape */
-  --radius-card: 16px;
-  --radius-tile: 12px;
+  /* Shape: three radii with three meanings */
+  --radius-card: 14px;
+  --radius-tile: 8px;
   --radius-chip: 999px;
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  /* Elevation on dark: a top highlight, not a drop shadow */
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.045);
 
   color-scheme: dark;
 }
@@ -74,24 +74,18 @@
 
 html {
   height: 100%;
+  /* The masthead photo bleeds to the viewport edge with 50vw math, which
+     overshoots by the scrollbar width; clip instead of scrolling. */
+  overflow-x: clip;
 }
 
 body {
   min-height: 100%;
   background-color: var(--bg);
-  /* Local Zandvoort photo under a heavy scrim: texture and identity
-     without competing with the data. */
-  background-image:
-    linear-gradient(to bottom, rgba(10, 15, 26, 0.84), rgba(10, 15, 26, 0.93) 45%, rgba(10, 15, 26, 0.985)),
-    url('/img/background.webp');
-  background-size: cover;
-  background-position: center top;
-  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.55;
-  font-optical-sizing: auto;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -119,11 +113,10 @@ button {
   font-family: inherit;
 }
 
-/* Numeric readouts: tabular by construction */
+/* Numeric readouts: tabular lining figures so live values never jitter */
 .num {
-  font-family: var(--font-num);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.01em;
 }
 
 ::selection {
