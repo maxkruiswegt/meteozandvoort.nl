@@ -72,22 +72,45 @@
   box-sizing: border-box;
 }
 
+/* Body is the scroll container (like the original site): its scrollbar sits
+   inside the page over the photo layer, so no bare gutter strip appears and
+   nothing can scroll sideways. */
 html {
   height: 100%;
-  /* The masthead photo bleeds to the viewport edge with 50vw math, which
-     overshoots by the scrollbar width; clip instead of scrolling. */
-  overflow-x: clip;
+  background-color: var(--bg);
+  overflow: hidden;
 }
 
 body {
-  min-height: 100%;
-  background-color: var(--bg);
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: clip;
+  /* Transparent: an opaque body background would paint over the fixed
+     photo layer below (negative z-index paints behind the body background).
+     The page ground comes from html + the photo layer. */
+  background-color: transparent;
   color: var(--text);
   font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.55;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Full-page Zandvoort photo under a tuned overlay. A fixed-position layer
+   instead of background-attachment: fixed, which is broken on iOS Safari. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  /* Overlay blend (the original site's recipe) keeps the photo readable under
+     a dark wash; the gradient on top deepens it so cards keep their contrast. */
+  background:
+    linear-gradient(to bottom, rgba(10, 15, 26, 0.45), rgba(10, 15, 26, 0.62) 50%, rgba(10, 15, 26, 0.72)),
+    url('/img/background.webp') center 50% / cover no-repeat;
+  background-color: rgba(30, 30, 35, 0.8);
+  background-blend-mode: normal, overlay;
 }
 
 h1,

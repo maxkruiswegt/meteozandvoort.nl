@@ -235,30 +235,35 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
         <SectionCard
           title="Temperatuur (24u)"
           :icon="Thermometer"
+          flush
         >
           <WeatherChart v-bind="temperatureChart" />
         </SectionCard>
         <SectionCard
           title="Wind (24u)"
           :icon="Wind"
+          flush
         >
           <WeatherChart v-bind="windChart" />
         </SectionCard>
         <SectionCard
           title="Neerslag (24u)"
           :icon="CloudRain"
+          flush
         >
           <WeatherChart v-bind="rainChart" />
         </SectionCard>
         <SectionCard
           title="Luchtdruk (24u)"
           :icon="Gauge"
+          flush
         >
           <WeatherChart v-bind="pressureChart" />
         </SectionCard>
         <SectionCard
           title="Luchtvochtigheid (24u)"
           :icon="Droplets"
+          flush
         >
           <WeatherChart v-bind="humidityChart" />
         </SectionCard>

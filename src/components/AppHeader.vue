@@ -64,10 +64,7 @@ const refresh = () => {
 </script>
 
 <template>
-  <header
-    class="app-header"
-    :class="{ masthead: !props.back }"
-  >
+  <header class="app-header">
     <div class="header-title">
       <RouterLink
         v-if="props.back"
@@ -124,8 +121,6 @@ const refresh = () => {
 
 <style scoped>
 .app-header {
-  position: relative;
-  isolation: isolate;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -133,31 +128,6 @@ const refresh = () => {
   flex-wrap: wrap;
   padding: 1rem 0;
   border-bottom: 2px solid var(--accent-strong);
-}
-
-.app-header.masthead {
-  padding-top: 4.5rem;
-}
-
-/* The Zandvoort photo, once, at real strength: a hard-edged masthead band
-   ending on the accent rule. No alpha fade — masked fades band on 8-bit
-   composites and read as haze. Home only. */
-.app-header.masthead::before {
-  content: '';
-  position: absolute;
-  inset: -1.5rem calc(50% - 50vw) 0;
-  z-index: -2;
-  background: url('/img/background.webp') center 50% / cover no-repeat;
-  filter: saturate(0.85);
-}
-
-/* Bottom-weighted scrim protecting the title, no mask. */
-.app-header.masthead::after {
-  content: '';
-  position: absolute;
-  inset: -1.5rem calc(50% - 50vw) 0;
-  z-index: -1;
-  background: linear-gradient(to bottom, rgba(10, 15, 26, 0.3), rgba(10, 15, 26, 0.45) 55%, rgba(10, 15, 26, 0.72));
 }
 
 .header-title {
@@ -194,7 +164,8 @@ const refresh = () => {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.75rem;
-  color: var(--text-faint);
+  color: var(--text-secondary);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .status-dot {

@@ -4,6 +4,8 @@ import type { Component } from 'vue';
 defineProps<{
   title: string;
   icon?: Component;
+  /** Minimal body padding, for charts that carry their own internal margins. */
+  flush?: boolean;
 }>();
 </script>
 
@@ -25,7 +27,10 @@ defineProps<{
         <slot name="actions" />
       </div>
     </header>
-    <div class="section-body">
+    <div
+      class="section-body"
+      :class="{ flush }"
+    >
       <slot />
     </div>
   </section>
@@ -67,6 +72,12 @@ defineProps<{
 
 .section-body {
   padding: 1.25rem;
+}
+
+/* ApexCharts reserves its own side margins (y-axis labels left, ~8px right);
+   full card padding on top of that doubles the gutter. */
+.section-body.flush {
+  padding: 0.75rem 0.375rem 0.5rem;
 }
 
 @media (max-width: 768px) {
