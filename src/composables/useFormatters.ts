@@ -44,10 +44,41 @@ export function useFormatters() {
   const formatPercentage = (value: number | null | undefined): string =>
     isValue(value) ? `${formatNumber(value, 0)}%` : '–';
 
-  const formatDateTime = (date: Date | number | null | undefined): string =>
-    date ? dayjs(date).format('DD-MM-YYYY HH:mm') : '–';
+  // Station timestamps are pinned to the station's timezone: a visitor abroad
+  // should read the Zandvoort clock, not their own.
+  const timeFormat = new Intl.DateTimeFormat('nl-NL', {
+    timeZone: 'Europe/Amsterdam',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
 
-  const formatTime = (date: Date | number | null | undefined): string => (date ? dayjs(date).format('HH:mm') : '–');
+  const dateTimeFormat = new Intl.DateTimeFormat('nl-NL', {
+    timeZone: 'Europe/Amsterdam',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
+
+  const shortDateTimeFormat = new Intl.DateTimeFormat('nl-NL', {
+    timeZone: 'Europe/Amsterdam',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
+
+  const formatDateTime = (date: Date | number | null | undefined): string =>
+    date ? dateTimeFormat.format(date).replace(',', '') : '–';
+
+  const formatTime = (date: Date | number | null | undefined): string => (date ? timeFormat.format(date) : '–');
+
+  const formatShortDateTime = (date: Date | number | null | undefined): string =>
+    date ? shortDateTimeFormat.format(date).replace(',', '') : '–';
 
   const formatRelativeTime = (date: Date | number | null | undefined): string => (date ? dayjs(date).fromNow() : '–');
 
@@ -61,6 +92,7 @@ export function useFormatters() {
     formatPercentage,
     formatDateTime,
     formatTime,
+    formatShortDateTime,
     formatRelativeTime,
   };
 }

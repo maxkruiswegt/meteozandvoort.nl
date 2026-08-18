@@ -68,18 +68,33 @@ export const useWeatherStore = defineStore('weather', () => {
     return response.data;
   }
 
+  const lastHistoricFetch = ref<number | null>(null);
+
+  // The archive only gains a record every 15 minutes, so refetching /historic
+  // on the 60 s cadence would waste 14 of every 15 calls against WeatherLink's
+  // shared 1000/hour key limit.
+  const HISTORIC_TTL_MS = 5 * 60 * 1000;
+
   async function fetchHistoricWeatherForLast24Hours(): Promise<void> {
     const now = Math.floor(Date.now() / 1000);
     historicWeatherData.value = await fetchHistoricRange(now - 24 * 60 * 60, now);
+    lastHistoricFetch.value = Date.now();
     lastFetchTime.value = Date.now();
   }
 
-  /** Fetches current + historic together; keeps stale data on failure. */
-  async function fetchAll(): Promise<void> {
+  /** Fetches current (+ historic when due); keeps stale data on failure. */
+  async function fetchAll(options?: { forceHistoric?: boolean }): Promise<void> {
     if (isLoading.value) return;
     isLoading.value = true;
     try {
-      await Promise.all([fetchCurrentWeather(), fetchHistoricWeatherForLast24Hours()]);
+      const historicDue =
+        options?.forceHistoric === true ||
+        lastHistoricFetch.value === null ||
+        Date.now() - lastHistoricFetch.value > HISTORIC_TTL_MS;
+      await Promise.all([
+        fetchCurrentWeather(),
+        historicDue ? fetchHistoricWeatherForLast24Hours() : Promise.resolve(),
+      ]);
       error.value = null;
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Onbekende fout';
@@ -101,13 +116,6 @@ export const useWeatherStore = defineStore('weather', () => {
   const observationTime = computed(() => {
     const ts = iss.value?.ts;
     return ts ? new Date(ts * 1000) : null;
-  });
-
-  /** True when the station has not reported for more than 10 minutes. */
-  const isStale = computed(() => {
-    const ts = iss.value?.ts;
-    if (!ts || lastFetchTime.value === null) return false;
-    return lastFetchTime.value / 1000 - ts > 10 * 60;
   });
 
   // === TEMPERATURE (°C) ===
@@ -204,7 +212,6 @@ export const useWeatherStore = defineStore('weather', () => {
 
     // Freshness
     observationTime,
-    isStale,
 
     // Temperature
     temperature,

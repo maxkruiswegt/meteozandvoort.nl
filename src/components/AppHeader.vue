@@ -25,23 +25,41 @@ onMounted(() => {
 });
 onUnmounted(() => window.clearInterval(tickTimer));
 
-const statusLabel = computed(() => {
+// Wording follows Dutch weather-service convention (KNMI/Buienradar): absolute
+// observation clock time, relative phrasing only once the data is stale.
+const observedAgeMin = computed(() => {
   void tick.value;
-  if (weatherStore.error && !weatherStore.currentWeatherData) return 'geen verbinding';
   const observed = weatherStore.observationTime;
-  if (!observed) return 'laden…';
-  if (weatherStore.isStale) return `laatste meting ${formatters.formatRelativeTime(observed)}`;
-  return `gemeten om ${formatters.formatTime(observed)}`;
+  return observed ? (Date.now() - observed.getTime()) / 60_000 : null;
 });
 
 const statusKind = computed<'ok' | 'warn' | 'error'>(() => {
-  if (weatherStore.error) return 'error';
-  if (weatherStore.isStale) return 'warn';
+  if (weatherStore.error && !weatherStore.currentWeatherData) return 'error';
+  const age = observedAgeMin.value;
+  if (age === null) return 'ok';
+  if (age > 60) return 'error';
+  if (age > 10) return 'warn';
   return 'ok';
 });
 
+const statusLabel = computed(() => {
+  if (weatherStore.error && !weatherStore.currentWeatherData) return 'geen verbinding';
+  const observed = weatherStore.observationTime;
+  const age = observedAgeMin.value;
+  if (!observed || age === null) return 'laden…';
+  if (age > 60) return `geen actuele gegevens · laatste meting ${formatters.formatShortDateTime(observed)} uur`;
+  if (age > 10) return `laatste meting om ${formatters.formatTime(observed)} uur (${formatters.formatRelativeTime(observed)})`;
+  return `gemeten om ${formatters.formatTime(observed)} uur`;
+});
+
+const observedIso = computed(() => weatherStore.observationTime?.toISOString());
+const observedTitle = computed(() => {
+  const observed = weatherStore.observationTime;
+  return observed ? `Laatste meting: ${formatters.formatDateTime(observed)} (Europe/Amsterdam)` : undefined;
+});
+
 const refresh = () => {
-  void weatherStore.fetchAll();
+  void weatherStore.fetchAll({ forceHistoric: true });
 };
 </script>
 
@@ -64,13 +82,14 @@ const refresh = () => {
         <p
           v-if="!props.back"
           class="status-line"
+          :title="observedTitle"
         >
           <span
             class="status-dot"
             :class="`status-${statusKind}`"
             aria-hidden="true"
           />
-          {{ statusLabel }}
+          <time :datetime="observedIso">{{ statusLabel }}</time>
         </p>
       </div>
     </div>
