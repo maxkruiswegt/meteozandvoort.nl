@@ -90,13 +90,13 @@ const sunMarkers = (records: { ts: number }[]): Record<string, unknown>[] => {
   return markers;
 };
 
-/** "zon op 06:29 · onder 21:02" caption for chart card headers. */
-const sunCaption = (records: { ts: number }[]): string | null => {
+/** Formatted sunrise/sunset times for the plotted range, for display in the hero. */
+const sunTimes = (records: { ts: number }[]): { sunrise: string | null; sunset: string | null } => {
   const { sunrise, sunset } = sunEvents(records);
-  const parts: string[] = [];
-  if (sunrise) parts.push(`zon op ${timeLabel(sunrise)}`);
-  if (sunset) parts.push(`onder ${timeLabel(sunset)}`);
-  return parts.length > 0 ? parts.join(' · ') : null;
+  return {
+    sunrise: sunrise ? timeLabel(sunrise) : null,
+    sunset: sunset ? timeLabel(sunset) : null,
+  };
 };
 
 export interface ChartPoint {
@@ -325,5 +325,5 @@ export function useWeatherCharts() {
     },
   });
 
-  return { temperatureChart, windChart, pressureChart, humidityChart, rainChart, sunCaption };
+  return { temperatureChart, windChart, pressureChart, humidityChart, rainChart, sunTimes };
 }

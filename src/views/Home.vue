@@ -7,6 +7,8 @@ import {
   Gauge,
   CloudRain,
   Sun,
+  Sunrise,
+  Sunset,
   Video,
   Info,
   ArrowUpRight,
@@ -90,7 +92,7 @@ const windChart = computed(() => charts.windChart(weatherStore.historicIss));
 const rainChart = computed(() => charts.rainChart(weatherStore.historicIss));
 const pressureChart = computed(() => charts.pressureChart(weatherStore.historicBarometer));
 const humidityChart = computed(() => charts.humidityChart(weatherStore.historicIss));
-const sunCaption = computed(() => charts.sunCaption(weatherStore.historicIss) ?? undefined);
+const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
 </script>
 
 <template>
@@ -222,6 +224,20 @@ const sunCaption = computed(() => charts.sunCaption(weatherStore.historicIss) ??
             icon-color="var(--data-rain)"
           />
           <StatChip
+            v-if="sunTimes.sunrise"
+            label="zonsopkomst"
+            :value="sunTimes.sunrise"
+            :icon="Sunrise"
+            icon-color="var(--data-gust)"
+          />
+          <StatChip
+            v-if="sunTimes.sunset"
+            label="zonsondergang"
+            :value="sunTimes.sunset"
+            :icon="Sunset"
+            icon-color="var(--data-pressure)"
+          />
+          <StatChip
             v-if="weatherStore.uvIndex !== null"
             label="zonkracht"
             :value="formatters.formatNumber(weatherStore.uvIndex, 0)"
@@ -236,7 +252,6 @@ const sunCaption = computed(() => charts.sunCaption(weatherStore.historicIss) ??
         <SectionCard
           title="Temperatuur (24u)"
           :icon="Thermometer"
-          :caption="sunCaption"
           flush
         >
           <WeatherChart v-bind="temperatureChart" />
