@@ -28,9 +28,28 @@ onMounted(async () => {
       },
     ],
   });
+
+  // Muted autoplay is allowed without a gesture, but needs an explicit kick
+  // once the player is ready (matches pre-overhaul behavior).
+  player.ready(() => {
+    player?.play()?.catch(() => {
+      /* autoplay blocked; the play button remains */
+    });
+  });
+
+  // Chrome pauses video-only media in hidden tabs; resume when the tab
+  // becomes visible again.
+  document.addEventListener('visibilitychange', resumeWhenVisible);
 });
 
+const resumeWhenVisible = () => {
+  if (!document.hidden && player?.paused()) {
+    player.play()?.catch(() => {});
+  }
+};
+
 onUnmounted(() => {
+  document.removeEventListener('visibilitychange', resumeWhenVisible);
   player?.dispose();
   player = null;
 });

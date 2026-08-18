@@ -345,34 +345,17 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
         <BeachcamStream />
       </SectionCard>
 
-      <!-- ===== About ===== -->
-      <SectionCard
-        title="Over Meteo Zandvoort"
-        :icon="Info"
-      >
-        <div class="about-text">
-          <p>
-            Deze weergegevens komen rechtstreeks van het weerstation van <strong>Herman Kruiswegt</strong> in
-            Zandvoort. Met jarenlange passie voor meteorologie verzamelt en deelt Herman nauwkeurige en actuele
-            weerinformatie voor de regio.
-          </p>
-          <p>
-            Naast zijn fascinatie voor het weer runt Herman een professioneel administratiekantoor waar hij ondernemers
-            en particulieren ondersteunt met diverse administratieve diensten. Meer informatie vindt u op
-            <a
-              href="https://decib.nl"
-              target="_blank"
-              rel="noopener noreferrer"
-              >decib.nl</a
-            >.
-          </p>
-        </div>
-      </SectionCard>
-
       <footer class="footer">
         <p>Davis-weerstation in Zandvoort · meet elke minuut, archiveert per kwartier.</p>
         <p>
-          Station van Herman Kruiswegt · site door
+          Station van
+          <a
+            href="https://decib.nl"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Herman Kruiswegt</a
+          >
+          · site door
           <a
             href="https://maxkruiswegt.com"
             target="_blank"
@@ -602,15 +585,6 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
   color: var(--text-faint);
   font-size: 0.75rem;
   font-weight: 400;
-}
-
-.about-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  max-width: 70ch;
 }
 
 .footer {

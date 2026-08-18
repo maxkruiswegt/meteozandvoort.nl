@@ -1,143 +1,52 @@
-# 🌤️ Meteo Zandvoort
+# Meteo Zandvoort
 
-Welcome to Meteo Zandvoort, a comprehensive weather monitoring dashboard for Zandvoort! This project provides real-time weather data, including wind speeds, temperature, and other meteorological information, fetched directly from Herman Kruiswegt's weather station. The application is built using Vue 3, Vite, and PrimeVue, ensuring a fast, modern, and feature-rich user experience.
+Live weather dashboard for Zandvoort, powered by the personal Davis weather station of Herman Kruiswegt. The station reports every minute; the site shows current conditions, 24-hour meteograms, and a historic data browser.
 
-Explore the live application at [Meteo Zandvoort](https://meteozandvoort.nl) to see it in action.
+Live at [meteozandvoort.nl](https://meteozandvoort.nl).
 
-## 🌟 Features
+## Features
 
-### Dashboard (Home)
+- **Current conditions**: temperature (colored by a CVD-safe temperature ramp), feels-like (THW), 24h min/max, wind compass with Beaufort force (KNMI scale), pressure with 3-hour trend, humidity, dew point and rainfall.
+- **24-hour meteograms**: temperature/dew point, wind and gusts, rainfall, pressure (with 1013 hPa reference) and humidity — with night shading computed from actual Zandvoort sunrise/sunset times.
+- **Details**: dense station readout with rain accumulations (hour/day/month/year), wind statistics and indoor conditions.
+- **Live beachcam** (stream by Reddingsbrigade Bloemendaal).
+- **Historic browser** (`/historisch`): pick any day, browse 15-minute archive records, export CSV.
+- **Raw data view** (`/huidig`): every sensor field, raw and formatted.
+- Auto-refresh every 60 seconds (paused while the tab is hidden).
 
-- 🌡️ **Hero Section**: Large display showing quick information
-- 🎯 **Extended Metrics Grid**: ALL available weather metrics in organized cards
-  - Temperature variants (temp, dew point, THW index, heat index, wind chill, wet bulb)
-  - Wind data (instant, 1-min, 2-min, 10-min, 24-hour averages and maximums)
-  - Wind directions for all time periods
-  - Rainfall data (rate, 15-min, 1-hour, 24-hour, daily, monthly, yearly)
-  - Indoor conditions (temperature, humidity, dew point)
-- 📈 **Interactive 24-Hour Charts**: Beautiful ApexCharts visualizations
-  - Temperature trends (with dew point, heat index, wind chill)
-  - Wind speed (average and gusts)
-  - Barometric pressure
-  - Humidity levels
-  - Rainfall accumulation
-- 🔄 **Auto-Refresh**: Optional automatic data refresh every 60 seconds
-- ⚡ **Real-time Updates**: Data updated every minute from the weather station
+## Stack
 
-### Current Conditions View
+- Vue 3 + TypeScript (strict), Vite 8, Pinia, Vue Router
+- PrimeVue **4.5.5** — pinned deliberately: PrimeVue 5+ uses the non-MIT PrimeUI license. Do not upgrade across that boundary without checking the licensing consequences.
+- ApexCharts 6 (chart animations disabled deliberately; re-test before enabling)
+- video.js (lazily loaded) for the beachcam HLS stream
+- Archivo (variable font, tabular figures) via Fontsource; Lucide icons
 
-- 📋 **Detailed Data Table**: All current sensor readings in sortable, filterable table
-- 🔍 **Advanced Filtering**: Filter by sensor type or field name
-- 📊 **Multiple Sensors**: Data from ISS (outdoor), Barometer, Indoor, and Health sensors
-- 💾 **Export Ready**: All data formatted and ready for analysis
-
-### Historic Data Browser
-
-- 📅 **Custom Date Range**: Select any 24-hour period for analysis
-- 📊 **Comprehensive Table**: All historic records with 15-minute intervals
-- 🔽 **CSV Export**: Download historic data for offline analysis
-- 📈 **Summary Statistics**: Quick overview of selected time range
-- 🎛️ **Flexible Pagination**: View 10, 20, 50, or 100 records per page
-
-## 🛠️ Technology Stack
-
-- **Vue 3**: Modern reactive framework with Composition API
-- **Vite**: Lightning-fast build tool and dev server
-- **Pinia**: Intuitive state management
-- **PrimeVue 4**: Comprehensive UI component library
-  - DataTable for data display
-  - Cards for metric organization
-  - TabView for chart navigation
-  - Calendar for date selection
-  - Buttons and interactive components
-- **ApexCharts**: Beautiful, interactive charts
-- **Day.js**: Lightweight date manipulation
-- **Axios**: HTTP client for API requests
-- **Material Symbols**: Google's icon library
-
-## 📦 Installation
+## Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
+npm run dev          # dev server
+npm run type-check   # vue-tsc
+npm run build        # type-check + production build
+npm run preview      # serve the production build
 ```
 
-## 🎨 Features Deep Dive
+Requires Node `^20.19.0 || ^22.12.0 || >=24`. CI deploys `main` via GitHub Actions (Node 24, `npm ci`).
 
-### Data Management
+## Backend
 
-- Centralized WeatherStore with 50+ computed properties
-- UIStore for user preferences
-- Automatic data validation
-- 10-second timeout for API requests
-- Error handling with fallback UI
+`api.meteozandvoort.nl` is a reverse proxy in front of the WeatherLink v2 API:
 
-### Responsive Design
+- `GET /current` — current conditions for all sensors
+- `GET /historic?start-timestamp={unix}&end-timestamp={unix}` — 15-minute archive records, max 24 hours per query
 
-- Mobile-first approach
-- Breakpoints: Mobile (<768px), Tablet (768-1024px), Desktop (>1024px)
-- Flexible grid layouts
-- Touch-friendly interface
+See [CLAUDE.md](CLAUDE.md) for full API and sensor documentation, and [current-endpoint-example.md](current-endpoint-example.md) / [historic-endpoint-example.md](historic-endpoint-example.md) for example payloads.
 
-### Performance Optimizations
+## Credits
 
-- Lazy-loaded routes
-- Computed properties for derived data
-- Efficient chart updates
-- Minimal re-renders
+Weather data: **Herman Kruiswegt** (Davis station, Zandvoort). Site: [Max Kruiswegt](https://maxkruiswegt.com). Beachcam: [Reddingsbrigade Bloemendaal](https://reddingsbrigade-bloemendaal.nl/beachcam/).
 
-## ⚙️ Backend
+## License
 
-The backend API is hosted at `api.meteozandvoort.nl` and acts as a reverse proxy to WeatherLink's API. It fetches real-time data directly from Herman Kruiswegt's weather station. The backend provides two main endpoints:
-
-- `/current`: Fetches the current weather data
-- `/historic?start-timestamp={start}&end-timestamp={end}`: Fetches historical weather data (max 24 hours)
-
-These endpoints allow the frontend to display up-to-date and historical weather information seamlessly.
-
-## 📚 Project Structure
-
-```
-src/
-├── views/
-│   ├── Home.vue              # Main dashboard
-│   ├── CurrentView.vue       # Detailed current conditions
-│   └── HistoricView.vue      # Historic data browser
-├── components/
-│   └── cards/
-│       └── MetricCard.vue    # Reusable metric display
-├── stores/
-│   ├── WeatherStore.js       # Weather data management
-│   └── UIStore.js            # UI preferences
-├── composables/
-│   ├── useFormatters.js      # Data formatting utilities
-│   └── useChartConfig.js     # Chart configuration
-├── utils/
-│   ├── constants.js          # App-wide constants
-│   └── weatherUtils.js       # Weather calculations
-└── router/
-    └── index.js              # Route definitions
-```
-
-## 🔗 Related Documentation
-
-- [CLAUDE.md](CLAUDE.md) - Comprehensive technical documentation
-- [current-endpoint-example.md](current-endpoint-example.md) - Current API response example
-- [historic-endpoint-example.md](historic-endpoint-example.md) - Historic API response example
-
-## 🙏 Credits
-
-Weather data provided by **Herman Kruiswegt**'s personal weather station in Zandvoort, Netherlands.
-
-## 📝 License
-
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+GNU General Public License v3.0 — see [LICENSE](LICENSE).

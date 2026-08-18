@@ -644,14 +644,7 @@ Each archive record contains:
 const maxDirection = Math.max(...windDirections); // 350° and 10° → returns 350° (wrong!)
 ```
 
-**Current Issue**:
-In [WeatherStore.js:171](src/stores/WeatherStore.js#L171), the code uses `Math.max()` for `windDirectionHiLast24Hours`. This should use `wind_dir_of_prevail` field directly instead of calculating max.
-
-**Better Approach**:
-```javascript
-// Use the prevailing direction from API
-const prevailingDirection = data.wind_dir_of_prevail;
-```
+**Resolved**: the store no longer aggregates directions with `Math.max()`; the historic table uses `wind_dir_of_prevail` directly.
 
 #### 2. Timestamp Interpretation
 
@@ -801,12 +794,17 @@ async function fetchWithTimeout(url, options, timeout = 10000) {
 
 | File | Purpose |
 |------|---------|
-| [src/stores/WeatherStore.js](src/stores/WeatherStore.js) | Main data fetching and state management |
-| [src/utils/weatherUtils.js](src/utils/weatherUtils.js) | Unit conversions |
-| [src/views/Home.vue](src/views/Home.vue) | Main display component |
-| [src/components/weather/WindComponent.vue](src/components/weather/WindComponent.vue) | Wind data display |
-| [src/components/weather/WeatherComponent.vue](src/components/weather/WeatherComponent.vue) | Generic metric display |
-| [src/api.js](src/api.js) | Axios instance configuration |
+| [src/stores/WeatherStore.ts](src/stores/WeatherStore.ts) | Data fetching + all derived metric values (imperial→metric conversion happens here, once) |
+| [src/types/weatherlink.ts](src/types/weatherlink.ts) | Typed WeatherLink sensor payloads + sensor type constants |
+| [src/utils/weather.ts](src/utils/weather.ts) | Pure domain logic: conversions, KNMI Beaufort scale, wind directions, temperature color ramp |
+| [src/composables/useFormatters.ts](src/composables/useFormatters.ts) | Dutch (nl-NL) display formatting |
+| [src/composables/useWeatherCharts.ts](src/composables/useWeatherCharts.ts) | ApexCharts series/options builders (night bands via suncalc) |
+| [src/views/Home.vue](src/views/Home.vue) | Dashboard |
+| [src/views/CurrentView.vue](src/views/CurrentView.vue) | Raw sensor data table |
+| [src/views/HistoricView.vue](src/views/HistoricView.vue) | Day picker + archive table + CSV export |
+| [src/api.ts](src/api.ts) | Axios instance (10s timeout) |
+
+**Deliberate constraints**: PrimeVue is pinned at 4.5.5 (last MIT release; v5+ requires a PrimeUI license key and injects a DOM banner without one). TypeScript is pinned at 6.x until vue-tsc supports TS 7. ApexCharts animations are disabled (caused renderer freezes with apexcharts 6).
 
 ### Environment Variables
 
