@@ -29,13 +29,18 @@ onMounted(async () => {
     ],
   });
 
-  // Muted autoplay is allowed without a gesture, but needs an explicit kick
-  // once the player is ready (matches pre-overhaul behavior).
-  player.ready(() => {
+  // Muted autoplay needs no gesture, but a single early play() can fire
+  // before the HLS engine has attached (rejects, never retried — the classic
+  // Firefox failure). Attempt at every readiness milestone; play() on an
+  // already-playing video is a no-op.
+  const tryAutoplay = () => {
     player?.play()?.catch(() => {
-      /* autoplay blocked; the play button remains */
+      /* not ready yet or blocked; a later milestone retries */
     });
-  });
+  };
+  player.ready(tryAutoplay);
+  player.one('loadedmetadata', tryAutoplay);
+  player.one('canplay', tryAutoplay);
 
   // Chrome pauses video-only media in hidden tabs; resume when the tab
   // becomes visible again.
@@ -60,6 +65,8 @@ onUnmounted(() => {
     <video
       ref="videoRef"
       class="video-js vjs-big-play-centered"
+      muted
+      autoplay
       playsinline
     ></video>
     <p class="beachcam-credit">
