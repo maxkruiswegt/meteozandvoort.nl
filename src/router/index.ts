@@ -6,17 +6,17 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/Home.vue'),
+      component: () => import('@/views/Home.vue'),
     },
     {
       path: '/huidig',
       name: 'current',
-      component: () => import('../views/CurrentView.vue'),
+      component: () => import('@/views/CurrentView.vue'),
     },
     {
       path: '/historisch',
       name: 'historic',
-      component: () => import('../views/HistoricView.vue'),
+      component: () => import('@/views/HistoricView.vue'),
     },
   ],
 });

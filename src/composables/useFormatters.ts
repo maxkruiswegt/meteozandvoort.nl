@@ -12,8 +12,19 @@ const isValue = (value: number | null | undefined): value is number =>
   value !== null && value !== undefined && Number.isFinite(value);
 
 export function useFormatters() {
+  // useGrouping off: nl-NL groups thousands with a period, so 1013 hPa would
+  // render as "1.013" and read as a decimal. Real minus sign (U+2212) for
+  // correct width at display sizes.
   const formatNumber = (value: number | null | undefined, decimals = 1): string =>
-    isValue(value) ? value.toLocaleString('nl-NL', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) : '–';
+    isValue(value)
+      ? value
+          .toLocaleString('nl-NL', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+            useGrouping: false,
+          })
+          .replace('-', '−')
+      : '–';
 
   const formatTemperature = (celsius: number | null | undefined, decimals = 1): string =>
     isValue(celsius) ? `${formatNumber(celsius, decimals)}°C` : '–';

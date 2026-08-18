@@ -1,223 +1,155 @@
-<script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useWeatherStore } from '@/stores/WeatherStore';
-import { useFormatters } from '@/composables/useFormatters';
-import Card from 'primevue/card';
+<script setup lang="ts">
+import { computed, onMounted } from 'vue';
+import { Table2 } from '@lucide/vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import Button from 'primevue/button';
-import ProgressSpinner from 'primevue/progressspinner';
-import { SENSOR_TYPES } from '@/utils/constants';
+import { useWeatherStore } from '@/stores/WeatherStore';
+import { useFormatters } from '@/composables/useFormatters';
+import { convertFahrenheitToCelsius, convertMphToKmh, convertInHgToHpa } from '@/utils/weather';
+import { SENSOR_TYPES } from '@/types/weatherlink';
+import AppHeader from '@/components/AppHeader.vue';
+import SectionCard from '@/components/SectionCard.vue';
 
 const weatherStore = useWeatherStore();
 const formatters = useFormatters();
-const refresh = ref(false);
 
-const refreshData = async () => {
-  refresh.value = true;
-  await weatherStore.fetchCurrentWeather();
-  refresh.value = false;
+onMounted(() => {
+  if (!weatherStore.currentWeatherData) {
+    void weatherStore.fetchAll();
+  }
+});
+
+const SENSOR_LABELS: Record<number, string> = {
+  [SENSOR_TYPES.ISS]: 'Buitensensor (ISS)',
+  [SENSOR_TYPES.BAROMETER]: 'Barometer',
+  [SENSOR_TYPES.INDOOR]: 'Binnensensor',
+  [SENSOR_TYPES.HEALTH]: 'Systeemstatus',
 };
 
-onMounted(async () => {
-  if (!weatherStore.currentWeatherData) {
-    await weatherStore.fetchCurrentWeather();
-  }
-});
+interface SensorRow {
+  sensor: string;
+  lsid: number;
+  field: string;
+  value: string;
+  formatted: string;
+}
 
-const allSensorData = computed(() => {
-  if (!weatherStore.currentWeatherData) return [];
+const formatValue = (key: string, value: unknown): string => {
+  if (value === null || value === undefined) return '–';
+  if (typeof value !== 'number') return String(value);
 
-  const data = [];
-  weatherStore.currentWeatherData.sensors.forEach((sensor) => {
-    const sensorData = sensor.data[0];
-    if (!sensorData) return;
-
-    Object.entries(sensorData).forEach(([key, value]) => {
-      data.push({
-        sensor: `Type ${sensor.sensor_type}`,
-        lsid: sensor.lsid,
-        field: key,
-        value: value,
-        formatted: formatValue(key, value),
-      });
-    });
-  });
-
-  return data;
-});
-
-const formatValue = (key, value) => {
-  if (value === null || value === undefined) return '--';
-
-  // Temperature fields
-  if (key.includes('temp') || key.includes('dew') || key.includes('heat') || key.includes('chill') || key.includes('wet_bulb') || key.includes('thw') || key.includes('thsw')) {
-    return formatters.formatTemperature(value);
+  // Unix timestamps
+  if (key === 'ts' || key.endsWith('_at') || key.endsWith('_timestamp')) {
+    return formatters.formatDateTime(value * 1000);
   }
 
-  // Wind speed fields
+  // Temperature fields report °F; skip diagnostics like battery_temp
+  const isTemperature =
+    /temp|dew_point|heat_index|wind_chill|wet_bulb|thw_index|thsw_index/.test(key) &&
+    !/battery|volt|clicks|freq/.test(key);
+  if (isTemperature) {
+    return formatters.formatTemperature(convertFahrenheitToCelsius(value));
+  }
+
   if (key.includes('wind_speed')) {
-    return formatters.formatWindSpeed(value);
+    return formatters.formatWindSpeed(convertMphToKmh(value));
   }
 
-  // Pressure fields
-  if (key.includes('bar')) {
-    return formatters.formatPressure(value);
+  if (key.startsWith('bar_')) {
+    return formatters.formatPressure(convertInHgToHpa(value));
   }
 
-  // Humidity fields
-  if (key.includes('hum')) {
+  if (key.startsWith('hum')) {
     return formatters.formatPercentage(value);
   }
 
-  // Rainfall fields
-  if (key.includes('rain') && (key.includes('_mm') || key.includes('_in'))) {
-    return formatters.formatRainfall(value);
+  if (key.includes('rain') && key.endsWith('_mm')) {
+    return key.includes('rate') ? formatters.formatRainRate(value) : formatters.formatRainfall(value);
   }
 
-  // Timestamps
-  if (key === 'ts' || key.includes('_at')) {
-    return formatters.formatDateTime(new Date(value * 1000));
-  }
-
-  return value;
+  return String(value);
 };
+
+const rows = computed<SensorRow[]>(() => {
+  const data = weatherStore.currentWeatherData;
+  if (!data) return [];
+
+  return data.sensors.flatMap((sensor) => {
+    const record = sensor.data[0];
+    if (!record) return [];
+    return Object.entries(record).map(([field, value]) => ({
+      sensor: SENSOR_LABELS[sensor.sensor_type] ?? `Type ${sensor.sensor_type}`,
+      lsid: sensor.lsid,
+      field,
+      value: value === null || value === undefined ? '–' : String(value),
+      formatted: formatValue(field, value),
+    }));
+  });
+});
 </script>
 
 <template>
-  <div class="current-view-container">
-    <div class="page-header">
-      <h1>Huidige Data</h1>
-      <div class="header-actions">
-        <div class="nav-buttons">
-          <Button label="Terug" icon="pi pi-arrow-left" @click="$router.push('/')" text />
-        </div>
-        <Button icon="pi pi-refresh" @click="refreshData" :loading="refresh" text rounded />
-      </div>
-    </div>
+  <div class="page">
+    <AppHeader
+      title="Huidige data"
+      back
+    />
 
-    <div v-if="weatherStore.isLoading && !weatherStore.currentWeatherData" class="loading-state">
-      <ProgressSpinner />
-      <p>Weergegevens laden...</p>
-    </div>
-
-    <Card v-else>
-      <template #header>
-        <div class="card-header">
-          <h2>Alle Huidige Sensordata</h2>
-          <small>Laatst bijgewerkt: {{ weatherStore.lastUpdated ? formatters.formatDateTime(weatherStore.lastUpdated) : '--' }}</small>
-        </div>
-      </template>
-      <template #content>
-        <DataTable
-          :value="allSensorData"
-          paginator
-          :rows="50"
-          :rowsPerPageOptions="[25, 50, 100]"
-          filterDisplay="row"
-          :globalFilterFields="['sensor', 'field', 'value']"
-          sortField="sensor"
-          :sortOrder="1"
-          stripedRows
-          showGridlines
-        >
-          <Column field="sensor" header="Sensor" sortable filter filterPlaceholder="Filter op sensor" style="min-width: 150px" />
-          <Column field="lsid" header="LSID" sortable style="min-width: 100px" />
-          <Column field="field" header="Veldnaam" sortable filter filterPlaceholder="Filter op veld" style="min-width: 250px" />
-          <Column field="value" header="Ruwe Waarde" sortable style="min-width: 150px" />
-          <Column field="formatted" header="Geformatteerde Waarde" sortable style="min-width: 200px" />
-        </DataTable>
-      </template>
-    </Card>
+    <SectionCard
+      title="Alle sensorvelden"
+      :icon="Table2"
+    >
+      <DataTable
+        :value="rows"
+        paginator
+        :rows="50"
+        :rows-per-page-options="[25, 50, 100]"
+        sort-field="sensor"
+        :sort-order="1"
+        striped-rows
+      >
+        <Column
+          field="sensor"
+          header="Sensor"
+          sortable
+          style="min-width: 160px"
+        />
+        <Column
+          field="field"
+          header="Veld"
+          sortable
+          style="min-width: 240px"
+        />
+        <Column
+          field="value"
+          header="Ruwe waarde"
+          sortable
+          style="min-width: 130px"
+        />
+        <Column
+          field="formatted"
+          header="Geformatteerd"
+          sortable
+          style="min-width: 160px"
+        />
+      </DataTable>
+    </SectionCard>
   </div>
 </template>
 
 <style scoped>
-.current-view-container {
-  max-width: 1400px;
-  width: 100%;
+.page {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem 1.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  margin-bottom: 1rem;
-}
-
-.page-header h1 {
-  margin: 0;
-  color: #ffffff;
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.nav-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 1rem;
-  color: #ffffff;
-}
-
-.card-header {
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-header h2 {
-  margin: 0;
+  gap: 1.25rem;
 }
 
 @media (max-width: 768px) {
-  .current-view-container {
-    padding: 1rem;
-  }
-
-  .page-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-
-  .page-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .header-actions {
-    width: 100%;
-  }
-
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+  .page {
+    padding: 1rem 1rem 1.5rem;
   }
 }
 </style>

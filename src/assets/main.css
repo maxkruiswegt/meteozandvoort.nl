@@ -1,303 +1,266 @@
-@import './base.css';
+/* ============================================================
+   Meteo Zandvoort — design tokens & base styles
+   Dark coastal theme. All data colors are validated for ≥4.5:1
+   contrast on --bg and are CVD-safe (no green in ramps).
+   ============================================================ */
 
-/* PrimeVue Theme Customization */
 :root {
-  --primary-color: #be4535;
-  --primary-50: #fef2f0;
-  --primary-100: #fee5e0;
-  --primary-200: #fccfc7;
-  --primary-300: #fab0a0;
-  --primary-400: #f68369;
-  --primary-500: #eb603f;
-  --primary-600: #be4535;
-  --primary-700: #a03628;
-  --primary-800: #852e24;
-  --primary-900: #702923;
+  /* Surfaces */
+  --bg: #0a0f1a;
+  --bg-raised: #0e1524;
+  --surface: #121a2a;
+  --surface-2: #1a2436;
+  --surface-3: #223049;
+  --border: rgba(148, 163, 199, 0.14);
+  --border-strong: rgba(148, 163, 199, 0.28);
 
-  --surface-0: #ffffff;
-  --surface-50: #f8f9fa;
-  --surface-100: #f1f3f5;
-  --surface-200: #e9ecef;
-  --surface-300: #dee2e6;
-  --surface-400: #ced4da;
-  --surface-500: #adb5bd;
-  --surface-600: #6c757d;
-  --surface-700: #495057;
-  --surface-800: #343a40;
-  --surface-900: #212529;
-  --surface-ground: #f6f6f6;
+  /* Text */
+  --text: #e8edf6;
+  --text-secondary: #9daabf;
+  --text-faint: #6b7690;
 
-  --text-color: #000000;
-  --text-color-secondary: #4a4b4c;
+  /* Brand accent (derived from the historic Meteo Zandvoort red) */
+  --accent: #ec6a57;
+  --accent-strong: #be4535;
+  --accent-soft: rgba(236, 106, 87, 0.14);
+
+  /* Data colors */
+  --data-wind: #5fcef9;
+  --data-gust: #f9b449;
+  --data-rain: #4aa3fc;
+  --data-humidity: #48bafe;
+  --data-pressure: #b18cff;
+  --data-dewpoint: #4aa3fc;
+
+  /* Temperature ramp (°C, dark-bg optimized, CVD-safe) */
+  --temp--10: #4aa3fc;
+  --temp--5: #48bafe;
+  --temp-0: #5fcef9;
+  --temp-5: #89dbe9;
+  --temp-10: #e0d7bd;
+  --temp-15: #f1cb81;
+  --temp-20: #f9b449;
+  --temp-25: #f8923b;
+  --temp-30: #f36e37;
+  --temp-35: #e74e45;
+  --temp-40: #db3e72;
+
+  /* Status */
+  --status-ok: #4ade80;
+  --status-warn: #f9b449;
+  --status-error: #f36e37;
+
+  /* Typography */
+  --font-ui: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-num: 'Geist Mono Variable', ui-monospace, 'Cascadia Mono', monospace;
+
+  /* Shape */
+  --radius-card: 16px;
+  --radius-tile: 12px;
+  --radius-chip: 999px;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  color-scheme: dark;
 }
 
-/* Override PrimeVue button colors to use our primary color */
-.p-button {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  color: white !important;
-}
-
-.p-button:hover,
-.p-button:enabled:hover,
-.p-button:not(:disabled):hover {
-  background-color: var(--primary-700) !important;
-  border-color: var(--primary-700) !important;
-  color: white !important;
-}
-
-.p-button:active,
-.p-button:enabled:active {
-  background-color: var(--primary-800) !important;
-  border-color: var(--primary-800) !important;
-  color: white !important;
-}
-
-.p-button:focus {
-  box-shadow: 0 0 0 0.2rem rgba(190, 69, 53, 0.25) !important;
-}
-
-.p-button.p-button-text {
-  background-color: transparent !important;
-  color: #ffffff !important;
-  border-color: transparent !important;
-}
-
-.p-button.p-button-text:hover,
-.p-button.p-button-text:enabled:hover,
-.p-button.p-button-text:not(:disabled):hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: #ffffff !important;
-  border-color: transparent !important;
-}
-
-.p-button.p-button-text:active,
-.p-button.p-button-text:enabled:active {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  color: #ffffff !important;
-  border-color: transparent !important;
-}
-
-.p-button.p-button-text:focus {
-  box-shadow: none !important;
-}
-
-.p-button.p-button-rounded {
-  border-radius: 50% !important;
-}
-
-/* Disable ripple effect white color */
-.p-button .p-ink {
-  background-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-.p-button.p-button-text .p-ink {
-  background-color: rgba(190, 69, 53, 0.2) !important;
-}
-
-/* Consistent Card styling */
-.p-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--surface-200);
-}
-
-.p-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.p-card-header {
-  background: var(--surface-50);
-  border-bottom: 1px solid var(--surface-200);
-  padding: 1rem;
-  border-radius: 12px 12px 0 0;
-}
-
-.p-card-header h3 {
+*,
+*::before,
+*::after {
   margin: 0;
-  color: var(--text-color);
-  font-weight: 600;
-}
-
-.p-card-body {
-  padding: 1rem;
-}
-
-.p-card-content {
   padding: 0;
+  box-sizing: border-box;
 }
 
-.page-container {
-  position: relative;
-  width: 90vw;
-  max-width: 800px;
-  margin: 32px auto;
+html {
+  height: 100%;
 }
 
-/* Montserrat Bold */
-.desktop-header-active-menu {
-  font-family: var(--font-primary);
-  font-weight: var(--font-bold);
-  font-size: var(--font-size-desktop-header-active-menu);
-  color: var(--color-text-primary);
+body {
+  min-height: 100%;
+  background-color: var(--bg);
+  /* Local Zandvoort photo under a heavy scrim: texture and identity
+     without competing with the data. */
+  background-image:
+    linear-gradient(to bottom, rgba(10, 15, 26, 0.84), rgba(10, 15, 26, 0.93) 45%, rgba(10, 15, 26, 0.985)),
+    url('/img/background.webp');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.55;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+a {
+  color: var(--accent);
   text-decoration: none;
 }
 
-.button,
-.tab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-primary);
-  font-weight: var(--font-bold);
-  color: var(--color-background-2);
-  background-color: var(--color-primary);
-  border: none;
-  gap: 1rem;
-  cursor: pointer;
-}
-
-.button {
-  text-transform: uppercase;
-  border-radius: 0.5rem;
-  padding: 10px 20px;
-}
-
-.tab {
-  padding: 10px 50px;
-}
-
-.button img,
-.tab img {
-  width: 20px;
-  height: 20px;
-}
-
-.button.inactive,
-.tab.inactive {
-  color: var(--color-background-1);
-  background-color: var(--color-tertiary-dark);
-}
-
-.button:hover,
-.tab.inactive:hover {
-  filter: brightness(0.9);
-}
-
-/* Montserrat Semi-Bold */
-.back-button-label {
-  font-family: var(--font-primary);
-  font-weight: var(--font-semibold);
-  font-size: var(--font-size-back-button-label-desktop);
-  color: var(--color-text-primary);
-}
-
-.input-field-title {
-  font-family: var(--font-primary);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-}
-
-/* Montserrat Medium */
-.desktop-header-inactive-menu {
-  font-family: var(--font-primary);
-  font-weight: var(--font-medium);
-  font-size: var(--font-size-desktop-header-inactive-menu);
-  color: var(--color-text-primary);
-  text-decoration: none;
-  opacity: 0.5;
-}
-
-/* Montserrat Medium Italic */
-.error-message {
-  font-family: var(--font-primary);
-  font-weight: var(--font-medium-italic);
-  color: var(--color-primary);
-}
-
-/* Open Sans Regular */
-input,
-textarea,
-select {
-  font-family: var(--font-secondary);
-  font-weight: var(--font-regular);
-  color: var(--color-text-secondary);
-  border: none;
-  border-radius: 0.5rem;
-  padding: 10px;
-  outline: none;
-  width: 100%;
+a:hover {
+  text-decoration: underline;
 }
 
 button {
+  font-family: inherit;
+}
+
+/* Numeric readouts: tabular by construction */
+.num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: rgba(74, 163, 252, 0.35);
+}
+
+/* Scrollbar (desktop) */
+@media (min-width: 769px) {
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface-3);
+    border-radius: 8px;
+    border: 3px solid var(--bg);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-strong);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   PrimeVue dark restyle (DataTable, DatePicker, Paginator)
+   Scoped to the few components the data views use.
+   ============================================================ */
+
+.p-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  color: var(--text);
+}
+
+.p-datatable {
+  font-size: 0.875rem;
+}
+
+.p-datatable-table-container {
+  border-radius: var(--radius-tile);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  border-color: var(--border);
+  font-weight: 600;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border-color: var(--border);
+}
+
+.p-datatable.p-datatable-striped .p-datatable-tbody > tr.p-row-odd {
+  background: var(--bg-raised);
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: var(--surface-2);
+}
+
+.p-paginator {
+  background: transparent;
+  color: var(--text-secondary);
   border: none;
-  background-color: transparent;
-  cursor: pointer;
 }
 
-.material-symbols-outlined {
-  user-select: none;
+.p-paginator .p-paginator-page.p-paginator-page-selected {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
-.hidden-element {
-  opacity: 0;
-  filter: blur(5px);
-  transform: translateX(-100%);
+.p-select,
+.p-datepicker,
+.p-inputtext {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
 }
 
-.show-element {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateX(0);
-  transition: all 1.5s;
+.p-datepicker-panel {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
 }
 
-/* Media Query for Desktop Versions */
-@media screen and (min-width: 769px) {
-  /* Montserrat Bold */
-  .button,
-  .tab {
-    font-size: var(--font-size-buttons-tabs-desktop);
-  }
-
-  /* Montserrat Semi-Bold */
-  .input-field-title {
-    font-size: var(--font-size-input-field-title-desktop);
-  }
-
-  /* Montserrat Medium Italic */
-  .error-message {
-    font-size: var(--font-size-error-message-desktop);
-  }
-
-  /* Open Sans Regular */
-  input,
-  textarea {
-    font-size: var(--font-size-input-field-desktop);
-  }
+.p-datepicker-panel .p-datepicker-header {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
 }
 
-/* Media Query for Mobile Versions */
-@media screen and (max-width: 768px) {
-  /* Montserrat Bold */
-  .button,
-  .tab {
-    font-size: var(--font-size-buttons-tabs-mobile);
-  }
+.p-datepicker-panel .p-datepicker-day {
+  color: var(--text);
+}
 
-  /* Montserrat Semi-Bold */
-  .input-field-title {
-    font-size: var(--font-size-input-field-title-mobile);
-  }
+.p-datepicker-panel .p-datepicker-day-selected,
+.p-datepicker-panel .p-datepicker-day-selected-range {
+  background: var(--accent-strong);
+  color: #ffffff;
+}
 
-  /* Montserrat Medium Italic */
-  .error-message {
-    font-size: var(--font-size-error-message-mobile);
-  }
+.p-select-overlay {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
 
-  /* Open Sans Regular */
-  input,
-  textarea {
-    font-size: var(--font-size-input-field-mobile);
-  }
+.p-select-option {
+  color: var(--text);
+}
+
+.p-select-option.p-select-option-selected {
+  background: var(--accent-soft);
+  color: var(--accent);
 }

@@ -80,6 +80,16 @@ export const windDirectionName = (degrees: number | null): string | null => {
   return WIND_DIRECTIONS_8_FULL[index];
 };
 
+/**
+ * Maps a temperature to the nearest 5 °C stop of the CSS temperature ramp
+ * (--temp--10 … --temp-40), for coloring large readouts.
+ */
+export const temperatureColorVar = (celsius: number | null): string => {
+  if (celsius === null || !Number.isFinite(celsius)) return 'var(--text)';
+  const stop = Math.min(40, Math.max(-10, Math.round(celsius / 5) * 5));
+  return stop < 0 ? `var(--temp--${Math.abs(stop)})` : `var(--temp-${stop})`;
+};
+
 export type PressureTrend = 'rising' | 'falling' | 'steady';
 
 /** Trend over 3 hours; input in hPa (converted from the API's inHg delta). */
