@@ -368,7 +368,7 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
       </SectionCard>
 
       <footer class="footer">
-        <p>Davis-weerstation in Zandvoort · meet elke minuut, archiveert per kwartier.</p>
+        <p>Davis-weerstation in Zandvoort · metingen per minuut.</p>
         <p>
           Station van
           <a
