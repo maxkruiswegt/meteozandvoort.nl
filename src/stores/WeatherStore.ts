@@ -50,7 +50,12 @@ export const useWeatherStore = defineStore('weather', () => {
     lastFetchTime.value = Date.now();
   }
 
-  async function fetchHistoricWeather(startTimestamp: number, endTimestamp: number): Promise<void> {
+  /**
+   * Fetches an arbitrary historic range (max 24h per the API) and returns it
+   * without touching store state, so day queries from the historic browser
+   * don't clobber the dashboard's rolling 24h window.
+   */
+  async function fetchHistoricRange(startTimestamp: number, endTimestamp: number): Promise<WeatherLinkResponse> {
     const response = await api.get<unknown>('/historic', {
       params: {
         'start-timestamp': startTimestamp,
@@ -60,17 +65,18 @@ export const useWeatherStore = defineStore('weather', () => {
     if (!isValidResponse(response.data)) {
       throw new Error('Invalid response data');
     }
-    historicWeatherData.value = response.data;
-    lastFetchTime.value = Date.now();
+    return response.data;
   }
 
   async function fetchHistoricWeatherForLast24Hours(): Promise<void> {
     const now = Math.floor(Date.now() / 1000);
-    await fetchHistoricWeather(now - 24 * 60 * 60, now);
+    historicWeatherData.value = await fetchHistoricRange(now - 24 * 60 * 60, now);
+    lastFetchTime.value = Date.now();
   }
 
   /** Fetches current + historic together; keeps stale data on failure. */
   async function fetchAll(): Promise<void> {
+    if (isLoading.value) return;
     isLoading.value = true;
     try {
       await Promise.all([fetchCurrentWeather(), fetchHistoricWeatherForLast24Hours()]);
@@ -193,7 +199,7 @@ export const useWeatherStore = defineStore('weather', () => {
 
     // Actions
     fetchAll,
-    fetchHistoricWeather,
+    fetchHistoricRange,
     fetchHistoricWeatherForLast24Hours,
 
     // Freshness

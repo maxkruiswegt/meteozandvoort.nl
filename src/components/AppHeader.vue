@@ -44,7 +44,10 @@ const refresh = () => {
       </RouterLink>
       <div>
         <h1>{{ props.title ?? 'Meteo Zandvoort' }}</h1>
-        <p class="status-line">
+        <p
+          v-if="!props.back"
+          class="status-line"
+        >
           <span
             class="status-dot"
             :class="`status-${statusKind}`"

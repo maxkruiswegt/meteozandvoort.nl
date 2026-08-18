@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { windDirectionAbbr } from '@/utils/weather';
 
 const props = defineProps<{
@@ -12,7 +12,28 @@ const props = defineProps<{
 
 // The arrow shows where the wind is flowing TO (like windy.com / Apple Weather);
 // the text label names the origin ("ZW"), which is how Dutch forecasts phrase it.
-const arrowRotation = computed(() => (props.degrees === null ? null : (props.degrees + 180) % 360));
+// Rotation accumulates via the shortest path so 350°→10° doesn't spin the
+// long way around during the CSS transition.
+const arrowRotation = ref<number | null>(null);
+watch(
+  () => props.degrees,
+  (degrees) => {
+    if (degrees === null) {
+      arrowRotation.value = null;
+      return;
+    }
+    const target = (((degrees + 180) % 360) + 360) % 360;
+    if (arrowRotation.value === null) {
+      arrowRotation.value = target;
+      return;
+    }
+    const current = ((arrowRotation.value % 360) + 360) % 360;
+    const delta = ((target - current + 540) % 360) - 180;
+    arrowRotation.value += delta;
+  },
+  { immediate: true }
+);
+
 const directionLabel = computed(() => windDirectionAbbr(props.degrees) ?? '–');
 
 const CARDINALS = [

@@ -257,7 +257,7 @@ export function useWeatherCharts() {
       {
         name: 'Neerslag',
         color: COLORS.rain,
-        data: records.map((r) => ({ x: r.ts * 1000, y: r.rainfall_mm ?? 0 })),
+        data: records.map((r) => ({ x: r.ts * 1000, y: r.rainfall_mm ?? null })),
       },
     ],
     options: {

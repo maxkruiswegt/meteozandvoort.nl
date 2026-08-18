@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { CalendarDays, Download, Table2 } from '@lucide/vue';
+import { ref, shallowRef, computed, onMounted } from 'vue';
+import { CalendarDays, Download, Table2, TriangleAlert } from '@lucide/vue';
+import dayjs from 'dayjs';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import DatePicker from 'primevue/datepicker';
@@ -8,6 +9,7 @@ import Button from 'primevue/button';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useFormatters } from '@/composables/useFormatters';
 import { convertFahrenheitToCelsius, convertMphToKmh, windDirectionAbbr } from '@/utils/weather';
+import { SENSOR_TYPES, type IssArchive } from '@/types/weatherlink';
 import AppHeader from '@/components/AppHeader.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
@@ -16,28 +18,47 @@ const formatters = useFormatters();
 
 // The WeatherLink historic endpoint caps a query at 24 hours, so the UI offers
 // a single-day picker instead of pretending to support arbitrary ranges.
+// Day results live here, not in the store, so they never clobber the
+// dashboard's rolling 24h window.
 const selectedDay = ref<Date>(new Date());
-const today = new Date();
+const today = ref(new Date());
 const isFetching = ref(false);
+const fetchError = ref(false);
+const dayRecords = shallowRef<IssArchive[]>([]);
 
 const fetchDay = async () => {
+  today.value = new Date();
+  if (selectedDay.value > today.value) {
+    selectedDay.value = new Date();
+  }
+
   const start = new Date(selectedDay.value);
   start.setHours(0, 0, 0, 0);
+  const nextMidnight = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
   const startTs = Math.floor(start.getTime() / 1000);
-  const endTs = Math.min(startTs + 24 * 60 * 60, Math.floor(Date.now() / 1000));
+  // Clamp to the API's 24h cap (a DST-change day can span 25h; that day loses
+  // its final hour rather than erroring) and never query into the future.
+  const endTs = Math.min(
+    Math.floor(nextMidnight.getTime() / 1000),
+    startTs + 24 * 60 * 60,
+    Math.floor(Date.now() / 1000)
+  );
 
   isFetching.value = true;
+  fetchError.value = false;
   try {
-    await weatherStore.fetchHistoricWeather(startTs, endTs);
+    const data = await weatherStore.fetchHistoricRange(startTs, endTs);
+    const sensor = data.sensors.find((s) => s.sensor_type === SENSOR_TYPES.ISS);
+    dayRecords.value = (sensor?.data as IssArchive[] | undefined) ?? [];
+  } catch {
+    fetchError.value = true;
   } finally {
     isFetching.value = false;
   }
 };
 
 onMounted(() => {
-  if (!weatherStore.historicWeatherData) {
-    void weatherStore.fetchHistoricWeatherForLast24Hours();
-  }
+  void fetchDay();
 });
 
 interface HistoricRow {
@@ -60,7 +81,7 @@ const toKmh = (mph: number | null | undefined): number | null =>
   mph === null || mph === undefined ? null : convertMphToKmh(mph);
 
 const rows = computed<HistoricRow[]>(() =>
-  weatherStore.historicIss.map((record) => ({
+  dayRecords.value.map((record) => ({
     ts: record.ts,
     time: formatters.formatDateTime(record.ts * 1000),
     tempAvg: toC(record.temp_avg),
@@ -79,26 +100,31 @@ const totalRain = computed(() => rows.value.reduce((sum, r) => sum + (r.rain ?? 
 const exportCsv = () => {
   if (rows.value.length === 0) return;
 
+  // Dutch Excel convention: semicolon separator with comma decimals, and a
+  // UTF-8 BOM so non-ASCII characters survive the import.
+  const csvNum = (value: number | null, decimals: number): string =>
+    value === null ? '' : value.toFixed(decimals).replace('.', ',');
+
   const header = 'tijd;temp_gem_c;temp_max_c;temp_min_c;vochtigheid_pct;wind_gem_kmu;windstoot_kmu;windrichting;neerslag_mm';
   const lines = rows.value.map((r) =>
     [
       r.time,
-      r.tempAvg?.toFixed(1) ?? '',
-      r.tempHi?.toFixed(1) ?? '',
-      r.tempLo?.toFixed(1) ?? '',
-      r.humidity?.toFixed(0) ?? '',
-      r.windAvg?.toFixed(1) ?? '',
-      r.windGust?.toFixed(1) ?? '',
+      csvNum(r.tempAvg, 1),
+      csvNum(r.tempHi, 1),
+      csvNum(r.tempLo, 1),
+      csvNum(r.humidity, 0),
+      csvNum(r.windAvg, 1),
+      csvNum(r.windGust, 1),
       r.windDir,
-      r.rain?.toFixed(2) ?? '',
+      csvNum(r.rain, 2),
     ].join(';')
   );
 
-  const blob = new Blob([[header, ...lines].join('\n')], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['﻿' + [header, ...lines].join('\n')], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `meteozandvoort-${selectedDay.value.toISOString().slice(0, 10)}.csv`;
+  a.download = `meteozandvoort-${dayjs(selectedDay.value).format('YYYY-MM-DD')}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 };
@@ -141,6 +167,16 @@ const exportCsv = () => {
         </Button>
       </div>
       <p class="range-note">Gegevens per 15 minuten; maximaal één dag per opvraag (API-limiet).</p>
+      <p
+        v-if="fetchError"
+        class="fetch-error"
+      >
+        <TriangleAlert
+          :size="14"
+          aria-hidden="true"
+        />
+        Ophalen mislukt. Controleer de verbinding en probeer het opnieuw.
+      </p>
     </SectionCard>
 
     <SectionCard
@@ -259,6 +295,15 @@ const exportCsv = () => {
   margin-top: 0.75rem;
   font-size: 0.8rem;
   color: var(--text-faint);
+}
+
+.fetch-error {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--status-error);
 }
 
 .summary {

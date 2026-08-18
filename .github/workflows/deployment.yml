@@ -31,7 +31,9 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: rm -rf ${{ secrets.PROJECT_PATH }}/*
+          script: |
+            target="${{ secrets.PROJECT_PATH }}"
+            rm -rf "${target:?PROJECT_PATH secret is not set}"/*
 
       - name: Copy Built Files to Web Server
         uses: appleboy/scp-action@master

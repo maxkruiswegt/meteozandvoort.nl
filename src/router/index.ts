@@ -18,6 +18,10 @@ const router = createRouter({
       name: 'historic',
       component: () => import('@/views/HistoricView.vue'),
     },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
+    },
   ],
 });
 
