@@ -257,11 +257,11 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
           <WeatherChart v-bind="temperatureChart" />
         </SectionCard>
         <SectionCard
-          title="Wind (24u)"
-          :icon="Wind"
+          title="Luchtvochtigheid (24u)"
+          :icon="Droplets"
           flush
         >
-          <WeatherChart v-bind="windChart" />
+          <WeatherChart v-bind="humidityChart" />
         </SectionCard>
         <SectionCard
           title="Neerslag (24u)"
@@ -278,11 +278,11 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
           <WeatherChart v-bind="pressureChart" />
         </SectionCard>
         <SectionCard
-          title="Luchtvochtigheid (24u)"
-          :icon="Droplets"
+          title="Wind (24u)"
+          :icon="Wind"
           flush
         >
-          <WeatherChart v-bind="humidityChart" />
+          <WeatherChart v-bind="windChart" />
         </SectionCard>
       </div>
 
