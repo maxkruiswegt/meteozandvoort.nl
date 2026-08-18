@@ -6,7 +6,7 @@ import { convertFahrenheitToCelsius, convertMphToKmh, convertInHgToHpa } from '@
 // these mirror the tokens in assets/main.css.
 const COLORS = {
   text: '#9daabf',
-  textFaint: '#6b7690',
+  textFaint: '#7f8aa3',
   grid: 'rgba(148, 163, 199, 0.12)',
   temperature: '#f9b449',
   dewPoint: '#4aa3fc',
@@ -22,27 +22,48 @@ const FONT = "'Archivo Variable', system-ui, sans-serif";
 const ZANDVOORT = { lat: 52.374, lon: 4.533 };
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Night bands (sunset → sunrise) for the plotted range, as xaxis annotations. */
-const nightBands = (records: { ts: number }[]): Record<string, unknown>[] => {
+const timeLabel = (ms: number): string =>
+  new Date(ms).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+/**
+ * Sunrise/sunset boundary markers for the plotted range, as labelled xaxis
+ * line annotations ("☀ 06:45" / "☾ 20:30"). yr.no and KNMI carry day/night
+ * this way; a shaded night band reads as a rendering artifact.
+ */
+const sunMarkers = (records: { ts: number }[]): Record<string, unknown>[] => {
   const first = records[0];
   const last = records[records.length - 1];
   if (!first || !last) return [];
   const startMs = first.ts * 1000;
   const endMs = last.ts * 1000;
-  const bands: Record<string, unknown>[] = [];
+  const markers: Record<string, unknown>[] = [];
+
+  const marker = (x: number, glyph: string, color: string): Record<string, unknown> => ({
+    x,
+    borderColor: color,
+    strokeDashArray: 2,
+    label: {
+      text: `${glyph} ${timeLabel(x)}`,
+      orientation: 'horizontal',
+      borderWidth: 0,
+      offsetY: -4,
+      style: { background: 'transparent', color: COLORS.textFaint, fontSize: '10px' },
+    },
+  });
 
   for (let t = startMs - DAY_MS; t <= endMs + DAY_MS; t += DAY_MS) {
-    const today = SunCalc.getTimes(new Date(t), ZANDVOORT.lat, ZANDVOORT.lon);
-    const tomorrow = SunCalc.getTimes(new Date(t + DAY_MS), ZANDVOORT.lat, ZANDVOORT.lon);
-    if (!today?.sunset || !tomorrow?.sunrise) continue;
-    const x = Math.max(today.sunset.getTime(), startMs);
-    const x2 = Math.min(tomorrow.sunrise.getTime(), endMs);
-    if (x < x2) {
-      bands.push({ x, x2, fillColor: '#000000', opacity: 0.22, borderColor: 'transparent' });
+    const times = SunCalc.getTimes(new Date(t), ZANDVOORT.lat, ZANDVOORT.lon);
+    const sunrise = times?.sunrise?.getTime();
+    const sunset = times?.sunset?.getTime();
+    if (sunrise && sunrise > startMs && sunrise < endMs) {
+      markers.push(marker(sunrise, '☀', 'rgba(249, 180, 73, 0.45)'));
+    }
+    if (sunset && sunset > startMs && sunset < endMs) {
+      markers.push(marker(sunset, '☾', 'rgba(127, 138, 163, 0.45)'));
     }
   }
 
-  return bands;
+  return markers;
 };
 
 export interface ChartPoint {
@@ -156,7 +177,7 @@ export function useWeatherCharts() {
       ...baseOptions('°C'),
       ...areaFill,
       annotations: {
-        xaxis: nightBands(records),
+        xaxis: sunMarkers(records),
         // Freezing line; clipped away automatically when the axis range stays above 0 °C.
         yaxis: [{ y: 0, borderColor: 'rgba(95, 206, 249, 0.45)', strokeDashArray: 4 }],
       },
@@ -182,7 +203,7 @@ export function useWeatherCharts() {
       ...areaFill,
       // Gusts as a distinct visual class: thinner and dashed.
       stroke: { curve: 'straight', width: [1.75, 1.25], lineCap: 'butt', dashArray: [0, 4] },
-      annotations: { xaxis: nightBands(records) },
+      annotations: { xaxis: sunMarkers(records) },
       yaxis: {
         min: 0,
         labels: {
@@ -206,7 +227,7 @@ export function useWeatherCharts() {
       ...baseOptions('hPa'),
       legend: { show: false },
       annotations: {
-        xaxis: nightBands(records),
+        xaxis: sunMarkers(records),
         // Standard sea-level pressure reference.
         yaxis: [
           {
@@ -240,7 +261,7 @@ export function useWeatherCharts() {
       ...baseOptions('%', 0),
       ...areaFill,
       legend: { show: false },
-      annotations: { xaxis: nightBands(records) },
+      annotations: { xaxis: sunMarkers(records) },
       yaxis: {
         max: 100,
         labels: {
@@ -263,6 +284,7 @@ export function useWeatherCharts() {
     options: {
       ...baseOptions('mm', 2),
       legend: { show: false },
+      annotations: { xaxis: sunMarkers(records) },
       stroke: { show: false },
       plotOptions: {
         bar: { columnWidth: '60%', borderRadius: 2 },
