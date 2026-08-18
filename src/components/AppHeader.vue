@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import { RefreshCw, ArrowLeft } from '@lucide/vue';
 import { useWeatherStore } from '@/stores/WeatherStore';
@@ -14,10 +14,24 @@ const props = defineProps<{
 const weatherStore = useWeatherStore();
 const formatters = useFormatters();
 
+// Relative/clock labels depend on wall time, which isn't reactive by itself;
+// tick every 30s so the label stays honest between fetches.
+const tick = ref(0);
+let tickTimer: number | undefined;
+onMounted(() => {
+  tickTimer = window.setInterval(() => {
+    tick.value += 1;
+  }, 30_000);
+});
+onUnmounted(() => window.clearInterval(tickTimer));
+
 const statusLabel = computed(() => {
+  void tick.value;
   if (weatherStore.error && !weatherStore.currentWeatherData) return 'geen verbinding';
-  if (!weatherStore.lastFetchTime) return 'laden…';
-  return formatters.formatRelativeTime(weatherStore.lastFetchTime);
+  const observed = weatherStore.observationTime;
+  if (!observed) return 'laden…';
+  if (weatherStore.isStale) return `laatste meting ${formatters.formatRelativeTime(observed)}`;
+  return `gemeten om ${formatters.formatTime(observed)}`;
 });
 
 const statusKind = computed<'ok' | 'warn' | 'error'>(() => {
