@@ -121,13 +121,25 @@ const refresh = () => {
 
 <style scoped>
 .app-header {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
   padding: 1rem 0;
-  border-bottom: 2px solid var(--accent-strong);
+}
+
+/* Accent rule with rounded caps, matching the pill/card corner language. */
+.app-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent-strong);
 }
 
 .header-title {

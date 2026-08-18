@@ -25,45 +25,78 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const timeLabel = (ms: number): string =>
   new Date(ms).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
 
-/**
- * Sunrise/sunset boundary markers for the plotted range, as labelled xaxis
- * line annotations ("☀ 06:45" / "☾ 20:30"). yr.no and KNMI carry day/night
- * this way; a shaded night band reads as a rendering artifact.
- */
-const sunMarkers = (records: { ts: number }[]): Record<string, unknown>[] => {
+interface SunEvents {
+  sunrise: number | null;
+  sunset: number | null;
+}
+
+/** Sunrise/sunset instants that fall inside the plotted range (ms). */
+const sunEvents = (records: { ts: number }[]): SunEvents => {
   const first = records[0];
   const last = records[records.length - 1];
-  if (!first || !last) return [];
+  if (!first || !last) return { sunrise: null, sunset: null };
   const startMs = first.ts * 1000;
   const endMs = last.ts * 1000;
-  const markers: Record<string, unknown>[] = [];
-
-  const marker = (x: number, glyph: string, color: string): Record<string, unknown> => ({
-    x,
-    borderColor: color,
-    strokeDashArray: 2,
-    label: {
-      text: `${glyph} ${timeLabel(x)}`,
-      orientation: 'horizontal',
-      borderWidth: 0,
-      offsetY: -4,
-      style: { background: 'transparent', color: COLORS.textFaint, fontSize: '10px' },
-    },
-  });
+  let sunrise: number | null = null;
+  let sunset: number | null = null;
 
   for (let t = startMs - DAY_MS; t <= endMs + DAY_MS; t += DAY_MS) {
     const times = SunCalc.getTimes(new Date(t), ZANDVOORT.lat, ZANDVOORT.lon);
-    const sunrise = times?.sunrise?.getTime();
-    const sunset = times?.sunset?.getTime();
-    if (sunrise && sunrise > startMs && sunrise < endMs) {
-      markers.push(marker(sunrise, '☀', 'rgba(249, 180, 73, 0.45)'));
-    }
-    if (sunset && sunset > startMs && sunset < endMs) {
-      markers.push(marker(sunset, '☾', 'rgba(127, 138, 163, 0.45)'));
-    }
+    const rise = times?.sunrise?.getTime();
+    const set = times?.sunset?.getTime();
+    if (rise && rise > startMs && rise < endMs) sunrise = rise;
+    if (set && set > startMs && set < endMs) sunset = set;
   }
 
+  return { sunrise, sunset };
+};
+
+/**
+ * Sunrise/sunset markers: solid hairlines with a glyph at the plot floor.
+ * Annotation ink stays below gridline ink; the exact times live in the card
+ * caption instead of floating labels inside the plot.
+ */
+const sunMarkers = (records: { ts: number }[]): Record<string, unknown>[] => {
+  const { sunrise, sunset } = sunEvents(records);
+  const markers: Record<string, unknown>[] = [];
+
+  const marker = (x: number, glyph: string, glyphColor: string, fontSize: string): Record<string, unknown> => ({
+    x,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    strokeDashArray: 0,
+    label: {
+      // U+FE0E forces monochrome text rendering instead of color emoji.
+      text: glyph + '︎',
+      orientation: 'horizontal',
+      position: 'bottom',
+      offsetY: -5,
+      textAnchor: 'middle',
+      borderWidth: 0,
+      style: {
+        background: 'transparent',
+        color: glyphColor,
+        fontSize,
+        padding: { left: 0, right: 0, top: 0, bottom: 0 },
+      },
+    },
+  });
+
+  // Font sizes tuned so both glyphs render at the same visual size.
+  if (sunrise) markers.push(marker(sunrise, '☀', 'rgba(240, 186, 130, 0.8)', '13px'));
+  // U+23FE: the only filled crescent with a text presentation.
+  if (sunset) markers.push(marker(sunset, '⏾', 'rgba(235, 240, 248, 0.85)', '10px'));
+
   return markers;
+};
+
+/** "zon op 06:29 · onder 21:02" caption for chart card headers. */
+const sunCaption = (records: { ts: number }[]): string | null => {
+  const { sunrise, sunset } = sunEvents(records);
+  const parts: string[] = [];
+  if (sunrise) parts.push(`zon op ${timeLabel(sunrise)}`);
+  if (sunset) parts.push(`onder ${timeLabel(sunset)}`);
+  return parts.length > 0 ? parts.join(' · ') : null;
 };
 
 export interface ChartPoint {
@@ -292,5 +325,5 @@ export function useWeatherCharts() {
     },
   });
 
-  return { temperatureChart, windChart, pressureChart, humidityChart, rainChart };
+  return { temperatureChart, windChart, pressureChart, humidityChart, rainChart, sunCaption };
 }

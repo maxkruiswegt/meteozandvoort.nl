@@ -90,6 +90,7 @@ const windChart = computed(() => charts.windChart(weatherStore.historicIss));
 const rainChart = computed(() => charts.rainChart(weatherStore.historicIss));
 const pressureChart = computed(() => charts.pressureChart(weatherStore.historicBarometer));
 const humidityChart = computed(() => charts.humidityChart(weatherStore.historicIss));
+const sunCaption = computed(() => charts.sunCaption(weatherStore.historicIss) ?? undefined);
 </script>
 
 <template>
@@ -235,6 +236,7 @@ const humidityChart = computed(() => charts.humidityChart(weatherStore.historicI
         <SectionCard
           title="Temperatuur (24u)"
           :icon="Thermometer"
+          :caption="sunCaption"
           flush
         >
           <WeatherChart v-bind="temperatureChart" />

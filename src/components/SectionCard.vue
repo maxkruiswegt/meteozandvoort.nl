@@ -4,6 +4,8 @@ import type { Component } from 'vue';
 defineProps<{
   title: string;
   icon?: Component;
+  /** Muted right-aligned note in the header, e.g. sunrise/sunset times. */
+  caption?: string;
   /** Minimal body padding, for charts that carry their own internal margins. */
   flush?: boolean;
 }>();
@@ -20,6 +22,12 @@ defineProps<{
         aria-hidden="true"
       />
       <h2>{{ title }}</h2>
+      <span
+        v-if="caption"
+        class="section-caption"
+      >
+        {{ caption }}
+      </span>
       <div
         v-if="$slots.actions"
         class="section-actions"
@@ -61,6 +69,13 @@ defineProps<{
 .section-icon {
   color: var(--text-secondary);
   flex-shrink: 0;
+}
+
+.section-caption {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  white-space: nowrap;
 }
 
 .section-actions {
