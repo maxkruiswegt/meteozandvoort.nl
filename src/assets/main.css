@@ -375,3 +375,13 @@ button {
   background: var(--accent-soft);
   color: var(--accent);
 }
+
+/* The header's theme popover on phones; PrimeVue reads these for the box and its arrow. */
+.p-popover {
+  --p-popover-background: var(--surface);
+  --p-popover-border-color: var(--border);
+  --p-popover-color: var(--text);
+  --p-popover-border-radius: var(--radius-card);
+  --p-popover-shadow: 0 8px 24px rgba(10, 15, 26, 0.18);
+  --p-popover-content-padding: 0.5rem;
+}

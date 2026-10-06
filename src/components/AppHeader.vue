@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, useTemplateRef, onMounted, onUnmounted } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { RefreshCw, ArrowLeft, Globe } from '@lucide/vue';
+import { RefreshCw, ArrowLeft, Sun, Moon } from '@lucide/vue';
+import Popover from 'primevue/popover';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useFormatters } from '@/composables/useFormatters';
+import { useTheme } from '@/composables/useTheme';
 import { currentLocale, localePath, LANGUAGE_NAMES } from '@/i18n';
 import { HTML_LANG, SITE_NAME, otherLocale } from '@/seo/site';
 import ThemeSwitch from '@/components/ThemeSwitch.vue';
@@ -27,11 +29,30 @@ const otherLanguage = computed(() => {
   const locale = otherLocale(currentLocale.value);
   return {
     to: localePath(route.meta.page ?? 'home', locale),
+    code: locale.toUpperCase(),
     name: LANGUAGE_NAMES[locale],
     lang: HTML_LANG[locale],
     hreflang: locale,
   };
 });
+
+// Phones: the theme options move into a popover behind one button, so the
+// settings pill stays as small as the language code. The button shows the
+// theme on screen (sun or moon, the recognisable theme symbols); "follow the
+// system" stays an option in the popover. A monitor icon on the button would
+// read as "display", not "theme".
+const { isDark } = useTheme();
+const themeIcon = computed(() => (isDark.value ? Moon : Sun));
+const themePopover = useTemplateRef('themePopover');
+const themeButton = useTemplateRef('themeButton');
+const themeOpen = ref(false);
+
+// A kept choice closes the popover and hands focus back to its button, as
+// PrimeVue does itself on Escape.
+const closeThemePopover = () => {
+  themePopover.value?.hide();
+  themeButton.value?.focus();
+};
 
 // Relative/clock labels depend on wall time, which isn't reactive by itself;
 // tick every 30s so the label stays honest between fetches.
@@ -95,9 +116,10 @@ const showStatus = computed(() => !props.back || props.live);
     class="app-header"
     :class="{ compact: props.back }"
   >
-    <!-- Page links left, app-level settings (language, theme) pushed right.
-         One wrapping row: when space runs out (phones, heavy zoom, large
-         fonts) the settings drop to their own line instead of colliding. -->
+    <!-- Page links left; the app-level settings (language, theme) right, as
+         one pill so the bar reads as pages + settings. One wrapping row: at
+         heavy zoom or large fonts the pill drops to its own line instead of
+         colliding. -->
     <div class="header-bar">
       <nav
         v-if="!props.back"
@@ -118,21 +140,48 @@ const showStatus = computed(() => !props.back || props.live);
         </RouterLink>
       </nav>
       <div class="header-tools">
-        <!-- A real link to the same page in the other language, named in that
-             language (no flags: they stand for countries, not languages). -->
+        <!-- A real link to the same page in the other language: its code on
+             screen, its own name for screen readers (no flags: they stand for
+             countries, not languages). -->
         <RouterLink
           :to="otherLanguage.to"
           class="language-link"
           :hreflang="otherLanguage.hreflang"
           :lang="otherLanguage.lang"
         >
-          <Globe
-            :size="15"
+          {{ otherLanguage.code }}<span class="visually-hidden">, {{ otherLanguage.name }}</span>
+        </RouterLink>
+        <span
+          class="tools-divider"
+          aria-hidden="true"
+        />
+        <ThemeSwitch class="theme-inline" />
+        <button
+          ref="themeButton"
+          type="button"
+          class="theme-button"
+          :aria-label="t('theme.legend')"
+          aria-haspopup="dialog"
+          :aria-expanded="themeOpen"
+          @click="themePopover?.toggle($event)"
+        >
+          <component
+            :is="themeIcon"
+            :size="16"
             aria-hidden="true"
           />
-          {{ otherLanguage.name }}
-        </RouterLink>
-        <ThemeSwitch class="header-theme" />
+        </button>
+        <Popover
+          ref="themePopover"
+          class="theme-popover"
+          @show="themeOpen = true"
+          @hide="themeOpen = false"
+        >
+          <ThemeSwitch
+            list
+            @select="closeThemePopover"
+          />
+        </Popover>
       </div>
     </div>
 
@@ -279,33 +328,89 @@ const showStatus = computed(() => !props.back || props.live);
   justify-content: flex-end;
 }
 
-.header-nav,
-.header-tools {
+.header-nav {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.language-link {
+/* The settings pill: language and theme in one container, the same height as
+   the page pills. Its parts are 30px controls on a 2px inset, like the theme
+   switch on its own. */
+.header-tools {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.8rem;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-chip);
   background: var(--surface);
-  border: 1px solid var(--border);
+}
+
+.language-link,
+.theme-button {
+  display: inline-grid;
+  place-items: center;
+  min-width: 34px;
+  height: 30px;
+  border-radius: var(--radius-chip);
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 550;
   transition:
     background 0.15s ease,
     color 0.15s ease;
 }
 
-.language-link:hover {
+.language-link {
+  padding-inline: 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+}
+
+.language-link:hover,
+.theme-button:hover {
   background: var(--surface-2);
   color: var(--text);
   text-decoration: none;
+}
+
+.language-link:focus-visible,
+.theme-button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 1px;
+}
+
+.tools-divider {
+  width: 1px;
+  height: 18px;
+  margin-inline: 2px;
+  background: var(--border);
+}
+
+/* The theme switch inside the pill drops its own frame. */
+.header-tools .theme-inline {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.theme-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Phones: one button and a popover instead of the three inline options. */
+@media (min-width: 640px) {
+  .theme-button {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .header-tools .theme-inline {
+    display: none;
+  }
 }
 
 /* Light ink for the text on the photo only. Scoped here, not to the whole
@@ -445,8 +550,7 @@ const showStatus = computed(() => !props.back || props.live);
    so it holds its edge over bright sky as well as dark buildings. */
 .back-link,
 .nav-pill,
-.language-link,
-.header-theme {
+.header-tools {
   border-color: var(--ring-on-photo);
   box-shadow: var(--shadow-on-photo);
 }
@@ -457,9 +561,19 @@ const showStatus = computed(() => !props.back || props.live);
 }
 
 @media (max-width: 639px) {
-  /* Tighter pills so the top bar fits a 360px phone. */
+  /* Tighter pills so pages and settings share one row on phones. */
   .nav-pill {
     padding-inline: 0.75rem;
+  }
+}
+
+@media (max-width: 359px) {
+  .header-nav {
+    gap: 0.375rem;
+  }
+
+  .nav-pill {
+    padding-inline: 0.55rem;
   }
 }
 
