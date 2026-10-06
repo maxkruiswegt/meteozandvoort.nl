@@ -30,6 +30,33 @@ const MeteoPreset = definePreset(Aura, {
       900: '#702923',
       950: '#4a1c17',
     },
+    colorScheme: {
+      light: {
+        // Aura's light default is primary.500 with white text: coral at 3.1:1.
+        // primary.600 carries white text at 5.1:1.
+        primary: {
+          color: '{primary.600}',
+          contrastColor: '#ffffff',
+          hoverColor: '{primary.700}',
+          activeColor: '{primary.800}',
+        },
+        // Sand neutrals matching the warm-paper tokens in main.css
+        surface: {
+          0: '#fefdfa',
+          50: '#f6f3ee',
+          100: '#f1ede6',
+          200: '#e2ded5',
+          300: '#cbc6bc',
+          400: '#8a867c',
+          500: '#5d6471',
+          600: '#4a5362',
+          700: '#2e3644',
+          800: '#1b2331',
+          900: '#121a2a',
+          950: '#0a0f1a',
+        },
+      },
+    },
   },
 });
 
@@ -41,8 +68,8 @@ app.use(PrimeVue, {
   theme: {
     preset: MeteoPreset,
     options: {
-      // Site is dark-only; <html class="dark"> is set in index.html.
-      darkModeSelector: '.dark',
+      // Same switch as the tokens in main.css (set by index.html / useTheme).
+      darkModeSelector: "[data-theme='dark']",
     },
   },
   locale: {

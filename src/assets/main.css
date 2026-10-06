@@ -1,11 +1,106 @@
 /* ============================================================
-   Meteo Zandvoort — design tokens & base styles
-   Dark coastal theme. All data colors are validated for ≥4.5:1
-   contrast on --bg and are CVD-safe (no green in ramps).
+   Meteo Zandvoort: design tokens & base styles
+   Light "warm paper" theme by default; dark under html[data-theme='dark'],
+   which the head script in index.html (and later useTheme) sets from the
+   stored choice or the OS setting.
+   Text pairs meet WCAG 4.5:1 on their surfaces; data colours are
+   at least 3:1 on the card surface and CVD-safe (no green in ramps).
+   Tokens are plain values, never light-dark(): useWeatherCharts reads
+   them via getComputedStyle, which would return the unresolved function.
    ============================================================ */
 
 :root {
-  /* Surfaces */
+  color-scheme: light;
+
+  /* Surfaces: page ~10% below white, near-white cards, sand-tinted insets */
+  --bg: #f6f3ee;
+  --bg-raised: #f1ede6;
+  --surface: #fefdfa;
+  --surface-2: #f1ede6;
+  --surface-3: #eae6dd;
+  --border-subtle: rgba(27, 35, 49, 0.06);
+  --border: #e2ded5;
+  --border-strong: #8a867c;
+
+  /* Text: navy ink, never pure black */
+  --text: #1b2331;
+  --text-secondary: #4a5362;
+  --text-faint: #5d6471;
+
+  /* Brand accent (the historic Meteo Zandvoort red) */
+  --accent: #b33f2c;
+  --accent-strong: #be4535;
+  --accent-soft: rgba(236, 106, 87, 0.12);
+
+  /* Data colours */
+  --data-temperature: #b45309;
+  --data-wind: #0683aa;
+  --data-gust: #b45309;
+  --data-rain: #2563eb;
+  --data-humidity: #7a52b8;
+  --data-pressure: #7c6f5b;
+  --data-dewpoint: #2563eb;
+
+  /* Label colour on data-coloured fills (the Beaufort badge) */
+  --on-data-fill: #ffffff;
+  --bft-strong-fill: var(--temp-25);
+
+  /* Temperature ramp (°C). Lightest at mild temperatures, darkest at both
+     extremes. Validated against the card surface: use it on cards only. */
+  --temp--10: #40349b;
+  --temp--5: #2853ba;
+  --temp-0: #0274c0;
+  --temp-5: #2e8eaf;
+  --temp-10: #918473;
+  --temp-15: #bb8603;
+  --temp-20: #bd6706;
+  --temp-25: #bb4b03;
+  --temp-30: #b82002;
+  --temp-35: #a2022d;
+  --temp-40: #83054a;
+
+  /* Chart chrome (read by useWeatherCharts via getComputedStyle) */
+  --chart-theme: light;
+  --chart-grid: rgba(27, 35, 49, 0.08);
+  --chart-marker-line: rgba(27, 35, 49, 0.14);
+  --chart-sun: #b45309;
+  --chart-moon: #4a5362;
+  --chart-freeze-line: rgba(2, 116, 192, 0.75);
+  --chart-ref-line: rgba(93, 100, 113, 0.6);
+
+  /* Status */
+  --status-ok: #1f7a4d;
+  --status-warn: #b45309;
+  --status-warn-text: #8a5300;
+  --status-warn-soft: rgba(180, 83, 9, 0.12);
+  --status-warn-border: rgba(180, 83, 9, 0.3);
+  --status-error: #b8341b;
+
+  --selection: rgba(37, 99, 235, 0.18);
+  --scrollbar-thumb: rgba(27, 35, 49, 0.25);
+
+  --shadow-card: 0 1px 2px rgba(27, 35, 49, 0.05), 0 4px 12px rgba(27, 35, 49, 0.04);
+
+  /* Controls on the header photo: a ring plus soft shadow so they hold their
+     edge over bright patches of sky */
+  --ring-on-photo: rgba(27, 35, 49, 0.18);
+  --shadow-on-photo: 0 1px 3px rgba(10, 15, 26, 0.25);
+
+  /* Theme-independent */
+  --text-shadow-on-photo: 0 1px 2px rgba(0, 0, 0, 0.35);
+
+  /* Typography: one family, two roles (numerals via tabular figures) */
+  --font-ui: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Shape: three radii with three meanings */
+  --radius-card: 14px;
+  --radius-tile: 8px;
+  --radius-chip: 999px;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
   --bg: #0a0f1a;
   --bg-raised: #0e1524;
   --surface: #121a2a;
@@ -15,29 +110,26 @@
   --border: rgba(148, 163, 199, 0.14);
   --border-strong: rgba(148, 163, 199, 0.28);
 
-  /* Text */
   --text: #e8edf6;
   --text-secondary: #9daabf;
   --text-faint: #7f8aa3;
 
-  /* Brand accent (derived from the historic Meteo Zandvoort red) */
   --accent: #ec6a57;
   --accent-strong: #be4535;
   --accent-soft: rgba(236, 106, 87, 0.14);
 
-  /* Data colors */
   --data-temperature: #f9b449;
   --data-wind: #5fcef9;
   --data-gust: #f9b449;
   --data-rain: #4aa3fc;
-  --data-humidity: #48bafe;
+  /* Violet like the light theme; sky blue sat too close to wind. */
+  --data-humidity: #b599ec;
   --data-pressure: #d8cbb4;
   --data-dewpoint: #4aa3fc;
 
-  /* Label colour on top of data-coloured fills (e.g. the Beaufort badge) */
   --on-data-fill: #0a0f1a;
+  --bft-strong-fill: var(--temp-20);
 
-  /* Temperature ramp (°C, dark-bg optimized, CVD-safe) */
   --temp--10: #4aa3fc;
   --temp--5: #48bafe;
   --temp-0: #5fcef9;
@@ -50,7 +142,6 @@
   --temp-35: #e74e45;
   --temp-40: #db3e72;
 
-  /* Chart chrome (read by useWeatherCharts via getComputedStyle) */
   --chart-theme: dark;
   --chart-grid: rgba(148, 163, 199, 0.12);
   --chart-marker-line: rgba(255, 255, 255, 0.1);
@@ -59,7 +150,6 @@
   --chart-freeze-line: rgba(95, 206, 249, 0.45);
   --chart-ref-line: rgba(157, 170, 191, 0.4);
 
-  /* Status */
   --status-ok: #57c98a;
   --status-warn: #f9b449;
   --status-warn-text: #f9b449;
@@ -67,20 +157,14 @@
   --status-warn-border: rgba(249, 180, 73, 0.3);
   --status-error: #f36e37;
 
-  --text-shadow-on-photo: 0 1px 3px rgba(0, 0, 0, 0.5);
-
-  /* Typography: one family, two roles (numerals via tabular figures) */
-  --font-ui: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
-
-  /* Shape: three radii with three meanings */
-  --radius-card: 14px;
-  --radius-tile: 8px;
-  --radius-chip: 999px;
+  --selection: rgba(74, 163, 252, 0.35);
+  --scrollbar-thumb: rgba(148, 163, 199, 0.3);
 
   /* Elevation on dark: a top highlight, not a drop shadow */
   --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.045);
 
-  color-scheme: dark;
+  --ring-on-photo: rgba(232, 237, 246, 0.18);
+  --shadow-on-photo: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 *,
@@ -91,8 +175,7 @@
   box-sizing: border-box;
 }
 
-/* Body is the scroll container (like the original site): its scrollbar sits
-   inside the page over the photo layer, so no bare gutter strip appears and
+/* Body is the scroll container: its scrollbar stays inside the page and
    nothing can scroll sideways. */
 html {
   height: 100%;
@@ -104,33 +187,13 @@ body {
   height: 100%;
   overflow-y: auto;
   overflow-x: clip;
-  /* Transparent: an opaque body background would paint over the fixed
-     photo layer below (negative z-index paints behind the body background).
-     The page ground comes from html + the photo layer. */
-  background-color: transparent;
+  background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.55;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-}
-
-/* Full-page Zandvoort photo under a tuned overlay. A fixed-position layer
-   instead of background-attachment: fixed, which is broken on iOS Safari. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  /* "Mica" treatment: the photo becomes a soft uniform color field — one flat
-     scrim, desaturated, darkened, gently blurred. No gradients or zones. */
-  background:
-    linear-gradient(rgba(10, 15, 26, 0.45), rgba(10, 15, 26, 0.45)),
-    url('/img/background.webp') center 50% / cover no-repeat;
-  background-color: var(--bg);
-  filter: saturate(0.65) brightness(0.35) blur(3px);
-  transform: scale(1.05);
 }
 
 h1,
@@ -156,6 +219,19 @@ button {
   font-family: inherit;
 }
 
+/* Hidden visually, still read by screen readers and focusable when interactive */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Numeric readouts: tabular lining figures so live values never jitter */
 .num {
   font-variant-numeric: tabular-nums lining-nums;
@@ -163,13 +239,13 @@ button {
 }
 
 ::selection {
-  background: rgba(74, 163, 252, 0.35);
+  background: var(--selection);
 }
 
 /* Slim scrollbars everywhere (standard properties; Chrome 121+, Firefox, Safari 18+) */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 199, 0.3) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -183,7 +259,7 @@ button {
 }
 
 /* ============================================================
-   PrimeVue dark restyle (DataTable, DatePicker, Paginator)
+   PrimeVue restyle onto the site tokens (DataTable, DatePicker, Paginator)
    Scoped to the few components the data views use.
    ============================================================ */
 

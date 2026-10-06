@@ -1,7 +1,20 @@
 <!DOCTYPE html>
-<html lang="nl" class="dark">
+<html lang="nl">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Runs before first paint so the page never flashes the wrong theme: a stored
+      // light/dark choice wins, otherwise follow the OS. useTheme takes over after mount.
+      (function () {
+        var pref = 'system';
+        try {
+          var stored = localStorage.getItem('theme');
+          if (stored === 'light' || stored === 'dark') pref = stored;
+        } catch (e) {}
+        var dark = pref === 'dark' || (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      })();
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -11,7 +24,10 @@
       name="description"
       content="Actueel weer in Zandvoort: temperatuur, wind, neerslag en luchtdruk, rechtstreeks van het weerstation van Herman Kruiswegt."
     />
-    <meta name="theme-color" content="#0a0f1a" />
+    <!-- Light by default, dark when the OS asks for it. The meta applies before CSS loads. -->
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0f1a" media="(prefers-color-scheme: dark)" />
     <meta property="og:title" content="Meteo Zandvoort" />
     <meta property="og:description" content="Actueel weer in Zandvoort, rechtstreeks van een lokaal weerstation." />
     <meta property="og:type" content="website" />
@@ -24,9 +40,14 @@
     <style>
       html,
       body {
-        background-color: #0a0f1a;
+        background-color: #f6f3ee;
         margin: 0;
         padding: 0;
+      }
+
+      html[data-theme='dark'],
+      html[data-theme='dark'] body {
+        background-color: #0a0f1a;
       }
     </style>
   </head>

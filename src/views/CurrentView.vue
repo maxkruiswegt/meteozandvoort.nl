@@ -93,6 +93,7 @@ const rows = computed<SensorRow[]>(() => {
     <AppHeader
       title="Huidige data"
       back
+      live
     />
 
     <SectionCard

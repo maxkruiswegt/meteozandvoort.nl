@@ -541,7 +541,8 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
 }
 
 .bft-strong {
-  background: var(--temp-20);
+  /* temp-20 in dark; temp-25 in light, where white on temp-20 is only 4.1:1 */
+  background: var(--bft-strong-fill);
 }
 
 .bft-gale {

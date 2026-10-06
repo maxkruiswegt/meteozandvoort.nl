@@ -1,4 +1,5 @@
 import * as SunCalc from 'suncalc';
+import { useTheme } from '@/composables/useTheme';
 import type { IssArchive, BarometerArchive } from '@/types/weatherlink';
 import { convertFahrenheitToCelsius, convertMphToKmh, convertInHgToHpa } from '@/utils/weather';
 
@@ -8,7 +9,7 @@ import { convertFahrenheitToCelsius, convertMphToKmh, convertInHgToHpa } from '@
 const cssVar = (name: string): string =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-const readPalette = () => ({
+const readThemePalette = () => ({
   text: cssVar('--text-secondary'),
   textFaint: cssVar('--text-faint'),
   grid: cssVar('--chart-grid'),
@@ -26,7 +27,7 @@ const readPalette = () => ({
   refLine: cssVar('--chart-ref-line'),
 });
 
-type Palette = ReturnType<typeof readPalette>;
+type Palette = ReturnType<typeof readThemePalette>;
 
 const FONT = "'Archivo Variable', system-ui, sans-serif";
 
@@ -142,6 +143,15 @@ const toHpa = (inHg: number | null | undefined): number | null =>
   inHg === null || inHg === undefined ? null : round1(convertInHgToHpa(inHg));
 
 export function useWeatherCharts() {
+  const { isDark } = useTheme();
+
+  // Reading the theme makes the chart computeds in Home.vue depend on it, so
+  // they rebuild with the other theme's tokens when it switches.
+  const readPalette = () => {
+    void isDark.value;
+    return readThemePalette();
+  };
+
   const baseOptions = (c: Palette, unit: string, decimals = 1): Record<string, unknown> => {
     // Apex has its own light/dark chrome (tooltips, crosshairs); follow the CSS theme.
     const mode = cssVar('--chart-theme') === 'dark' ? 'dark' : 'light';
