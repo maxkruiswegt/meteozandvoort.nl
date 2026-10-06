@@ -164,13 +164,27 @@ const showStatus = computed(() => !props.back || props.live);
   box-shadow: var(--shadow-card);
 }
 
+/* Subpages: on phones the same banner as home (a short strip there looks
+   squashed); where everything fits, one slim row. The photo is aimed at the
+   horizon so even the slim strip shows sunset and skyline. */
 .app-header.compact {
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto;
-  grid-template-areas: 'title bar';
-  align-items: center;
-  min-height: 0;
-  padding: 1rem 1.25rem;
+  --photo-y: 52%;
+  min-height: 9rem;
+}
+
+@media (min-width: 640px) {
+  .app-header.compact {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    grid-template-areas: 'title bar';
+    align-items: center;
+    min-height: 0;
+    padding: 1rem 1.25rem;
+  }
+
+  .app-header.compact .header-title {
+    align-self: center;
+  }
 }
 
 .app-header::before {
@@ -180,7 +194,8 @@ const showStatus = computed(() => !props.back || props.live);
   z-index: -1;
   background:
     linear-gradient(rgb(10 15 26 / 0.5), rgb(10 15 26 / 0.5)),
-    image-set(url('/img/header-1600.webp') 1x, url('/img/header-2400.webp') 2x) 70% 40% / cover no-repeat;
+    image-set(url('/img/header-1600.webp') 1x, url('/img/header-2400.webp') 2x) 70% var(--photo-y, 40%) / cover
+      no-repeat;
 }
 
 @media (min-width: 768px) {
@@ -188,7 +203,8 @@ const showStatus = computed(() => !props.back || props.live);
   .app-header::before {
     background:
       linear-gradient(90deg, rgb(10 15 26 / 0.62) 0%, rgb(10 15 26 / 0.5) 55%, rgb(10 15 26 / 0.15) 100%),
-      image-set(url('/img/header-1600.webp') 1x, url('/img/header-2400.webp') 2x) 70% 40% / cover no-repeat;
+      image-set(url('/img/header-1600.webp') 1x, url('/img/header-2400.webp') 2x) 70% var(--photo-y, 40%) /
+        cover no-repeat;
   }
 }
 
@@ -199,10 +215,6 @@ const showStatus = computed(() => !props.back || props.live);
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
-}
-
-.app-header.compact .header-title {
-  align-self: center;
 }
 
 /* space-between: nav and switch at opposite ends when they share a line;
@@ -363,15 +375,6 @@ const showStatus = computed(() => !props.back || props.live);
 }
 
 @media (max-width: 639px) {
-  /* Subpages: the switch gets its own row; sharing one with the back link and
-     title squeezes the status line onto two lines. */
-  .app-header.compact {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      'bar'
-      'title';
-  }
-
   /* Tighter pills so the top bar fits a 360px phone. */
   .nav-pill {
     padding-inline: 0.75rem;
