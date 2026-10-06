@@ -30,6 +30,7 @@ npm run dev          # dev server
 npm run type-check   # vue-tsc
 npm run build        # type-check + production build
 npm run preview      # serve the production build
+npm run export:og    # re-render public/img/og.jpg from scripts/og-image.html (needs Chrome)
 ```
 
 Requires Node `^20.19.0 || ^22.12.0 || >=24`. CI deploys `main` via GitHub Actions (Node 24, `npm ci`).
