@@ -177,7 +177,7 @@ const refresh = () => {
   gap: 0.4rem;
   font-size: 0.75rem;
   color: var(--text-secondary);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: var(--text-shadow-on-photo);
 }
 
 .status-dot {

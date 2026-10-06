@@ -11,6 +11,7 @@
   --surface: #121a2a;
   --surface-2: #1a2436;
   --surface-3: #223049;
+  --border-subtle: rgba(148, 163, 199, 0.07);
   --border: rgba(148, 163, 199, 0.14);
   --border-strong: rgba(148, 163, 199, 0.28);
 
@@ -25,12 +26,16 @@
   --accent-soft: rgba(236, 106, 87, 0.14);
 
   /* Data colors */
+  --data-temperature: #f9b449;
   --data-wind: #5fcef9;
   --data-gust: #f9b449;
   --data-rain: #4aa3fc;
   --data-humidity: #48bafe;
   --data-pressure: #d8cbb4;
   --data-dewpoint: #4aa3fc;
+
+  /* Label colour on top of data-coloured fills (e.g. the Beaufort badge) */
+  --on-data-fill: #0a0f1a;
 
   /* Temperature ramp (°C, dark-bg optimized, CVD-safe) */
   --temp--10: #4aa3fc;
@@ -45,10 +50,24 @@
   --temp-35: #e74e45;
   --temp-40: #db3e72;
 
+  /* Chart chrome (read by useWeatherCharts via getComputedStyle) */
+  --chart-theme: dark;
+  --chart-grid: rgba(148, 163, 199, 0.12);
+  --chart-marker-line: rgba(255, 255, 255, 0.1);
+  --chart-sun: rgba(240, 186, 130, 0.8);
+  --chart-moon: rgba(235, 240, 248, 0.85);
+  --chart-freeze-line: rgba(95, 206, 249, 0.45);
+  --chart-ref-line: rgba(157, 170, 191, 0.4);
+
   /* Status */
   --status-ok: #57c98a;
   --status-warn: #f9b449;
+  --status-warn-text: #f9b449;
+  --status-warn-soft: rgba(249, 180, 73, 0.12);
+  --status-warn-border: rgba(249, 180, 73, 0.3);
   --status-error: #f36e37;
+
+  --text-shadow-on-photo: 0 1px 3px rgba(0, 0, 0, 0.5);
 
   /* Typography: one family, two roles (numerals via tabular figures) */
   --font-ui: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;

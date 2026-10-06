@@ -406,9 +406,9 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   border-radius: var(--radius-tile);
-  background: rgba(249, 180, 73, 0.12);
-  border: 1px solid rgba(249, 180, 73, 0.3);
-  color: var(--status-warn);
+  background: var(--status-warn-soft);
+  border: 1px solid var(--status-warn-border);
+  color: var(--status-warn-text);
   font-size: 0.85rem;
 }
 
@@ -520,7 +520,7 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
   border-radius: var(--radius-chip);
   font-size: 0.8rem;
   font-weight: 650;
-  color: var(--bg);
+  color: var(--on-data-fill);
 }
 
 .bft-none {
@@ -588,7 +588,7 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
   align-items: baseline;
   gap: 0.5rem;
   padding: 0.45rem 0;
-  border-bottom: 1px solid rgba(148, 163, 199, 0.07);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .detail-row dt {

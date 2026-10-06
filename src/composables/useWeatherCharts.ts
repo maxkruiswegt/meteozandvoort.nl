@@ -2,20 +2,31 @@ import * as SunCalc from 'suncalc';
 import type { IssArchive, BarometerArchive } from '@/types/weatherlink';
 import { convertFahrenheitToCelsius, convertMphToKmh, convertInHgToHpa } from '@/utils/weather';
 
-// ApexCharts config lives in JS, so CSS custom properties can't be used here;
-// these mirror the tokens in assets/main.css.
-const COLORS = {
-  text: '#9daabf',
-  textFaint: '#7f8aa3',
-  grid: 'rgba(148, 163, 199, 0.12)',
-  temperature: '#f9b449',
-  dewPoint: '#4aa3fc',
-  wind: '#5fcef9',
-  gust: '#f9b449',
-  pressure: '#d8cbb4',
-  humidity: '#48bafe',
-  rain: '#4aa3fc',
-};
+// ApexCharts needs concrete colour strings (it parses them for gradients and
+// writes them into SVG attributes), so the CSS tokens in assets/main.css are
+// resolved at build time. CSS stays the single source of truth per theme.
+const cssVar = (name: string): string =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const readPalette = () => ({
+  text: cssVar('--text-secondary'),
+  textFaint: cssVar('--text-faint'),
+  grid: cssVar('--chart-grid'),
+  temperature: cssVar('--data-temperature'),
+  dewPoint: cssVar('--data-dewpoint'),
+  wind: cssVar('--data-wind'),
+  gust: cssVar('--data-gust'),
+  pressure: cssVar('--data-pressure'),
+  humidity: cssVar('--data-humidity'),
+  rain: cssVar('--data-rain'),
+  markerLine: cssVar('--chart-marker-line'),
+  sun: cssVar('--chart-sun'),
+  moon: cssVar('--chart-moon'),
+  freezeLine: cssVar('--chart-freeze-line'),
+  refLine: cssVar('--chart-ref-line'),
+});
+
+type Palette = ReturnType<typeof readPalette>;
 
 const FONT = "'Archivo Variable', system-ui, sans-serif";
 
@@ -56,13 +67,13 @@ const sunEvents = (records: { ts: number }[]): SunEvents => {
  * Annotation ink stays below gridline ink; the exact times live in the card
  * caption instead of floating labels inside the plot.
  */
-const sunMarkers = (records: { ts: number }[]): Record<string, unknown>[] => {
+const sunMarkers = (records: { ts: number }[], c: Palette): Record<string, unknown>[] => {
   const { sunrise, sunset } = sunEvents(records);
   const markers: Record<string, unknown>[] = [];
 
   const marker = (x: number, glyph: string, glyphColor: string, fontSize: string): Record<string, unknown> => ({
     x,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: c.markerLine,
     borderWidth: 1,
     strokeDashArray: 0,
     label: {
@@ -83,9 +94,9 @@ const sunMarkers = (records: { ts: number }[]): Record<string, unknown>[] => {
   });
 
   // Font sizes tuned so both glyphs render at the same visual size.
-  if (sunrise) markers.push(marker(sunrise, '☀', 'rgba(240, 186, 130, 0.8)', '13px'));
+  if (sunrise) markers.push(marker(sunrise, '☀', c.sun, '13px'));
   // U+23FE: the only filled crescent with a text presentation.
-  if (sunset) markers.push(marker(sunset, '⏾', 'rgba(235, 240, 248, 0.85)', '10px'));
+  if (sunset) markers.push(marker(sunset, '⏾', c.moon, '10px'));
 
   return markers;
 };
@@ -131,59 +142,63 @@ const toHpa = (inHg: number | null | undefined): number | null =>
   inHg === null || inHg === undefined ? null : round1(convertInHgToHpa(inHg));
 
 export function useWeatherCharts() {
-  const baseOptions = (unit: string, decimals = 1): Record<string, unknown> => ({
-    chart: {
-      background: 'transparent',
-      fontFamily: FONT,
-      foreColor: COLORS.text,
-      toolbar: { show: false },
-      zoom: { enabled: false },
-      animations: { enabled: false },
-      parentHeightOffset: 0,
-    },
-    theme: { mode: 'dark' },
-    // Straight segments: this is 15-minute archive data, splines would invent
-    // values between samples.
-    stroke: { curve: 'straight', width: 1.75, lineCap: 'butt' },
-    dataLabels: { enabled: false },
-    grid: {
-      borderColor: COLORS.grid,
-      strokeDashArray: 3,
-      padding: { left: 8, right: 8 },
-    },
-    xaxis: {
-      type: 'datetime',
-      labels: {
-        format: 'HH:mm',
-        datetimeUTC: false,
-        style: { colors: COLORS.textFaint, fontSize: '11px' },
+  const baseOptions = (c: Palette, unit: string, decimals = 1): Record<string, unknown> => {
+    // Apex has its own light/dark chrome (tooltips, crosshairs); follow the CSS theme.
+    const mode = cssVar('--chart-theme') === 'dark' ? 'dark' : 'light';
+    return {
+      chart: {
+        background: 'transparent',
+        fontFamily: FONT,
+        foreColor: c.text,
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        animations: { enabled: false },
+        parentHeightOffset: 0,
       },
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      tooltip: { enabled: false },
-    },
-    yaxis: {
-      labels: {
-        formatter: nlNumber(decimals),
-        style: { colors: COLORS.textFaint, fontSize: '11px' },
+      theme: { mode },
+      // Straight segments: this is 15-minute archive data, splines would invent
+      // values between samples.
+      stroke: { curve: 'straight', width: 1.75, lineCap: 'butt' },
+      dataLabels: { enabled: false },
+      grid: {
+        borderColor: c.grid,
+        strokeDashArray: 3,
+        padding: { left: 8, right: 8 },
       },
-    },
-    tooltip: {
-      theme: 'dark',
-      x: { format: 'dd-MM HH:mm' },
-      y: {
-        formatter: (value: number | null) => (value === null ? '–' : `${nlNumber(decimals)(value)} ${unit}`),
+      xaxis: {
+        type: 'datetime',
+        labels: {
+          format: 'HH:mm',
+          datetimeUTC: false,
+          style: { colors: c.textFaint, fontSize: '11px' },
+        },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+        tooltip: { enabled: false },
       },
-    },
-    legend: {
-      position: 'top',
-      horizontalAlign: 'left',
-      fontSize: '12px',
-      labels: { colors: COLORS.text },
-      markers: { size: 5, shape: 'circle' },
-      itemMargin: { horizontal: 10 },
-    },
-  });
+      yaxis: {
+        labels: {
+          formatter: nlNumber(decimals),
+          style: { colors: c.textFaint, fontSize: '11px' },
+        },
+      },
+      tooltip: {
+        theme: mode,
+        x: { format: 'dd-MM HH:mm' },
+        y: {
+          formatter: (value: number | null) => (value === null ? '–' : `${nlNumber(decimals)(value)} ${unit}`),
+        },
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'left',
+        fontSize: '12px',
+        labels: { colors: c.text },
+        markers: { size: 5, shape: 'circle' },
+        itemMargin: { horizontal: 10 },
+      },
+    };
+  };
 
   const areaFill = {
     fill: {
@@ -192,138 +207,146 @@ export function useWeatherCharts() {
     },
   };
 
-  const temperatureChart = (records: IssArchive[]) => ({
-    type: 'area' as const,
-    series: [
-      {
-        name: 'Temperatuur',
-        color: COLORS.temperature,
-        data: records.map((r) => ({ x: r.ts * 1000, y: toC(r.temp_avg) })),
-      },
-      {
-        name: 'Dauwpunt',
-        color: COLORS.dewPoint,
-        data: records.map((r) => ({ x: r.ts * 1000, y: toC(r.dew_point_last) })),
-      },
-    ],
-    options: {
-      ...baseOptions('°C'),
-      ...areaFill,
-      annotations: {
-        xaxis: sunMarkers(records),
-        // Freezing line; clipped away automatically when the axis range stays above 0 °C.
-        yaxis: [{ y: 0, borderColor: 'rgba(95, 206, 249, 0.45)', strokeDashArray: 4 }],
-      },
-    },
+  const yLabels = (c: Palette, decimals: number) => ({
+    formatter: nlNumber(decimals),
+    style: { colors: c.textFaint, fontSize: '11px' },
   });
 
-  const windChart = (records: IssArchive[]) => ({
-    type: 'area' as const,
-    series: [
-      {
-        name: 'Gemiddeld',
-        color: COLORS.wind,
-        data: records.map((r) => ({ x: r.ts * 1000, y: toKmh(r.wind_speed_avg) })),
-      },
-      {
-        name: 'Windstoten',
-        color: COLORS.gust,
-        data: records.map((r) => ({ x: r.ts * 1000, y: toKmh(r.wind_speed_hi) })),
-      },
-    ],
-    options: {
-      ...baseOptions('km/u', 0),
-      ...areaFill,
-      // Gusts as a distinct visual class: thinner and dashed.
-      stroke: { curve: 'straight', width: [1.75, 1.25], lineCap: 'butt', dashArray: [0, 4] },
-      annotations: { xaxis: sunMarkers(records) },
-      yaxis: {
-        min: 0,
-        labels: {
-          formatter: nlNumber(0),
-          style: { colors: COLORS.textFaint, fontSize: '11px' },
+  const temperatureChart = (records: IssArchive[]) => {
+    const c = readPalette();
+    return {
+      type: 'area' as const,
+      series: [
+        {
+          name: 'Temperatuur',
+          color: c.temperature,
+          data: records.map((r) => ({ x: r.ts * 1000, y: toC(r.temp_avg) })),
+        },
+        {
+          name: 'Dauwpunt',
+          color: c.dewPoint,
+          data: records.map((r) => ({ x: r.ts * 1000, y: toC(r.dew_point_last) })),
+        },
+      ],
+      options: {
+        ...baseOptions(c, '°C'),
+        ...areaFill,
+        annotations: {
+          xaxis: sunMarkers(records, c),
+          // Freezing line; clipped away automatically when the axis range stays above 0 °C.
+          yaxis: [{ y: 0, borderColor: c.freezeLine, strokeDashArray: 4 }],
         },
       },
-    },
-  });
+    };
+  };
 
-  const pressureChart = (records: BarometerArchive[]) => ({
-    type: 'line' as const,
-    series: [
-      {
-        name: 'Luchtdruk',
-        color: COLORS.pressure,
-        data: records.map((r) => ({ x: r.ts * 1000, y: toHpa(r.bar_sea_level) })),
+  const windChart = (records: IssArchive[]) => {
+    const c = readPalette();
+    return {
+      type: 'area' as const,
+      series: [
+        {
+          name: 'Gemiddeld',
+          color: c.wind,
+          data: records.map((r) => ({ x: r.ts * 1000, y: toKmh(r.wind_speed_avg) })),
+        },
+        {
+          name: 'Windstoten',
+          color: c.gust,
+          data: records.map((r) => ({ x: r.ts * 1000, y: toKmh(r.wind_speed_hi) })),
+        },
+      ],
+      options: {
+        ...baseOptions(c, 'km/u', 0),
+        ...areaFill,
+        // Gusts as a distinct visual class: thinner and dashed.
+        stroke: { curve: 'straight', width: [1.75, 1.25], lineCap: 'butt', dashArray: [0, 4] },
+        annotations: { xaxis: sunMarkers(records, c) },
+        yaxis: { min: 0, labels: yLabels(c, 0) },
       },
-    ],
-    options: {
-      ...baseOptions('hPa'),
-      legend: { show: false },
-      annotations: {
-        xaxis: sunMarkers(records),
-        // Standard sea-level pressure reference.
-        yaxis: [
-          {
-            y: 1013.25,
-            borderColor: 'rgba(157, 170, 191, 0.4)',
-            strokeDashArray: 4,
-            label: {
-              text: '1013 hPa',
-              position: 'left',
-              offsetX: 6,
-              textAnchor: 'start',
-              borderWidth: 0,
-              style: { background: 'transparent', color: '#6b7690', fontSize: '10px' },
+    };
+  };
+
+  const pressureChart = (records: BarometerArchive[]) => {
+    const c = readPalette();
+    return {
+      type: 'line' as const,
+      series: [
+        {
+          name: 'Luchtdruk',
+          color: c.pressure,
+          data: records.map((r) => ({ x: r.ts * 1000, y: toHpa(r.bar_sea_level) })),
+        },
+      ],
+      options: {
+        ...baseOptions(c, 'hPa'),
+        legend: { show: false },
+        annotations: {
+          xaxis: sunMarkers(records, c),
+          // Standard sea-level pressure reference.
+          yaxis: [
+            {
+              y: 1013.25,
+              borderColor: c.refLine,
+              strokeDashArray: 4,
+              label: {
+                text: '1013 hPa',
+                position: 'left',
+                offsetX: 6,
+                textAnchor: 'start',
+                borderWidth: 0,
+                style: { background: 'transparent', color: c.textFaint, fontSize: '10px' },
+              },
             },
-          },
-        ],
-      },
-    },
-  });
-
-  const humidityChart = (records: IssArchive[]) => ({
-    type: 'area' as const,
-    series: [
-      {
-        name: 'Luchtvochtigheid',
-        color: COLORS.humidity,
-        data: records.map((r) => ({ x: r.ts * 1000, y: round1(r.hum_last ?? null) })),
-      },
-    ],
-    options: {
-      ...baseOptions('%', 0),
-      ...areaFill,
-      legend: { show: false },
-      annotations: { xaxis: sunMarkers(records) },
-      yaxis: {
-        max: 100,
-        labels: {
-          formatter: nlNumber(0),
-          style: { colors: COLORS.textFaint, fontSize: '11px' },
+          ],
         },
       },
-    },
-  });
+    };
+  };
 
-  const rainChart = (records: IssArchive[]) => ({
-    type: 'bar' as const,
-    series: [
-      {
-        name: 'Neerslag',
-        color: COLORS.rain,
-        data: records.map((r) => ({ x: r.ts * 1000, y: r.rainfall_mm ?? null })),
+  const humidityChart = (records: IssArchive[]) => {
+    const c = readPalette();
+    return {
+      type: 'area' as const,
+      series: [
+        {
+          name: 'Luchtvochtigheid',
+          color: c.humidity,
+          data: records.map((r) => ({ x: r.ts * 1000, y: round1(r.hum_last ?? null) })),
+        },
+      ],
+      options: {
+        ...baseOptions(c, '%', 0),
+        ...areaFill,
+        legend: { show: false },
+        annotations: { xaxis: sunMarkers(records, c) },
+        yaxis: { max: 100, labels: yLabels(c, 0) },
       },
-    ],
-    options: {
-      ...baseOptions('mm', 2),
-      legend: { show: false },
-      annotations: { xaxis: sunMarkers(records) },
-      stroke: { show: false },
-      plotOptions: {
-        bar: { columnWidth: '60%', borderRadius: 2 },
+    };
+  };
+
+  const rainChart = (records: IssArchive[]) => {
+    const c = readPalette();
+    return {
+      type: 'bar' as const,
+      series: [
+        {
+          name: 'Neerslag',
+          color: c.rain,
+          data: records.map((r) => ({ x: r.ts * 1000, y: r.rainfall_mm ?? null })),
+        },
+      ],
+      options: {
+        ...baseOptions(c, 'mm', 2),
+        legend: { show: false },
+        annotations: { xaxis: sunMarkers(records, c) },
+        stroke: { show: false },
+        plotOptions: {
+          bar: { columnWidth: '60%', borderRadius: 2 },
+        },
       },
-    },
-  });
+    };
+  };
 
   return { temperatureChart, windChart, pressureChart, humidityChart, rainChart, sunTimes };
 }
