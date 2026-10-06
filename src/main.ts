@@ -9,9 +9,12 @@ import { definePreset } from '@primevue/themes';
 import Aura from '@primevue/themes/aura';
 
 import VueApexCharts from 'vue3-apexcharts';
+import { createHead } from '@unhead/vue/client';
 
 import App from './App.vue';
 import router from './router';
+import { i18n } from './i18n';
+import { TERMS } from './i18n/terms';
 
 // Brand red as PrimeVue primary, so buttons/focus states follow the accent
 // without CSS overrides.
@@ -72,32 +75,11 @@ app.use(PrimeVue, {
       darkModeSelector: "[data-theme='dark']",
     },
   },
-  locale: {
-    firstDayOfWeek: 1,
-    dayNames: ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'],
-    dayNamesShort: ['zon', 'maa', 'din', 'woe', 'don', 'vri', 'zat'],
-    dayNamesMin: ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'],
-    monthNames: [
-      'januari',
-      'februari',
-      'maart',
-      'april',
-      'mei',
-      'juni',
-      'juli',
-      'augustus',
-      'september',
-      'oktober',
-      'november',
-      'december',
-    ],
-    monthNamesShort: ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
-    today: 'Vandaag',
-    clear: 'Wissen',
-    dateFormat: 'dd-mm-yy',
-    weekHeader: 'Wk',
-  },
+  // Swapped per language by App.vue; Dutch until the router has resolved.
+  locale: structuredClone(TERMS.nl.primevue),
 });
 app.use(VueApexCharts);
+app.use(i18n);
+app.use(createHead());
 
 app.mount('#app');

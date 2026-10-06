@@ -1,5 +1,6 @@
-// Renders public/img/og.jpg (the 1200x630 link preview) from scripts/og-image.html with headless
-// Chrome. Run after changing the template, the icon or the background photo: npm run export:og
+// Renders public/img/og.jpg and og-en.jpg (the 1200x630 link previews, Dutch and English) from
+// scripts/og-image.html with headless Chrome. Run after changing the template, the icon or the
+// background photo: npm run export:og
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
@@ -8,7 +9,10 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const root = resolve(import.meta.dirname, '..');
-const out = join(root, 'public/img/og.jpg');
+const variants = [
+  { lang: 'nl', out: join(root, 'public/img/og.jpg') },
+  { lang: 'en', out: join(root, 'public/img/og-en.jpg') },
+];
 
 const chrome = [
   process.env.CHROME_PATH,
@@ -25,25 +29,29 @@ if (!chrome) throw new Error('Chrome not found; set CHROME_PATH.');
 const profile = mkdtempSync(join(tmpdir(), 'meteo-og-'));
 
 try {
-  execFileSync(
-    chrome,
-    [
-      '--headless=new',
-      '--disable-gpu',
-      '--hide-scrollbars',
-      '--no-first-run',
-      '--no-default-browser-check',
-      // The template loads the font, photo and icon from the repo via file:// URLs.
-      '--allow-file-access-from-files',
-      `--user-data-dir=${profile}`,
-      '--window-size=1200,630',
-      '--virtual-time-budget=5000',
-      `--screenshot=${out}`,
-      pathToFileURL(join(root, 'scripts/og-image.html')).href,
-    ],
-    { stdio: 'ignore' }
-  );
-  console.log(`og  ${out}`);
+  for (const { lang, out } of variants) {
+    const template = pathToFileURL(join(root, 'scripts/og-image.html'));
+    template.searchParams.set('lang', lang);
+    execFileSync(
+      chrome,
+      [
+        '--headless=new',
+        '--disable-gpu',
+        '--hide-scrollbars',
+        '--no-first-run',
+        '--no-default-browser-check',
+        // The template loads the font, photo and icon from the repo via file:// URLs.
+        '--allow-file-access-from-files',
+        `--user-data-dir=${profile}`,
+        '--window-size=1200,630',
+        '--virtual-time-budget=5000',
+        `--screenshot=${out}`,
+        template.href,
+      ],
+      { stdio: 'ignore' }
+    );
+    console.log(`og  ${out}`);
+  }
 } finally {
   rmSync(profile, { recursive: true, force: true });
 }

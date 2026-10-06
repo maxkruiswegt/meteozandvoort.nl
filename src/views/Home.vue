@@ -17,10 +17,12 @@ import {
   LoaderCircle,
   TriangleAlert,
 } from '@lucide/vue';
+import { useI18n } from 'vue-i18n';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useFormatters } from '@/composables/useFormatters';
 import { useWeatherCharts } from '@/composables/useWeatherCharts';
-import { beaufortFromKmh, windDirectionName, temperatureColorVar } from '@/utils/weather';
+import { currentLocale, currentTerms } from '@/i18n';
+import { beaufortFromKmh, compassPoint8, temperatureColorVar } from '@/utils/weather';
 import AppHeader from '@/components/AppHeader.vue';
 import SectionCard from '@/components/SectionCard.vue';
 import StatChip from '@/components/StatChip.vue';
@@ -31,6 +33,7 @@ import BeachcamStream from '@/components/BeachcamStream.vue';
 const weatherStore = useWeatherStore();
 const formatters = useFormatters();
 const charts = useWeatherCharts();
+const { t } = useI18n();
 
 // --- auto-refresh: the station reports every minute ---
 const REFRESH_MS = 60_000;
@@ -60,11 +63,26 @@ const tempColor = computed(() => temperatureColorVar(weatherStore.temperature));
 const tempRange = computed(() => weatherStore.temperatureRange24Hours);
 
 const beaufort = computed(() => beaufortFromKmh(weatherStore.windSpeedAvg10Min));
-const windOrigin = computed(() => windDirectionName(weatherStore.windDirectionAvg10Min));
+
+// "zwakke wind uit het noordwesten" / "light breeze from the north-west"; calm
+// has no direction worth naming.
+const windSummary = computed(() => {
+  const force = beaufort.value;
+  if (force === null) return '–';
+  const forceName = currentTerms.value.beaufort[force];
+  const point = compassPoint8(weatherStore.windDirectionAvg10Min);
+  if (force === 0 || point === null) return forceName;
+  return t('home.windFrom', { force: forceName, direction: currentTerms.value.from8[point] });
+});
+
+const windAvg24hName = computed(() => {
+  const force = beaufortFromKmh(weatherStore.windSpeedAvg24Hours);
+  return force === null ? null : currentTerms.value.beaufort[force];
+});
 
 const bftBandClass = computed(() => {
-  const bft = beaufort.value?.bft;
-  if (bft === null || bft === undefined) return 'bft-none';
+  const bft = beaufort.value;
+  if (bft === null) return 'bft-none';
   if (bft <= 1) return 'bft-calm';
   if (bft <= 3) return 'bft-light';
   if (bft <= 5) return 'bft-moderate';
@@ -73,16 +91,16 @@ const bftBandClass = computed(() => {
   return 'bft-storm';
 });
 
-const pressureTrendMeta = computed(() => {
+const pressureTrendIcon = computed(() => {
   switch (weatherStore.pressureTrendDirection) {
     case 'rising':
-      return { icon: ArrowUpRight, label: 'stijgend' };
+      return ArrowUpRight;
     case 'falling':
-      return { icon: ArrowDownRight, label: 'dalend' };
+      return ArrowDownRight;
     case 'steady':
-      return { icon: ArrowRight, label: 'stabiel' };
+      return ArrowRight;
     default:
-      return null;
+      return Gauge;
   }
 });
 
@@ -108,7 +126,7 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
         :size="15"
         aria-hidden="true"
       />
-      Vernieuwen mislukt; laatst bekende gegevens worden getoond.
+      {{ t('home.staleBanner') }}
     </div>
 
     <!-- Initial loading -->
@@ -121,7 +139,7 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
         :size="32"
         aria-hidden="true"
       />
-      <p>Weergegevens laden…</p>
+      <p>{{ t('home.loading') }}</p>
     </div>
 
     <!-- Hard failure, nothing to show -->
@@ -134,30 +152,36 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
         class="error-icon"
         aria-hidden="true"
       />
-      <p>Er ging iets mis bij het ophalen van de gegevens.</p>
+      <p>{{ t('home.error') }}</p>
       <button
         type="button"
         class="retry-button"
         @click="weatherStore.fetchAll()"
       >
-        Opnieuw proberen
+        {{ t('home.retry') }}
       </button>
-      <p class="backup-note">
-        Bezoek anders de back-upsite:
-        <a
-          href="https://mijneigenweer.nl/Zandvoort"
-          target="_blank"
-          rel="noopener noreferrer"
-          >mijneigenweer.nl/Zandvoort</a
-        >
-      </p>
+      <i18n-t
+        keypath="home.backup"
+        tag="p"
+        scope="global"
+        class="backup-note"
+      >
+        <template #link>
+          <a
+            href="https://mijneigenweer.nl/Zandvoort"
+            target="_blank"
+            rel="noopener noreferrer"
+            >mijneigenweer.nl/Zandvoort</a
+          >
+        </template>
+      </i18n-t>
     </div>
 
     <template v-else>
       <!-- ===== Hero ===== -->
       <section
         class="hero"
-        aria-label="Huidige omstandigheden"
+        :aria-label="t('home.currentConditions')"
       >
         <div class="hero-temp">
           <div
@@ -167,7 +191,7 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
             {{ formatters.formatTemperature(weatherStore.temperature) }}
           </div>
           <div class="hero-temp-meta">
-            <span>Voelt als {{ formatters.formatTemperature(weatherStore.feelsLike) }}</span>
+            <span>{{ t('home.feelsLike', { temp: formatters.formatTemperature(weatherStore.feelsLike) }) }}</span>
             <span
               v-if="tempRange"
               class="temp-range num"
@@ -183,63 +207,61 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
           <WindCompass
             :degrees="weatherStore.windDirectionAvg10Min"
             :speed-label="formatters.formatWindSpeed(weatherStore.windSpeedAvg10Min)"
-            :sub-label="`stoten ${formatters.formatWindSpeed(weatherStore.windGust10Min)}`"
+            :sub-label="t('home.gusts', { speed: formatters.formatWindSpeed(weatherStore.windGust10Min) })"
           />
           <div class="wind-meta">
             <span
               class="bft-badge num"
               :class="bftBandClass"
             >
-              {{ beaufort?.bft ?? '–' }} Bft
+              {{ beaufort ?? '–' }} Bft
             </span>
-            <span class="wind-desc">
-              {{ beaufort?.label ?? '–' }}<template v-if="windOrigin"> uit het {{ windOrigin }}en</template>
-            </span>
+            <span class="wind-desc">{{ windSummary }}</span>
           </div>
         </div>
 
         <div class="hero-chips">
           <StatChip
-            label="luchtdruk"
+            :label="t('home.chips.pressure')"
             :value="formatters.formatPressure(weatherStore.pressure)"
-            :icon="pressureTrendMeta?.icon ?? Gauge"
+            :icon="pressureTrendIcon"
             icon-color="var(--data-pressure)"
           />
           <StatChip
-            label="luchtvochtigheid"
+            :label="t('home.chips.humidity')"
             :value="formatters.formatPercentage(weatherStore.humidity)"
             :icon="Droplets"
             icon-color="var(--data-humidity)"
           />
           <StatChip
-            label="dauwpunt"
+            :label="t('home.chips.dewPoint')"
             :value="formatters.formatTemperature(weatherStore.dewPoint)"
             :icon="Thermometer"
             icon-color="var(--data-dewpoint)"
           />
           <StatChip
-            :label="weatherStore.isRaining ? 'regen vandaag · regent nu' : 'regen vandaag'"
+            :label="weatherStore.isRaining ? t('home.chips.rainTodayRaining') : t('home.chips.rainToday')"
             :value="formatters.formatRainfall(weatherStore.rainToday)"
             :icon="CloudRain"
             icon-color="var(--data-rain)"
           />
           <StatChip
             v-if="sunTimes.sunrise"
-            label="zonsopkomst"
+            :label="t('home.chips.sunrise')"
             :value="sunTimes.sunrise"
             :icon="Sunrise"
             icon-color="var(--data-gust)"
           />
           <StatChip
             v-if="sunTimes.sunset"
-            label="zonsondergang"
+            :label="t('home.chips.sunset')"
             :value="sunTimes.sunset"
             :icon="Sunset"
             icon-color="var(--data-pressure)"
           />
           <StatChip
             v-if="weatherStore.uvIndex !== null"
-            label="zonkracht"
+            :label="t('home.chips.uv')"
             :value="formatters.formatNumber(weatherStore.uvIndex, 0)"
             :icon="Sun"
             icon-color="var(--data-gust)"
@@ -250,35 +272,35 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
       <!-- ===== Charts ===== -->
       <div class="chart-grid">
         <SectionCard
-          title="Temperatuur (24u)"
+          :title="t('home.charts.temperature')"
           :icon="Thermometer"
           flush
         >
           <WeatherChart v-bind="temperatureChart" />
         </SectionCard>
         <SectionCard
-          title="Luchtvochtigheid (24u)"
+          :title="t('home.charts.humidity')"
           :icon="Droplets"
           flush
         >
           <WeatherChart v-bind="humidityChart" />
         </SectionCard>
         <SectionCard
-          title="Neerslag (24u)"
+          :title="t('home.charts.rain')"
           :icon="CloudRain"
           flush
         >
           <WeatherChart v-bind="rainChart" />
         </SectionCard>
         <SectionCard
-          title="Luchtdruk (24u)"
+          :title="t('home.charts.pressure')"
           :icon="Gauge"
           flush
         >
           <WeatherChart v-bind="pressureChart" />
         </SectionCard>
         <SectionCard
-          title="Wind (24u)"
+          :title="t('home.charts.wind')"
           :icon="Wind"
           flush
         >
@@ -288,72 +310,80 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
 
       <!-- ===== Details ===== -->
       <SectionCard
-        title="Details"
+        :title="t('home.details.title')"
         :icon="Info"
       >
         <dl class="detail-list">
           <div class="detail-row">
-            <dt>Wind nu</dt>
+            <dt>{{ t('home.details.windNow') }}</dt>
             <dd class="num">{{ formatters.formatWindSpeed(weatherStore.windSpeedNow) }}</dd>
           </div>
           <div class="detail-row">
-            <dt>Wind gemiddeld 24u</dt>
+            <dt>{{ t('home.details.windAvg24h') }}</dt>
             <dd class="num">
               {{ formatters.formatWindSpeed(weatherStore.windSpeedAvg24Hours) }}
-              <span class="hint">{{ beaufortFromKmh(weatherStore.windSpeedAvg24Hours)?.label }}</span>
+              <span class="hint">{{ windAvg24hName }}</span>
             </dd>
           </div>
           <div class="detail-row">
-            <dt>Zwaarste windstoot 24u</dt>
+            <dt>{{ t('home.details.gustMax24h') }}</dt>
             <dd class="num">{{ formatters.formatWindSpeed(weatherStore.windGust24Hours) }}</dd>
           </div>
           <div class="detail-row">
-            <dt>Regenintensiteit</dt>
+            <dt>{{ t('home.details.rainRate') }}</dt>
             <dd class="num">{{ formatters.formatRainRate(weatherStore.rainRateNow) }}</dd>
           </div>
           <div class="detail-row">
-            <dt>Regen laatste uur</dt>
+            <dt>{{ t('home.details.rainLastHour') }}</dt>
             <dd class="num">{{ formatters.formatRainfall(weatherStore.rainLast60Min) }}</dd>
           </div>
           <div class="detail-row">
-            <dt>Regen 24 uur</dt>
+            <dt>{{ t('home.details.rain24h') }}</dt>
             <dd class="num">{{ formatters.formatRainfall(weatherStore.rainLast24Hours) }}</dd>
           </div>
           <div class="detail-row">
-            <dt>Regen deze maand</dt>
+            <dt>{{ t('home.details.rainMonth') }}</dt>
             <dd class="num">{{ formatters.formatRainfall(weatherStore.rainMonth) }}</dd>
           </div>
           <div class="detail-row">
-            <dt>Regen dit jaar</dt>
+            <dt>{{ t('home.details.rainYear') }}</dt>
             <dd class="num">{{ formatters.formatRainfall(weatherStore.rainYear, 0) }}</dd>
           </div>
           <div class="detail-row">
-            <dt>Gevoelstemperatuur <span class="hint">wind chill</span></dt>
+            <dt>
+              {{ t('home.details.windChill') }}
+              <span
+                v-if="t('home.details.windChillHint')"
+                class="hint"
+                lang="en"
+                >{{ t('home.details.windChillHint') }}</span
+              >
+            </dt>
             <dd class="num">{{ formatters.formatTemperature(weatherStore.windChill) }}</dd>
           </div>
           <div class="detail-row">
-            <dt>Hitte-index</dt>
+            <dt>{{ t('home.details.heatIndex') }}</dt>
             <dd class="num">{{ formatters.formatTemperature(weatherStore.heatIndex) }}</dd>
           </div>
           <div
             v-if="weatherStore.solarRadiation !== null"
             class="detail-row"
           >
-            <dt>Zonnestraling</dt>
+            <dt>{{ t('home.details.solarRadiation') }}</dt>
             <dd class="num">{{ formatters.formatNumber(weatherStore.solarRadiation, 0) }} W/m²</dd>
           </div>
           <div
             v-if="weatherStore.indoorTemperature !== null"
             class="detail-row"
           >
-            <dt>Binnentemperatuur</dt>
+            <dt>{{ t('home.details.indoorTemperature') }}</dt>
             <dd class="num">{{ formatters.formatTemperature(weatherStore.indoorTemperature) }}</dd>
           </div>
           <div
             v-if="weatherStore.indoorHumidity !== null"
             class="detail-row"
           >
-            <dt>Binnenvochtigheid</dt>
+            <dt>{{ t('home.details.indoorHumidity') }}</dt>
             <dd class="num">{{ formatters.formatPercentage(weatherStore.indoorHumidity) }}</dd>
           </div>
         </dl>
@@ -361,15 +391,15 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
 
       <!-- ===== Beachcam ===== -->
       <SectionCard
-        title="Live beachcam Zandvoort"
+        :title="t('home.beachcam')"
         :icon="Video"
       >
-        <BeachcamStream />
+        <!-- Keyed by language: video.js fixes its control labels at creation -->
+        <BeachcamStream :key="currentLocale" />
       </SectionCard>
 
       <footer class="footer">
-        <!-- &nbsp; before each · keeps the dot on the line before when it wraps -->
-        <p>Davis-weerstation in Zandvoort&nbsp;· metingen per minuut.</p>
+        <p>{{ t('home.footer.station') }}</p>
         <!-- Legend for IsobarBackdrop; hidden wherever the backdrop is -->
         <p class="isobar-note">
           <svg
@@ -380,24 +410,30 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
             <path d="M1 4.5 Q9 0.5 17 2.5" />
             <path d="M1 9 Q9 5 17 7" />
           </svg>
-          De lijnen op de achtergrond zijn isobaren (lijnen van gelijke luchtdruk), geschat uit de wind van nu: ze
-          lopen ongeveer met de wind mee, en hoe dichter bij elkaar, hoe harder het waait.
+          {{ t('home.footer.isobars') }}
         </p>
-        <p>
-          Station van
-          <a
-            href="https://decib.nl"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Herman Kruiswegt</a
-          >&nbsp;· site door
-          <a
-            href="https://maxkruiswegt.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Max Kruiswegt</a
-          >
-        </p>
+        <i18n-t
+          keypath="home.footer.credits"
+          tag="p"
+          scope="global"
+        >
+          <template #station>
+            <a
+              href="https://decib.nl"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Herman Kruiswegt</a
+            >
+          </template>
+          <template #site>
+            <a
+              href="https://maxkruiswegt.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Max Kruiswegt</a
+            >
+          </template>
+        </i18n-t>
       </footer>
     </template>
   </div>

@@ -1,26 +1,28 @@
 <script setup lang="ts">
 import { useId } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Monitor, Sun, Moon } from '@lucide/vue';
 import { useTheme, type ThemePreference } from '@/composables/useTheme';
 
 const { preference, setPreference } = useTheme();
+const { t } = useI18n();
 const name = useId();
 
 const options = [
-  { value: 'system', label: 'Systeem volgen', icon: Monitor },
-  { value: 'light', label: 'Licht', icon: Sun },
-  { value: 'dark', label: 'Donker', icon: Moon },
-] as const satisfies readonly { value: ThemePreference; label: string; icon: unknown }[];
+  { value: 'system', icon: Monitor },
+  { value: 'light', icon: Sun },
+  { value: 'dark', icon: Moon },
+] as const satisfies readonly { value: ThemePreference; icon: unknown }[];
 </script>
 
 <template>
   <fieldset class="theme-switch">
-    <legend class="visually-hidden">Thema</legend>
+    <legend class="visually-hidden">{{ t('theme.legend') }}</legend>
     <label
       v-for="option in options"
       :key="option.value"
       class="option"
-      :title="option.label"
+      :title="t(`theme.${option.value}`)"
     >
       <input
         type="radio"
@@ -35,7 +37,7 @@ const options = [
         :size="16"
         aria-hidden="true"
       />
-      <span class="visually-hidden">{{ option.label }}</span>
+      <span class="visually-hidden">{{ t(`theme.${option.value}`) }}</span>
     </label>
   </fieldset>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, shallowRef, computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { CalendarDays, Download, Table2, TriangleAlert } from '@lucide/vue';
 import dayjs from 'dayjs';
 import DataTable from 'primevue/datatable';
@@ -8,13 +9,15 @@ import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useFormatters } from '@/composables/useFormatters';
-import { convertFahrenheitToCelsius, convertMphToKmh, windDirectionAbbr } from '@/utils/weather';
+import { currentTerms } from '@/i18n';
+import { convertFahrenheitToCelsius, convertMphToKmh, compassPoint16 } from '@/utils/weather';
 import { SENSOR_TYPES, type IssArchive } from '@/types/weatherlink';
 import AppHeader from '@/components/AppHeader.vue';
 import SectionCard from '@/components/SectionCard.vue';
 
 const weatherStore = useWeatherStore();
 const formatters = useFormatters();
+const { t } = useI18n();
 
 // The WeatherLink historic endpoint caps a query at 24 hours, so the UI offers
 // a single-day picker instead of pretending to support arbitrary ranges.
@@ -80,6 +83,11 @@ const toC = (f: number | null | undefined): number | null =>
 const toKmh = (mph: number | null | undefined): number | null =>
   mph === null || mph === undefined ? null : convertMphToKmh(mph);
 
+const directionAbbr = (degrees: number | null): string => {
+  const point = compassPoint16(degrees);
+  return point === null ? '–' : currentTerms.value.compass16[point];
+};
+
 const rows = computed<HistoricRow[]>(() =>
   dayRecords.value.map((record) => ({
     ts: record.ts,
@@ -90,7 +98,7 @@ const rows = computed<HistoricRow[]>(() =>
     humidity: record.hum_last ?? null,
     windAvg: toKmh(record.wind_speed_avg),
     windGust: toKmh(record.wind_speed_hi),
-    windDir: windDirectionAbbr(record.wind_dir_of_prevail ?? null) ?? '–',
+    windDir: directionAbbr(record.wind_dir_of_prevail ?? null),
     rain: record.rainfall_mm ?? null,
   }))
 );
@@ -100,15 +108,15 @@ const totalRain = computed(() => rows.value.reduce((sum, r) => sum + (r.rain ?? 
 const exportCsv = () => {
   if (rows.value.length === 0) return;
 
-  // Dutch Excel convention: semicolon separator with comma decimals, and a
+  // Spreadsheet conventions of the page's language (see i18n/terms.ts), and a
   // UTF-8 BOM so non-ASCII characters survive the import.
+  const { separator, decimal, isoTime, header } = currentTerms.value.csv;
   const csvNum = (value: number | null, decimals: number): string =>
-    value === null ? '' : value.toFixed(decimals).replace('.', ',');
+    value === null ? '' : value.toFixed(decimals).replace('.', decimal);
 
-  const header = 'tijd;temp_gem_c;temp_max_c;temp_min_c;vochtigheid_pct;wind_gem_kmu;windstoot_kmu;windrichting;neerslag_mm';
   const lines = rows.value.map((r) =>
     [
-      r.time,
+      isoTime ? formatters.formatIsoDateTime(r.ts * 1000) : r.time,
       csvNum(r.tempAvg, 1),
       csvNum(r.tempHi, 1),
       csvNum(r.tempLo, 1),
@@ -117,10 +125,12 @@ const exportCsv = () => {
       csvNum(r.windGust, 1),
       r.windDir,
       csvNum(r.rain, 2),
-    ].join(';')
+    ].join(separator)
   );
 
-  const blob = new Blob(['﻿' + [header, ...lines].join('\n')], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['﻿' + [header.join(separator), ...lines].join('\n')], {
+    type: 'text/csv;charset=utf-8',
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -133,29 +143,29 @@ const exportCsv = () => {
 <template>
   <div class="page">
     <AppHeader
-      title="Historische data"
+      :title="t('historic.title')"
       back
     />
 
     <SectionCard
-      title="Kies een dag"
+      :title="t('historic.pickDay')"
       :icon="CalendarDays"
     >
       <div class="day-controls">
         <DatePicker
           v-model="selectedDay"
           :max-date="today"
-          date-format="dd-mm-yy"
+          :date-format="currentTerms.primevue.dateFormat"
           show-icon
           :manual-input="false"
         />
         <Button
-          label="Ophalen"
+          :label="t('historic.fetch')"
           :loading="isFetching"
           @click="fetchDay"
         />
         <Button
-          label="Exporteer CSV"
+          :label="t('historic.export')"
           severity="secondary"
           outlined
           :disabled="rows.length === 0"
@@ -166,7 +176,7 @@ const exportCsv = () => {
           </template>
         </Button>
       </div>
-      <p class="range-note">Gegevens per 15 minuten; maximaal één dag per opvraag (API-limiet).</p>
+      <p class="range-note">{{ t('historic.rangeNote') }}</p>
       <p
         v-if="fetchError"
         class="fetch-error"
@@ -175,12 +185,12 @@ const exportCsv = () => {
           :size="14"
           aria-hidden="true"
         />
-        Ophalen mislukt. Controleer de verbinding en probeer het opnieuw.
+        {{ t('historic.fetchError') }}
       </p>
     </SectionCard>
 
     <SectionCard
-      title="Metingen"
+      :title="t('historic.records')"
       :icon="Table2"
     >
       <DataTable
@@ -194,7 +204,7 @@ const exportCsv = () => {
       >
         <Column
           field="ts"
-          header="Tijd"
+          :header="t('historic.columns.time')"
           sortable
           style="min-width: 140px"
         >
@@ -202,7 +212,7 @@ const exportCsv = () => {
         </Column>
         <Column
           field="tempAvg"
-          header="Temp"
+          :header="t('historic.columns.temp')"
           sortable
           style="min-width: 90px"
         >
@@ -210,7 +220,7 @@ const exportCsv = () => {
         </Column>
         <Column
           field="tempHi"
-          header="Max"
+          :header="t('historic.columns.max')"
           sortable
           style="min-width: 90px"
         >
@@ -218,7 +228,7 @@ const exportCsv = () => {
         </Column>
         <Column
           field="tempLo"
-          header="Min"
+          :header="t('historic.columns.min')"
           sortable
           style="min-width: 90px"
         >
@@ -226,7 +236,7 @@ const exportCsv = () => {
         </Column>
         <Column
           field="humidity"
-          header="Vocht"
+          :header="t('historic.columns.humidity')"
           sortable
           style="min-width: 85px"
         >
@@ -234,7 +244,7 @@ const exportCsv = () => {
         </Column>
         <Column
           field="windAvg"
-          header="Wind"
+          :header="t('historic.columns.wind')"
           sortable
           style="min-width: 110px"
         >
@@ -242,7 +252,7 @@ const exportCsv = () => {
         </Column>
         <Column
           field="windGust"
-          header="Stoten"
+          :header="t('historic.columns.gusts')"
           sortable
           style="min-width: 110px"
         >
@@ -250,13 +260,13 @@ const exportCsv = () => {
         </Column>
         <Column
           field="windDir"
-          header="Richting"
+          :header="t('historic.columns.direction')"
           sortable
           style="min-width: 90px"
         />
         <Column
           field="rain"
-          header="Neerslag"
+          :header="t('historic.columns.rain')"
           sortable
           style="min-width: 100px"
         >
@@ -268,7 +278,7 @@ const exportCsv = () => {
         v-if="rows.length > 0"
         class="summary"
       >
-        {{ rows.length }} metingen · totaal {{ formatters.formatRainfall(totalRain) }} neerslag
+        {{ t('historic.summary', { n: rows.length, rain: formatters.formatRainfall(totalRain) }, rows.length) }}
       </p>
     </SectionCard>
   </div>

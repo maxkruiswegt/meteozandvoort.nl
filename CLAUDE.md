@@ -796,13 +796,19 @@ async function fetchWithTimeout(url, options, timeout = 10000) {
 |------|---------|
 | [src/stores/WeatherStore.ts](src/stores/WeatherStore.ts) | Data fetching + all derived metric values (imperial→metric conversion happens here, once) |
 | [src/types/weatherlink.ts](src/types/weatherlink.ts) | Typed WeatherLink sensor payloads + sensor type constants |
-| [src/utils/weather.ts](src/utils/weather.ts) | Pure domain logic: conversions, KNMI Beaufort scale, wind directions, temperature color ramp |
-| [src/composables/useFormatters.ts](src/composables/useFormatters.ts) | Dutch (nl-NL) display formatting |
-| [src/composables/useWeatherCharts.ts](src/composables/useWeatherCharts.ts) | ApexCharts series/options builders (night bands via suncalc) |
+| [src/utils/weather.ts](src/utils/weather.ts) | Pure domain logic: conversions, KNMI Beaufort force, compass points, temperature color ramp |
+| [src/composables/useFormatters.ts](src/composables/useFormatters.ts) | Display formatting in the active language (nl-NL / en-GB, always Europe/Amsterdam time) |
+| [src/composables/useWeatherCharts.ts](src/composables/useWeatherCharts.ts) | ApexCharts series/options builders (sun markers via suncalc) |
+| [src/seo/site.ts](src/seo/site.ts) | Page URLs per language + `<head>` per page (title, description, canonical, hreflang, Open Graph); shared by router, runtime head and build |
+| [build/seoPages.ts](build/seoPages.ts) | Vite plugin: writes `dist/<path>/index.html` per page and language with its static head, plus `sitemap.xml` |
+| [src/i18n/](src/i18n/) | vue-i18n setup; `nl.ts` (master schema) / `en.ts` UI text; `terms.ts` per-language formats, Beaufort words, compass, CSV and PrimeVue locale |
 | [src/views/Home.vue](src/views/Home.vue) | Dashboard |
 | [src/views/CurrentView.vue](src/views/CurrentView.vue) | Raw sensor data table |
 | [src/views/HistoricView.vue](src/views/HistoricView.vue) | Day picker + archive table + CSV export |
+| [src/views/NotFound.vue](src/views/NotFound.vue) | Not-found page (noindex) for unknown URLs |
 | [src/api.ts](src/api.ts) | Axios instance (10s timeout) |
+
+**Languages**: Dutch at the root (`/`, `/huidig/`, `/historisch/`), English under `/en/` (`/en/`, `/en/current/`, `/en/history/`); hreflang x-default points to English. URLs end in a slash because each page is built as `<path>/index.html` (the server 301s the slashless form). Add UI text to `src/i18n/nl.ts` first (it types `en.ts`); add head text to `src/seo/site.ts`. No automatic language redirects (Google advises against them); the header links to the same page in the other language.
 
 **Deliberate constraints**: PrimeVue is pinned at 4.5.5 (last MIT release; v5+ requires a PrimeUI license key and injects a DOM banner without one). TypeScript is pinned at 6.x until vue-tsc supports TS 7. ApexCharts animations are disabled (caused renderer freezes with apexcharts 6).
 

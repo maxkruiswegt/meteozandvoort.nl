@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { RouterLink } from 'vue-router';
-import { RefreshCw, ArrowLeft } from '@lucide/vue';
+import { RouterLink, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { RefreshCw, ArrowLeft, Globe } from '@lucide/vue';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useFormatters } from '@/composables/useFormatters';
+import { currentLocale, localePath, LANGUAGE_NAMES } from '@/i18n';
+import { HTML_LANG, SITE_NAME, otherLocale } from '@/seo/site';
 import ThemeSwitch from '@/components/ThemeSwitch.vue';
 
 const props = defineProps<{
@@ -16,6 +19,19 @@ const props = defineProps<{
 
 const weatherStore = useWeatherStore();
 const formatters = useFormatters();
+const { t } = useI18n();
+const route = useRoute();
+
+// The same page in the other language (the home page from a not-found URL).
+const otherLanguage = computed(() => {
+  const locale = otherLocale(currentLocale.value);
+  return {
+    to: localePath(route.meta.page ?? 'home', locale),
+    name: LANGUAGE_NAMES[locale],
+    lang: HTML_LANG[locale],
+    hreflang: locale,
+  };
+});
 
 // Relative/clock labels depend on wall time, which isn't reactive by itself;
 // tick every 30s so the label stays honest between fetches.
@@ -28,7 +44,7 @@ onMounted(() => {
 });
 onUnmounted(() => window.clearInterval(tickTimer));
 
-// Wording follows Dutch weather-service convention (KNMI/Buienradar): absolute
+// Wording follows weather-service convention (KNMI/Buienradar): absolute
 // observation clock time, relative phrasing only once the data is stale.
 const observedAgeMin = computed(() => {
   void tick.value;
@@ -46,19 +62,24 @@ const statusKind = computed<'ok' | 'warn' | 'error'>(() => {
 });
 
 const statusLabel = computed(() => {
-  if (weatherStore.error && !weatherStore.currentWeatherData) return 'geen verbinding';
+  if (weatherStore.error && !weatherStore.currentWeatherData) return t('header.statusOffline');
   const observed = weatherStore.observationTime;
   const age = observedAgeMin.value;
-  if (!observed || age === null) return 'laden…';
-  if (age > 60) return `geen actuele gegevens · laatste meting ${formatters.formatShortDateTime(observed)} uur`;
-  if (age > 10) return `laatste meting om ${formatters.formatTime(observed)} uur (${formatters.formatRelativeTime(observed)})`;
-  return `gemeten om ${formatters.formatTime(observed)} uur`;
+  if (!observed || age === null) return t('header.statusLoading');
+  if (age > 60) return t('header.statusStale', { time: formatters.formatShortDateTime(observed) });
+  if (age > 10) {
+    return t('header.statusLate', {
+      time: formatters.formatTime(observed),
+      ago: formatters.formatRelativeTime(observed),
+    });
+  }
+  return t('header.statusFresh', { time: formatters.formatTime(observed) });
 });
 
 const observedIso = computed(() => weatherStore.observationTime?.toISOString());
 const observedTitle = computed(() => {
   const observed = weatherStore.observationTime;
-  return observed ? `Laatste meting: ${formatters.formatDateTime(observed)} (Europe/Amsterdam)` : undefined;
+  return observed ? t('header.statusTitle', { time: formatters.formatDateTime(observed) }) : undefined;
 });
 
 const refresh = () => {
@@ -74,37 +95,53 @@ const showStatus = computed(() => !props.back || props.live);
     class="app-header"
     :class="{ compact: props.back }"
   >
-    <!-- Page links left, the app-level theme setting pushed right. One wrapping
-         row: when space runs out (320px, heavy zoom, large fonts) the switch
-         drops to its own line instead of colliding. -->
+    <!-- Page links left, app-level settings (language, theme) pushed right.
+         One wrapping row: when space runs out (phones, heavy zoom, large
+         fonts) the settings drop to their own line instead of colliding. -->
     <div class="header-bar">
       <nav
         v-if="!props.back"
         class="header-nav"
-        aria-label="Pagina's"
+        :aria-label="t('header.pages')"
       >
         <RouterLink
-          to="/huidig"
+          :to="localePath('current')"
           class="nav-pill"
         >
-          Huidig
+          {{ t('header.current') }}
         </RouterLink>
         <RouterLink
-          to="/historisch"
+          :to="localePath('historic')"
           class="nav-pill"
         >
-          Historisch
+          {{ t('header.historic') }}
         </RouterLink>
       </nav>
-      <ThemeSwitch class="header-theme" />
+      <div class="header-tools">
+        <!-- A real link to the same page in the other language, named in that
+             language (no flags: they stand for countries, not languages). -->
+        <RouterLink
+          :to="otherLanguage.to"
+          class="language-link"
+          :hreflang="otherLanguage.hreflang"
+          :lang="otherLanguage.lang"
+        >
+          <Globe
+            :size="15"
+            aria-hidden="true"
+          />
+          {{ otherLanguage.name }}
+        </RouterLink>
+        <ThemeSwitch class="header-theme" />
+      </div>
     </div>
 
     <div class="header-title">
       <RouterLink
         v-if="props.back"
-        to="/"
+        :to="localePath('home')"
         class="back-link"
-        aria-label="Terug naar overzicht"
+        :aria-label="t('header.back')"
       >
         <ArrowLeft :size="18" />
       </RouterLink>
@@ -118,7 +155,7 @@ const showStatus = computed(() => !props.back || props.live);
         height="36"
       />
       <div class="title-text">
-        <h1>{{ props.title ?? 'Meteo Zandvoort' }}</h1>
+        <h1>{{ props.title ?? SITE_NAME }}</h1>
         <p
           v-if="showStatus"
           class="status-line"
@@ -135,7 +172,7 @@ const showStatus = computed(() => !props.back || props.live);
             type="button"
             class="refresh-button"
             :class="{ spinning: weatherStore.isLoading }"
-            aria-label="Gegevens vernieuwen"
+            :aria-label="t('header.refresh')"
             @click="refresh"
           >
             <RefreshCw :size="13" />
@@ -226,8 +263,8 @@ const showStatus = computed(() => !props.back || props.live);
   min-width: 0;
 }
 
-/* space-between: nav and switch at opposite ends when they share a line;
-   once the switch wraps it sits alone on its line and lines up on the left. */
+/* space-between: pages and settings at opposite ends when they share a line;
+   once the settings wrap they sit alone on their line, lined up on the left. */
 .header-bar {
   grid-area: bar;
   display: flex;
@@ -242,10 +279,33 @@ const showStatus = computed(() => !props.back || props.live);
   justify-content: flex-end;
 }
 
-.header-nav {
+.header-nav,
+.header-tools {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.language-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-chip);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 550;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.language-link:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  text-decoration: none;
 }
 
 /* Light ink for the text on the photo only. Scoped here, not to the whole
@@ -385,6 +445,7 @@ const showStatus = computed(() => !props.back || props.live);
    so it holds its edge over bright sky as well as dark buildings. */
 .back-link,
 .nav-pill,
+.language-link,
 .header-theme {
   border-color: var(--ring-on-photo);
   box-shadow: var(--shadow-on-photo);

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Table2 } from '@lucide/vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -12,6 +13,7 @@ import SectionCard from '@/components/SectionCard.vue';
 
 const weatherStore = useWeatherStore();
 const formatters = useFormatters();
+const { t } = useI18n();
 
 onMounted(() => {
   if (!weatherStore.currentWeatherData) {
@@ -19,11 +21,16 @@ onMounted(() => {
   }
 });
 
-const SENSOR_LABELS: Record<number, string> = {
-  [SENSOR_TYPES.ISS]: 'Buitensensor (ISS)',
-  [SENSOR_TYPES.BAROMETER]: 'Barometer',
-  [SENSOR_TYPES.INDOOR]: 'Binnensensor',
-  [SENSOR_TYPES.HEALTH]: 'Systeemstatus',
+const SENSOR_KEYS = {
+  [SENSOR_TYPES.ISS]: 'iss',
+  [SENSOR_TYPES.BAROMETER]: 'barometer',
+  [SENSOR_TYPES.INDOOR]: 'indoor',
+  [SENSOR_TYPES.HEALTH]: 'health',
+} as const;
+
+const sensorLabel = (type: number): string => {
+  const key = SENSOR_KEYS[type as keyof typeof SENSOR_KEYS];
+  return key ? t(`current.sensors.${key}`) : t('current.sensors.other', { type });
 };
 
 interface SensorRow {
@@ -78,7 +85,7 @@ const rows = computed<SensorRow[]>(() => {
     const record = sensor.data[0];
     if (!record) return [];
     return Object.entries(record).map(([field, value]) => ({
-      sensor: SENSOR_LABELS[sensor.sensor_type] ?? `Type ${sensor.sensor_type}`,
+      sensor: sensorLabel(sensor.sensor_type),
       lsid: sensor.lsid,
       field,
       value: value === null || value === undefined ? '–' : String(value),
@@ -91,13 +98,13 @@ const rows = computed<SensorRow[]>(() => {
 <template>
   <div class="page">
     <AppHeader
-      title="Huidige data"
+      :title="t('current.title')"
       back
       live
     />
 
     <SectionCard
-      title="Alle sensorvelden"
+      :title="t('current.fields')"
       :icon="Table2"
     >
       <DataTable
@@ -111,25 +118,25 @@ const rows = computed<SensorRow[]>(() => {
       >
         <Column
           field="sensor"
-          header="Sensor"
+          :header="t('current.sensor')"
           sortable
           style="min-width: 160px"
         />
         <Column
           field="field"
-          header="Veld"
+          :header="t('current.field')"
           sortable
           style="min-width: 240px"
         />
         <Column
           field="value"
-          header="Ruwe waarde"
+          :header="t('current.raw')"
           sortable
           style="min-width: 130px"
         />
         <Column
           field="formatted"
-          header="Geformatteerd"
+          :header="t('current.formatted')"
           sortable
           style="min-width: 160px"
         />

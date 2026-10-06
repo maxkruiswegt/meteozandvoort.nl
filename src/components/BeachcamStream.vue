@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import type Player from 'video.js/dist/types/player';
+import { currentLocale } from '@/i18n';
 
 const videoRef = ref<HTMLVideoElement | null>(null);
 let player: Player | null = null;
@@ -8,10 +9,19 @@ let player: Player | null = null;
 const streamUrl = 'https://wowza01.crossmediaventures.com/beachcam/beachcam.smil/playlist.m3u8';
 
 // video.js is ~0.5 MB; load it on demand so it stays out of the initial bundle.
+// Its control labels are English unless a translation is registered. The
+// language is fixed when the player is built, so Home remounts this
+// component when the site language changes.
 onMounted(async () => {
-  const [{ default: videojs }] = await Promise.all([import('video.js'), import('video.js/dist/video-js.css')]);
+  const [{ default: videojs }, { default: dutch }] = await Promise.all([
+    import('video.js'),
+    import('video.js/dist/lang/nl.json'),
+    import('video.js/dist/video-js.css'),
+  ]);
   if (!videoRef.value) return;
+  videojs.addLanguage('nl', dutch);
   player = videojs(videoRef.value, {
+    language: currentLocale.value,
     controls: true,
     autoplay: 'muted',
     muted: true,
@@ -69,16 +79,22 @@ onUnmounted(() => {
       autoplay
       playsinline
     ></video>
-    <p class="beachcam-credit">
-      Livestream door
-      <a
-        href="https://reddingsbrigade-bloemendaal.nl/beachcam/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Reddingsbrigade Bloemendaal
-      </a>
-    </p>
+    <i18n-t
+      keypath="beachcam.credit"
+      tag="p"
+      scope="global"
+      class="beachcam-credit"
+    >
+      <template #org>
+        <a
+          href="https://reddingsbrigade-bloemendaal.nl/beachcam/"
+          target="_blank"
+          rel="noopener noreferrer"
+          lang="nl"
+          >Reddingsbrigade Bloemendaal</a
+        >
+      </template>
+    </i18n-t>
   </div>
 </template>
 

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { windDirectionAbbr } from '@/utils/weather';
+import { useI18n } from 'vue-i18n';
+import { currentTerms } from '@/i18n';
+import { compassPoint16, compassPoint8 } from '@/utils/weather';
 
 const props = defineProps<{
   /** Direction the wind comes FROM, in degrees (meteorological). */
@@ -10,8 +12,10 @@ const props = defineProps<{
   subLabel?: string;
 }>();
 
+const { t } = useI18n();
+
 // The arrow shows where the wind is flowing TO (like windy.com / Apple Weather);
-// the text label names the origin ("ZW"), which is how Dutch forecasts phrase it.
+// the text label names the origin ("ZW"/"SW"), which is how forecasts phrase it.
 // Rotation accumulates via the shortest path so 350°→10° doesn't spin the
 // long way around during the CSS transition.
 const arrowRotation = ref<number | null>(null);
@@ -34,14 +38,20 @@ watch(
   { immediate: true }
 );
 
-const directionLabel = computed(() => windDirectionAbbr(props.degrees) ?? '–');
+const directionLabel = computed(() => {
+  const point = compassPoint16(props.degrees);
+  return point === null ? '–' : currentTerms.value.compass16[point];
+});
 
-const CARDINALS = [
-  { label: 'N', angle: 0 },
-  { label: 'O', angle: 90 },
-  { label: 'Z', angle: 180 },
-  { label: 'W', angle: 270 },
-];
+// Screen readers get the spelled-out direction, not an abbreviation read letter by letter.
+const ariaLabel = computed(() => {
+  const point = compassPoint8(props.degrees);
+  return point === null
+    ? t('compass.unknown', { speed: props.speedLabel })
+    : t('compass.label', { direction: currentTerms.value.from8[point], speed: props.speedLabel });
+});
+
+const cardinals = computed(() => currentTerms.value.cardinals.map((label, i) => ({ label, angle: i * 90 })));
 
 const TICKS = Array.from({ length: 16 }, (_, i) => i * 22.5);
 
@@ -55,7 +65,7 @@ const polar = (angle: number, radius: number): { x: number; y: number } => {
   <div
     class="wind-compass"
     role="img"
-    :aria-label="`Windrichting ${directionLabel}, ${speedLabel}`"
+    :aria-label="ariaLabel"
   >
     <svg
       viewBox="0 0 200 200"
@@ -80,8 +90,8 @@ const polar = (angle: number, radius: number): { x: number; y: number } => {
         />
       </g>
       <text
-        v-for="c in CARDINALS"
-        :key="c.label"
+        v-for="c in cardinals"
+        :key="c.angle"
         :x="polar(c.angle, 66).x"
         :y="polar(c.angle, 66).y"
         class="cardinal"

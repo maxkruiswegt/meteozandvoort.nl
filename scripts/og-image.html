@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
-  Source of public/img/og.jpg, the 1200x630 link preview. Rendered by scripts/export-og.mjs
-  (npm run export:og); paths are relative to this file.
+  Source of public/img/og.jpg and og-en.jpg (?lang=en), the 1200x630 link previews. Rendered by
+  scripts/export-og.mjs (npm run export:og); paths are relative to this file.
 -->
 <html lang="nl">
   <head>
@@ -144,5 +144,20 @@
         <div class="domain">meteozandvoort.nl</div>
       </div>
     </div>
+    <script>
+      // ?lang=en swaps in the English text; the markup above is the Dutch original.
+      const english = {
+        lang: 'en-GB',
+        intro: "The current weather in Zandvoort, straight from Herman Kruiswegt's weather station.",
+        measures: ['Temperature', 'Wind', 'Rain', 'Air pressure'],
+      };
+      if (new URLSearchParams(location.search).get('lang') === 'en') {
+        document.documentElement.lang = english.lang;
+        document.querySelector('p').textContent = english.intro;
+        document.querySelectorAll('.measures span').forEach((chip, i) => {
+          chip.lastChild.textContent = english.measures[i];
+        });
+      }
+    </script>
   </body>
 </html>

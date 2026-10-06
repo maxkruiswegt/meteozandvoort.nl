@@ -1,5 +1,8 @@
 import * as SunCalc from 'suncalc';
+import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme';
+import { useFormatters } from '@/composables/useFormatters';
+import { currentLocale, currentTerms } from '@/i18n';
 import type { IssArchive, BarometerArchive } from '@/types/weatherlink';
 import { convertFahrenheitToCelsius, convertMphToKmh, convertInHgToHpa } from '@/utils/weather';
 
@@ -33,9 +36,29 @@ const FONT = "'Archivo Variable', system-ui, sans-serif";
 
 const ZANDVOORT = { lat: 52.374, lon: 4.533 };
 const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
 
-const timeLabel = (ms: number): string =>
-  new Date(ms).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+// Charts read the station clock like every other time on the site (a visitor
+// abroad sees Zandvoort times). ApexCharts formats only in the browser's zone or
+// in UTC, so points are shifted by Amsterdam's UTC offset and the axis is
+// formatted as UTC. DST switches on the hour, so the offset is cached per hour.
+const amsterdamOffset = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Europe/Amsterdam',
+  timeZoneName: 'longOffset',
+});
+const offsetByHour = new Map<number, number>();
+
+const stationClock = (ms: number): number => {
+  const hour = Math.floor(ms / HOUR_MS);
+  let offset = offsetByHour.get(hour);
+  if (offset === undefined) {
+    const zone = amsterdamOffset.formatToParts(ms).find((p) => p.type === 'timeZoneName')?.value ?? '';
+    const match = /GMT([+-])(\d{2}):(\d{2})/.exec(zone);
+    offset = match ? (match[1] === '-' ? -1 : 1) * (Number(match[2]) * 60 + Number(match[3])) * 60_000 : 0;
+    offsetByHour.set(hour, offset);
+  }
+  return ms + offset;
+};
 
 interface SunEvents {
   sunrise: number | null;
@@ -73,7 +96,7 @@ const sunMarkers = (records: { ts: number }[], c: Palette): Record<string, unkno
   const markers: Record<string, unknown>[] = [];
 
   const marker = (x: number, glyph: string, glyphColor: string, fontSize: string): Record<string, unknown> => ({
-    x,
+    x: stationClock(x),
     borderColor: c.markerLine,
     borderWidth: 1,
     strokeDashArray: 0,
@@ -102,15 +125,6 @@ const sunMarkers = (records: { ts: number }[], c: Palette): Record<string, unkno
   return markers;
 };
 
-/** Formatted sunrise/sunset times for the plotted range, for display in the hero. */
-const sunTimes = (records: { ts: number }[]): { sunrise: string | null; sunset: string | null } => {
-  const { sunrise, sunset } = sunEvents(records);
-  return {
-    sunrise: sunrise ? timeLabel(sunrise) : null,
-    sunset: sunset ? timeLabel(sunset) : null,
-  };
-};
-
 export interface ChartPoint {
   x: number;
   y: number | null;
@@ -122,10 +136,12 @@ export interface ChartSeries {
   color?: string;
 }
 
-const nlNumber = (decimals: number) => (value: number | null) =>
+// The Intl locale is captured when the options are built: the formatter runs
+// inside ApexCharts, outside any reactive render.
+const localNumber = (intl: string, decimals: number) => (value: number | null) =>
   value === null || value === undefined
     ? ''
-    : value.toLocaleString('nl-NL', {
+    : value.toLocaleString(intl, {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
         useGrouping: false,
@@ -144,17 +160,25 @@ const toHpa = (inHg: number | null | undefined): number | null =>
 
 export function useWeatherCharts() {
   const { isDark } = useTheme();
+  const { t } = useI18n();
+  const { formatTime } = useFormatters();
 
-  // Reading the theme makes the chart computeds in Home.vue depend on it, so
-  // they rebuild with the other theme's tokens when it switches.
+  // Reading the theme and language makes the chart computeds in Home.vue
+  // depend on them, so they rebuild with the other theme's tokens or the other
+  // language's labels when either switches.
   const readPalette = () => {
     void isDark.value;
+    void currentLocale.value;
     return readThemePalette();
   };
 
-  const baseOptions = (c: Palette, unit: string, decimals = 1): Record<string, unknown> => {
+  const number = (decimals: number) => localNumber(currentTerms.value.intl, decimals);
+
+  /** `description` names the chart for screen readers (ApexCharts' own label is English). */
+  const baseOptions = (c: Palette, description: string, unit: string, decimals = 1): Record<string, unknown> => {
     // Apex has its own light/dark chrome (tooltips, crosshairs); follow the CSS theme.
     const mode = cssVar('--chart-theme') === 'dark' ? 'dark' : 'light';
+    const format = number(decimals);
     return {
       chart: {
         background: 'transparent',
@@ -164,6 +188,7 @@ export function useWeatherCharts() {
         zoom: { enabled: false },
         animations: { enabled: false },
         parentHeightOffset: 0,
+        accessibility: { description },
       },
       theme: { mode },
       // Straight segments: this is 15-minute archive data, splines would invent
@@ -179,7 +204,8 @@ export function useWeatherCharts() {
         type: 'datetime',
         labels: {
           format: 'HH:mm',
-          datetimeUTC: false,
+          // UTC formatting of station-clock values (see stationClock)
+          datetimeUTC: true,
           style: { colors: c.textFaint, fontSize: '11px' },
         },
         axisBorder: { show: false },
@@ -188,15 +214,16 @@ export function useWeatherCharts() {
       },
       yaxis: {
         labels: {
-          formatter: nlNumber(decimals),
+          formatter: format,
           style: { colors: c.textFaint, fontSize: '11px' },
         },
       },
       tooltip: {
         theme: mode,
-        x: { format: 'dd-MM HH:mm' },
+        // Apex's built-in month names are English, so Dutch stays numeric.
+        x: { format: currentLocale.value === 'en' ? 'd MMM HH:mm' : 'dd-MM HH:mm' },
         y: {
-          formatter: (value: number | null) => (value === null ? '–' : `${nlNumber(decimals)(value)} ${unit}`),
+          formatter: (value: number | null) => (value === null ? '–' : `${format(value)} ${unit}`),
         },
       },
       legend: {
@@ -218,7 +245,7 @@ export function useWeatherCharts() {
   };
 
   const yLabels = (c: Palette, decimals: number) => ({
-    formatter: nlNumber(decimals),
+    formatter: number(decimals),
     style: { colors: c.textFaint, fontSize: '11px' },
   });
 
@@ -228,18 +255,18 @@ export function useWeatherCharts() {
       type: 'area' as const,
       series: [
         {
-          name: 'Temperatuur',
+          name: t('chart.temperature'),
           color: c.temperature,
-          data: records.map((r) => ({ x: r.ts * 1000, y: toC(r.temp_avg) })),
+          data: records.map((r) => ({ x: stationClock(r.ts * 1000), y: toC(r.temp_avg) })),
         },
         {
-          name: 'Dauwpunt',
+          name: t('chart.dewPoint'),
           color: c.dewPoint,
-          data: records.map((r) => ({ x: r.ts * 1000, y: toC(r.dew_point_last) })),
+          data: records.map((r) => ({ x: stationClock(r.ts * 1000), y: toC(r.dew_point_last) })),
         },
       ],
       options: {
-        ...baseOptions(c, '°C'),
+        ...baseOptions(c, t('home.charts.temperature'), '°C'),
         ...areaFill,
         annotations: {
           xaxis: sunMarkers(records, c),
@@ -256,18 +283,18 @@ export function useWeatherCharts() {
       type: 'area' as const,
       series: [
         {
-          name: 'Gemiddeld',
+          name: t('chart.windAverage'),
           color: c.wind,
-          data: records.map((r) => ({ x: r.ts * 1000, y: toKmh(r.wind_speed_avg) })),
+          data: records.map((r) => ({ x: stationClock(r.ts * 1000), y: toKmh(r.wind_speed_avg) })),
         },
         {
-          name: 'Windstoten',
+          name: t('chart.gusts'),
           color: c.gust,
-          data: records.map((r) => ({ x: r.ts * 1000, y: toKmh(r.wind_speed_hi) })),
+          data: records.map((r) => ({ x: stationClock(r.ts * 1000), y: toKmh(r.wind_speed_hi) })),
         },
       ],
       options: {
-        ...baseOptions(c, 'km/u', 0),
+        ...baseOptions(c, t('home.charts.wind'), currentTerms.value.units.kmh, 0),
         ...areaFill,
         // Gusts as a distinct visual class: thinner and dashed.
         stroke: { curve: 'straight', width: [1.75, 1.25], lineCap: 'butt', dashArray: [0, 4] },
@@ -283,13 +310,13 @@ export function useWeatherCharts() {
       type: 'line' as const,
       series: [
         {
-          name: 'Luchtdruk',
+          name: t('chart.pressure'),
           color: c.pressure,
-          data: records.map((r) => ({ x: r.ts * 1000, y: toHpa(r.bar_sea_level) })),
+          data: records.map((r) => ({ x: stationClock(r.ts * 1000), y: toHpa(r.bar_sea_level) })),
         },
       ],
       options: {
-        ...baseOptions(c, 'hPa'),
+        ...baseOptions(c, t('home.charts.pressure'), 'hPa'),
         legend: { show: false },
         annotations: {
           xaxis: sunMarkers(records, c),
@@ -320,13 +347,13 @@ export function useWeatherCharts() {
       type: 'area' as const,
       series: [
         {
-          name: 'Luchtvochtigheid',
+          name: t('chart.humidity'),
           color: c.humidity,
-          data: records.map((r) => ({ x: r.ts * 1000, y: round1(r.hum_last ?? null) })),
+          data: records.map((r) => ({ x: stationClock(r.ts * 1000), y: round1(r.hum_last ?? null) })),
         },
       ],
       options: {
-        ...baseOptions(c, '%', 0),
+        ...baseOptions(c, t('home.charts.humidity'), '%', 0),
         ...areaFill,
         legend: { show: false },
         annotations: { xaxis: sunMarkers(records, c) },
@@ -341,13 +368,13 @@ export function useWeatherCharts() {
       type: 'bar' as const,
       series: [
         {
-          name: 'Neerslag',
+          name: t('chart.rain'),
           color: c.rain,
-          data: records.map((r) => ({ x: r.ts * 1000, y: r.rainfall_mm ?? null })),
+          data: records.map((r) => ({ x: stationClock(r.ts * 1000), y: r.rainfall_mm ?? null })),
         },
       ],
       options: {
-        ...baseOptions(c, 'mm', 2),
+        ...baseOptions(c, t('home.charts.rain'), 'mm', 2),
         legend: { show: false },
         annotations: { xaxis: sunMarkers(records, c) },
         stroke: { show: false },
@@ -355,6 +382,15 @@ export function useWeatherCharts() {
           bar: { columnWidth: '60%', borderRadius: 2 },
         },
       },
+    };
+  };
+
+  /** Sunrise/sunset in the plotted range, on the station clock like every other time. */
+  const sunTimes = (records: { ts: number }[]): { sunrise: string | null; sunset: string | null } => {
+    const { sunrise, sunset } = sunEvents(records);
+    return {
+      sunrise: sunrise ? formatTime(sunrise) : null,
+      sunset: sunset ? formatTime(sunset) : null,
     };
   };
 

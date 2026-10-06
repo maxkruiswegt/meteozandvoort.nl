@@ -62,7 +62,7 @@ watch(
 );
 
 const spacing = computed(() => {
-  const bft = beaufortFromKmh(weatherStore.windSpeedAvg10Min)?.bft ?? FALLBACK.bft;
+  const bft = beaufortFromKmh(weatherStore.windSpeedAvg10Min) ?? FALLBACK.bft;
   return SPACING_BY_BFT[bft] ?? 108;
 });
 
