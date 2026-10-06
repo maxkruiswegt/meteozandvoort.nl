@@ -509,13 +509,21 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
   gap: 0.625rem;
 }
 
+/* When badge and description don't fit on one line, the description drops
+   under the badge as a whole, centred under the compass, instead of
+   squeezing the badge. */
 .wind-meta {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem 0.5rem;
+  text-align: center;
 }
 
 .bft-badge {
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 0.15rem 0.6rem;
   border-radius: var(--radius-chip);
   font-size: 0.8rem;
@@ -579,7 +587,8 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
 /* ===== Details list ===== */
 .detail-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* min(): never wider than the card, or narrow screens clip the values */
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   column-gap: 2.5rem;
   margin: 0;
 }
@@ -599,6 +608,11 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
 
 .detail-row dd {
   margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  column-gap: 0.35rem;
   font-size: 0.95rem;
   font-weight: 550;
   text-align: right;
