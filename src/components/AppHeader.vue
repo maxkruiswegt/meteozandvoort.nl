@@ -108,6 +108,15 @@ const showStatus = computed(() => !props.back || props.live);
       >
         <ArrowLeft :size="18" />
       </RouterLink>
+      <!-- Site mark (same art as the favicon); decorative, the h1 names the site -->
+      <img
+        v-else
+        src="/favicon.svg"
+        alt=""
+        class="site-mark"
+        width="36"
+        height="36"
+      />
       <div class="title-text">
         <h1>{{ props.title ?? 'Meteo Zandvoort' }}</h1>
         <p
@@ -254,6 +263,18 @@ const showStatus = computed(() => !props.back || props.live);
   font-size: 1.5rem;
   letter-spacing: -0.02em;
   text-shadow: var(--text-shadow-on-photo);
+}
+
+/* The mark's navy disc disappears into the scrimmed photo; a thin light ring
+   keeps it reading as a roundel. */
+.site-mark {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1.5px rgb(255 255 255 / 0.4),
+    0 1px 3px rgb(0 0 0 / 0.35);
 }
 
 .back-link {
