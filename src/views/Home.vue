@@ -368,7 +368,21 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
       </SectionCard>
 
       <footer class="footer">
-        <p>Davis-weerstation in Zandvoort · metingen per minuut.</p>
+        <!-- &nbsp; before each · keeps the dot on the line before when it wraps -->
+        <p>Davis-weerstation in Zandvoort&nbsp;· metingen per minuut.</p>
+        <!-- Legend for IsobarBackdrop; hidden wherever the backdrop is -->
+        <p class="isobar-note">
+          <svg
+            class="isobar-swatch"
+            viewBox="0 0 18 10"
+            aria-hidden="true"
+          >
+            <path d="M1 4.5 Q9 0.5 17 2.5" />
+            <path d="M1 9 Q9 5 17 7" />
+          </svg>
+          De lijnen op de achtergrond zijn isobaren (lijnen van gelijke luchtdruk), geschat uit de wind van nu: ze
+          lopen ongeveer met de wind mee, en hoe dichter bij elkaar, hoe harder het waait.
+        </p>
         <p>
           Station van
           <a
@@ -376,8 +390,7 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
             target="_blank"
             rel="noopener noreferrer"
             >Herman Kruiswegt</a
-          >
-          · site door
+          >&nbsp;· site door
           <a
             href="https://maxkruiswegt.com"
             target="_blank"
@@ -406,7 +419,8 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   border-radius: var(--radius-tile);
-  background: var(--status-warn-soft);
+  /* Opaque base: the translucent tint alone lets backdrop lines through */
+  background: linear-gradient(var(--status-warn-soft), var(--status-warn-soft)) var(--bg);
   border: 1px solid var(--status-warn-border);
   color: var(--status-warn-text);
   font-size: 0.85rem;
@@ -631,8 +645,33 @@ const sunTimes = computed(() => charts.sunTimes(weatherStore.historicIss));
   font-size: 0.8rem;
 }
 
+/* Balanced wrapping for the whole centred block: even lines, no lone
+   last word ("minuut.") on phones. */
 .footer p {
   margin: 0.15rem 0;
+  text-wrap: balance;
+}
+
+.footer .isobar-note {
+  max-width: 88ch;
+  margin-inline: auto;
+}
+
+.isobar-swatch {
+  display: inline-block;
+  width: 18px;
+  height: 10px;
+  margin-right: 0.3rem;
+  vertical-align: baseline;
+  fill: none;
+  stroke: var(--isobar-ink);
+  stroke-width: 1.25;
+}
+
+@media (forced-colors: active), (prefers-contrast: more), print {
+  .isobar-note {
+    display: none;
+  }
 }
 
 /* ===== Responsive ===== */
